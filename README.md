@@ -11,6 +11,7 @@
 |---------|------|
 | [market-pilot](./market-pilot/) | 株式市場分析・売買シグナル・LINE自動通知システム |
 | [code-exchange](./code-exchange/) | Claude Desktop ↔ CLI 間のコードやり取り |
+| [dori-manga](./dori-manga/) | どり看護師 Instagram 漫画化プロジェクト |
 
 ---
 

@@ -29,3 +29,30 @@ workspace/
 ### 残課題
 - [ ] 旧 sjinnouchi-ux/market-pilot リポジトリをGitHubでアーカイブ
 - [ ] cronのパス更新確認
+
+---
+
+## 2026-05-19｜dori-manga プロジェクトフォルダ作成
+
+### 背景
+- どり看護師の Instagram 漫画化プロジェクトを開始
+- 企画・制作・投稿スケジュールを一元管理するフォルダが必要
+
+### 対応内容
+- `dori-manga/` フォルダを新規作成
+- `CLAUDE.md`：プロジェクトコンテキスト（Claude用）
+- `README.md`：プロジェクト概要
+- `docs/concept.md`：キャラクター・コンセプト設定
+- `docs/episode_list.md`：エピソード管理リスト
+- `docs/work_log.md`：作業ログ
+
+### 構成
+```
+dori-manga/
+├── CLAUDE.md
+├── README.md
+└── docs/
+    ├── concept.md
+    ├── episode_list.md
+    └── work_log.md
+```
