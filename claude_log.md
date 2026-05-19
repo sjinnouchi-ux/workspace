@@ -59,6 +59,26 @@ Desktop→CLI パイプラインの疎通確認完了。
 
 ---
 
+## 2026-05-19｜ローカルファイル整理：GitHub状態との同期
+
+### 背景
+- Claude Desktop が旧来のローカル Write ツールで `jinnouchi-profile.skill` を作成していた
+- GitHub 上に存在せず、ワークスペースに Untracked ファイルとして残存
+
+### 対応内容
+- `git status` で Untracked ファイル `jinnouchi-profile.skill` を確認
+- Desktop の Write ツール由来のローカル生成物と判断し削除
+- `git status` が `working tree clean` であることを確認
+
+### 結果
+- ローカルが GitHub 状態と完全一致
+- `code-exchange/exchanges/20260519-002` のタスクを完了処理
+
+### 備考
+- Desktop は今後 GitHub Web UI のみで操作（ローカル Write ツール使用禁止）
+
+---
+
 ## 2026-05-19｜dori-manga プロジェクトフォルダ作成
 
 ### 背景
