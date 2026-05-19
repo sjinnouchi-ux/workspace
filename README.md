@@ -15,62 +15,58 @@
 
 ---
 
+## 運用ルール
+
+### Claude Desktop（Cowork）
+- **GitHub Web UI のみで操作**（ローカルへの直接書き込みは行わない）
+- ファイル操作後は必ずこの README.md の「Desktop作業ログ」を更新する
+- code-exchange に渡すコードは `.md` + `.json` をセットで作成する
+
+### Claude Code CLI
+- 起動時に `git pull` → この README.md を読んで最新状況を把握する
+- code-exchange の pending を確認して実行する
+- 作業後は `docs/work_log.md` と `claude_log.md` に記録して `git push`
+
+---
+
 ## code-exchange の使い方
-
-Claude Desktop でコードを生成し、Claude Code CLI で実行するための仕組みです。
-
-### ファイル構成
 
 ```
 code-exchange/
 ├── exchanges/
-│   ├── YYYYMMDD-NNN.md    ← コード本体・説明（完了後も残す）
-│   └── YYYYMMDD-NNN.json  ← 実行待ちを示すメタデータ（完了時に削除）
-└── manage.py              ← 管理スクリプト
+│   ├── YYYYMMDD-NNN.md    ← コード本体（完了後も残す）
+│   └── YYYYMMDD-NNN.json  ← 実行待ちフラグ（完了時に削除）
+└── manage.py
 ```
 
-**JSONファイルが存在する = 実行待ち（pending）**  
-**JSONファイルがない = 完了済み**
-
-### Claude Desktop 側の手順
-
-1. `code-exchange/exchanges/template.md` をコピーして新しいファイルを作成
-2. ファイル名は `YYYYMMDD-NNN.md`（例: `20260519-001.md`）
-3. コードと説明を記入
-4. 同名の `.json` ファイルを以下の形式で作成：
-   ```json
-   {
-     "id": "20260519-001",
-     "title": "タスクのタイトル",
-     "status": "pending",
-     "created": "20260519",
-     "md_file": "20260519-001.md"
-   }
-   ```
-5. GitHubにpush（`git add` → `git commit` → `git push`）
-
-### Claude Code CLI 側の手順
+**JSONあり = pending（実行待ち） / JSONなし = 完了済み**
 
 ```bash
-# 最新を取得
 git pull
-
-# 実行待ち一覧を確認
-python code-exchange/manage.py list
-
-# 内容を確認
-python code-exchange/manage.py show 20260519-001
-
-# 実行後、完成報告（JSONを削除してpush）
-python code-exchange/manage.py complete 20260519-001
+python code-exchange/manage.py list           # 実行待ち一覧
+python code-exchange/manage.py show <id>      # 内容確認
+python code-exchange/manage.py complete <id>  # 完了処理
 ```
 
 ---
 
-## 作業フロー（共通）
+## Desktop作業ログ
 
-1. **起動時にこの README.md を読む**
-2. 対象プロジェクトの `CLAUDE.md` と `docs/work_log.md` を読んでコンテキストを把握
+> CLIが `git pull` 後にここを確認することで、Desktopの最新作業を把握できます。
+> 📋 詳細: https://github.com/sjinnouchi-ux/workspace/commits/main
+
+| 日付 | 作業内容 | 対象 |
+|------|----------|------|
+| 2026-05-19 | dori-manga プロジェクトフォルダ作成 | `dori-manga/` |
+| 2026-05-19 | code-exchange 疎通確認テスト投入 | `code-exchange/exchanges/20260519-001` |
+| 2026-05-19 | README運用ルール・Desktop作業ログ追加 | `README.md`, `CLAUDE.md` |
+
+---
+
+## 作業フロー
+
+1. **起動時にこの README.md を読む**（Desktop作業ログで最新変更を確認）
+2. 対象プロジェクトの `CLAUDE.md` と `docs/work_log.md` を読む
 3. 作業実施
 4. `docs/work_log.md` と `claude_log.md` に記録 → `git push`
 
@@ -78,7 +74,6 @@ python code-exchange/manage.py complete 20260519-001
 
 ## 環境
 
-- OS: macOS（常時起動）
 - Python: 3.13.3（pyenv）`/Users/satoshijinnouchi/.pyenv/versions/3.13.3/bin/python3`
 - GitHub: https://github.com/sjinnouchi-ux/workspace
 - ローカルパス: `/Users/satoshijinnouchi/sjinnouchi-ux-workspace/`
