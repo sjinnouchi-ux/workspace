@@ -13,11 +13,19 @@
 | フォルダ | 概要 | 作業ログ |
 |---------|------|---------|
 | `market-pilot/` | 株式分析・LINE通知 | `market-pilot/docs/work_log.md` |
+| `dori-manga/` | どり看護師Instagram漫画化 | `dori-manga/docs/work_log.md` |
 | `code-exchange/` | Desktop↔CLIコード交換 | — |
+
+## 運用ルール（重要）
+
+**Desktop（Claude Cowork）はGitHub Web UIのみで操作する。**
+- ローカルファイル書き込み（Writeツール）は使用しない
+- すべてのファイル作成・編集はGitHub Web UI経由でCommitする
+- CLIは起動時にこのREADMEとDesktop作業ログで最新変更を把握する
 
 ## CLI起動時の作業フロー
 
-1. `README.md` でプロジェクト全体を把握
+1. `README.md` の「Desktop作業ログ」で最新変更を確認
 2. 対象プロジェクトフォルダの `CLAUDE.md` と `docs/work_log.md` を読む
 3. 作業実施
 4. 対象プロジェクトの `docs/work_log.md` に記録
