@@ -79,6 +79,26 @@ Desktop→CLI パイプラインの疎通確認完了。
 
 ---
 
+## 2026-05-23｜dori-manga setup_sheets.py バグ修正
+
+### 背景
+- `python src/setup_sheets.py` 実行時に `No grid with id: 0` エラーが発生
+- スプレッドシート作成・認証は成功したがヘッダー書式設定ステップで失敗
+
+### 対応内容
+- `src/setup_sheets.py` の `batchUpdate` で使用する `sheetId` をハードコード `0` から、
+  APIレスポンス `spreadsheet["sheets"][0]["properties"]["sheetId"]` で動的取得に修正
+- 再実行で全ステップ（認証・作成・ヘッダー・書式）が正常完了
+
+### 結果
+- スプレッドシートID: `1TYbBLOi6tjeOuEyXbNO8vh0tGq_Z2R9oSELv8OebHcw`
+- URL: https://docs.google.com/spreadsheets/d/1TYbBLOi6tjeOuEyXbNO8vh0tGq_Z2R9oSELv8OebHcw/edit
+
+### 残課題
+- [ ] `.env` に `GOOGLE_SHEETS_ID` を追記する
+
+---
+
 ## 2026-05-19｜dori-manga プロジェクトフォルダ作成
 
 ### 背景
