@@ -1,0 +1,10 @@
+# 認証情報（絶対にGitHubにアップしない）
+credentials.json
+token.json
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store

@@ -32,13 +32,16 @@ TOKEN_PATH       = os.getenv("GOOGLE_TOKEN_PATH", "token.json")
 SHEET_NAME       = os.getenv("SHEET_NAME", "どり漫画管理")
 
 HEADER_ROW = [
-    "タイトル",
-    "内容要約",
-    "1コマ目_案①", "1コマ目_修正依頼", "1コマ目_最終案",
-    "2コマ目_案①", "2コマ目_修正依頼", "2コマ目_最終案",
-    "3コマ目_案①", "3コマ目_修正依頼", "3コマ目_最終案",
-    "4コマ目_案①", "4コマ目_修正依頼", "4コマ目_最終案",
-    "Instagram投稿文章案",
+    "完了",                                                     # A: ドロップダウン
+    "タイトル",                                                 # B
+    "PDF URL",                                                  # C
+    "内容要約",                                                 # D
+    "1コマ目_案①", "1コマ目_修正依頼", "1コマ目_最終案",       # E-G
+    "2コマ目_案①", "2コマ目_修正依頼", "2コマ目_最終案",       # H-J
+    "3コマ目_案①", "3コマ目_修正依頼", "3コマ目_最終案",       # K-M
+    "4コマ目_案①", "4コマ目_修正依頼", "4コマ目_最終案",       # N-P
+    "Instagram投稿文章案",                                      # Q
+    "画像格納フォルダ",                                         # R
 ]
 
 
@@ -115,29 +118,94 @@ def main():
         }]},
     ).execute()
 
-    # 列幅を調整（A列:タイトル、B列:要約を広く）
+    # 列幅を調整
+    # A:完了(80), B:タイトル(180), C:PDF URL(250), D:内容要約(250), E-Q:コマ案等(220), R:画像格納フォルダ(250)
     service.spreadsheets().batchUpdate(
         spreadsheetId=sheet_id,
         body={"requests": [
             {"updateDimensionProperties": {
                 "range": {"sheetId": sheet_grid_id, "dimension": "COLUMNS", "startIndex": 0, "endIndex": 1},
-                "properties": {"pixelSize": 180},
+                "properties": {"pixelSize": 80},   # A: 完了
                 "fields": "pixelSize",
             }},
             {"updateDimensionProperties": {
                 "range": {"sheetId": sheet_grid_id, "dimension": "COLUMNS", "startIndex": 1, "endIndex": 2},
-                "properties": {"pixelSize": 250},
+                "properties": {"pixelSize": 180},  # B: タイトル
                 "fields": "pixelSize",
             }},
             {"updateDimensionProperties": {
-                "range": {"sheetId": sheet_grid_id, "dimension": "COLUMNS", "startIndex": 2, "endIndex": 15},
-                "properties": {"pixelSize": 220},
+                "range": {"sheetId": sheet_grid_id, "dimension": "COLUMNS", "startIndex": 2, "endIndex": 4},
+                "properties": {"pixelSize": 250},  # C: PDF URL, D: 内容要約
+                "fields": "pixelSize",
+            }},
+            {"updateDimensionProperties": {
+                "range": {"sheetId": sheet_grid_id, "dimension": "COLUMNS", "startIndex": 4, "endIndex": 17},
+                "properties": {"pixelSize": 220},  # E-Q: コマ案・Instagram
+                "fields": "pixelSize",
+            }},
+            {"updateDimensionProperties": {
+                "range": {"sheetId": sheet_grid_id, "dimension": "COLUMNS", "startIndex": 17, "endIndex": 18},
+                "properties": {"pixelSize": 250},  # R: 画像格納フォルダ
                 "fields": "pixelSize",
             }},
         ]},
     ).execute()
 
-    print("  ✅ ヘッダー設定完了")
+    # ドロップダウン（完了）を A2:A1000 に設定
+    service.spreadsheets().batchUpdate(
+        spreadsheetId=sheet_id,
+        body={"requests": [{
+            "setDataValidation": {
+                "range": {
+                    "sheetId": sheet_grid_id,
+                    "startRowIndex": 1,
+                    "endRowIndex": 1000,
+                    "startColumnIndex": 0,
+                    "endColumnIndex": 1,
+                },
+                "rule": {
+                    "condition": {
+                        "type": "ONE_OF_LIST",
+                        "values": [{"userEnteredValue": "完了"}],
+                    },
+                    "showCustomUi": True,
+                    "strict": False,
+                },
+            }
+        }]},
+    ).execute()
+
+    # 条件付き書式：A列が「完了」の行全体を薄灰色に
+    service.spreadsheets().batchUpdate(
+        spreadsheetId=sheet_id,
+        body={"requests": [{
+            "addConditionalFormatRule": {
+                "rule": {
+                    "ranges": [{
+                        "sheetId": sheet_grid_id,
+                        "startRowIndex": 1,
+                        "endRowIndex": 1000,
+                    }],
+                    "booleanRule": {
+                        "condition": {
+                            "type": "CUSTOM_FORMULA",
+                            "values": [{"userEnteredValue": '=$A2="完了"'}],
+                        },
+                        "format": {
+                            "backgroundColor": {
+                                "red": 0.85,
+                                "green": 0.85,
+                                "blue": 0.85,
+                            }
+                        },
+                    },
+                },
+                "index": 0,
+            }
+        }]},
+    ).execute()
+
+    print("  ✅ ヘッダー・ドロップダウン・条件付き書式 設定完了")
 
     print("\n" + "=" * 55)
     print("  ✅ セットアップ完了！")
