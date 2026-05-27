@@ -123,3 +123,26 @@ dori-manga/
     ├── episode_list.md
     └── work_log.md
 ```
+
+---
+
+## 2026-05-27｜Codex MCP接続設定の追加
+
+### 背景
+- Claude Cowork側で利用しているMCP接続のうち、Codex側で未接続のものを確認した
+- GA4、GitHub、ブラウジングをCodexでもできる限り利用できるようにしたい
+
+### 対応内容
+- `~/.codex/config.toml` に GitHub MCP 設定を追加
+- `~/.codex/config.toml` に GA4 MCP 設定を追加
+- Codex Browserプラグインが有効であることを確認
+- 既存の Search Console MCP、Node REPL、Python REPL 設定は保持
+
+### 結果
+- Codex設定上のMCPサーバーは `node_repl`, `gsc`, `python-repl`, `github`, `ga4-mcp-server`
+- Browserプラグインは有効
+- 設定バックアップを `~/.codex/config.toml.bak-20260527-224141` に作成
+
+### 残課題
+- [ ] Codexアプリ再起動後に GitHub MCP / GA4 MCP がツールとして表示されるか確認
+- [ ] GA4 MCPは初回OAuth認証が必要になる可能性がある
