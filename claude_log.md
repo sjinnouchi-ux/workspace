@@ -146,3 +146,25 @@ dori-manga/
 ### 残課題
 - [ ] Codexアプリ再起動後に GitHub MCP / GA4 MCP がツールとして表示されるか確認
 - [ ] GA4 MCPは初回OAuth認証が必要になる可能性がある
+
+---
+
+## 2026-05-27｜GA4 MCP OAuth認証確認
+
+### 背景
+- Codex再起動後、GitHub MCPとSearch Console MCPは利用可能になった
+- GA4 MCPは設定済みだが、Codexのツールとしては露出していなかった
+
+### 対応内容
+- CodexブラウザでGA4にログイン済みであることを確認
+- `mcp-remote-client` で `https://mcp-ga.stape.ai/mcp` のOAuthフローを実行
+- 既存の `mcp-remote` 認証情報をバックアップ退避し、GA4 MCPのOAuthを取り直し
+
+### 結果
+- `https://www.googleapis.com/auth/analytics.readonly` の認可トークン保存に成功
+- GA4 MCPリモートサーバーへの接続は成功
+- `tools/list` 要求時に接続が閉じるため、Codex上のGA4 MCPツール露出は未解決
+
+### 残課題
+- [ ] GA4 MCPサーバーの `tools/list` 接続終了原因を調査
+- [ ] 必要に応じてGA4 Data API直接利用の専用MCP/スクリプトへ切り替える
