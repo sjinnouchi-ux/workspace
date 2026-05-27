@@ -48,6 +48,24 @@ python code-exchange/manage.py show <id>      # 内容確認
 python code-exchange/manage.py complete <id>  # 完了処理
 ```
 
+### スクリプト種別ごとの実行コマンド
+
+| 種別 | .json の `"type"` | CLIコマンド |
+|------|-------------------|------------|
+| **Python** | `"python"` | `cd ~/sjinnouchi-ux-workspace && python3 code-exchange/exchanges/YYYYMMDD-NNN.py && python3 code-exchange/manage.py complete YYYYMMDD-NNN` |
+| **GAS** | `"gas"` | `cd ~/sjinnouchi-ux-workspace && cd <project_dir> && clasp push && clasp run <function> && cd ~/sjinnouchi-ux-workspace && python3 code-exchange/manage.py complete YYYYMMDD-NNN` |
+
+**GAS の .json には以下フィールドを追加：**
+```json
+{
+  "type": "gas",
+  "project_dir": "dori-manga/gas/clasp-project",
+  "function": "run"
+}
+```
+
+> ⚠️ `clasp run` は Google Cloud OAuth の初回セットアップが必要（未完了・別途実施予定）
+
 ---
 
 ## Desktop作業ログ
@@ -57,6 +75,8 @@ python code-exchange/manage.py complete <id>  # 完了処理
 
 | 日付 | 作業内容 | 対象 |
 |------|----------|------|
+| 2026-05-27 | GASワークフロールール追加（clasp run方式）| `README.md` |
+| 2026-05-27 | どり漫画管理フォルダ作成GASスクリプト追加 | `dori-manga/gas/` |
 | 2026-05-19 | dori-manga プロジェクトフォルダ作成 | `dori-manga/` |
 | 2026-05-19 | code-exchange 疎通確認テスト投入 | `code-exchange/exchanges/20260519-001` |
 | 2026-05-19 | README運用ルール・Desktop作業ログ追加 | `README.md`, `CLAUDE.md` |
@@ -75,6 +95,7 @@ python code-exchange/manage.py complete <id>  # 完了処理
 ## 環境
 
 - Python: 3.13.3（pyenv）`/Users/satoshijinnouchi/.pyenv/versions/3.13.3/bin/python3`
+- clasp: インストール済み（GAS CLI実行ツール）
 - GitHub: https://github.com/sjinnouchi-ux/workspace
 - ローカルパス: `/Users/satoshijinnouchi/sjinnouchi-ux-workspace/`
 - GitHub認証: HTTPS + macOSキーチェーン
