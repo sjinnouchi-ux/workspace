@@ -20,6 +20,7 @@ Codex専用の作業ルール、操作メモ、引き継ぎ情報を管理する
 | ファイル | 内容 |
 |---------|------|
 | [gas_browser_operation.md](./gas_browser_operation.md) | CodexでGASをブラウザ操作する手順 |
+| [official_line_ai_integration.md](./official_line_ai_integration.md) | 公式LINE AI連携の現状整理・テスト環境方針 |
 | [work_log.md](./work_log.md) | Codex専用作業ログ |
 
 ## 運用ルール

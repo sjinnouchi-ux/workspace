@@ -213,3 +213,24 @@ dori-manga/
 ### 残課題
 - [ ] 最初のGASブラウザ操作タスクで手順を実地検証する
 - [ ] `clasp` の `rapt_required` 解消可否を別途確認する
+
+---
+
+## 2026-05-28｜公式LINE AI連携の現状整理
+
+### 背景
+- 公式LINEを使い、AI APIでチャット内容の不足項目を確認し、必要情報をスプレッドシートへ分類記録したい
+- 完了時にChatWork APIで通知するテスト環境を作り、Codex側のノウハウとしてMarkdown化したい
+- 既存の家計簿LIFF、GAS、Cloudflare Worker、market-pilotの定時LINE通知に影響しないよう現状把握から開始した
+
+### 対応内容
+- `yumekango-worker/worker.js` と `wrangler.toml` の役割を確認
+- `market-pilot` の定時LINE通知構成とcron実行状況を確認
+- ユーザー提供のGASコードをもとに、LINE Webhook、LIFF、家計簿保存、情報参照、家計消化状況返信の流れを整理
+- `codex/official_line_ai_integration.md` を作成し、テスト環境方針、推奨アーキテクチャ、未確認事項を記録
+
+### 残課題
+- [ ] 新規テスト用スプレッドシートを `yumekango.com` 側で作成できるか確認
+- [ ] AI連携の最初の対象業務と必須項目を定義
+- [ ] ChatWork API通知先を確認
+- [ ] LINEトークン等の直書きをProperties/Secret管理へ移行

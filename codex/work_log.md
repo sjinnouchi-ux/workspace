@@ -23,3 +23,28 @@ Codex専用フォルダ内の作業記録です。ワークスペース全体に
 
 - [ ] 最初のGASブラウザ操作タスクで手順を実地検証する
 - [ ] `clasp` の `rapt_required` 解消可否を別途確認する
+
+---
+
+## 2026-05-28｜公式LINE AI連携の現状整理
+
+### 背景
+
+- 公式LINE、Cloudflare Worker、GAS、スプレッドシート、LIFF、market-pilotの関係をCodex側で把握したい
+- 今後、公式LINEと安価なAI APIを連携し、不足項目確認、スプレッドシート記録、ChatWork通知までのテスト環境を作りたい
+- 新規スプレッドシートは本番家計簿と分け、可能なら `yumekango.com` 側で管理したい
+
+### 対応内容
+
+- GitHub上の `yumekango-worker/` と `market-pilot/` の関連ファイルを確認
+- ユーザー提供のGASコードから、家計簿LIFF、LINE Webhook、スプレッドシート保存、家計消化状況返信の流れを整理
+- `codex/official_line_ai_integration.md` を作成
+- 秘密情報、LINEトークン、認証値はMarkdownに記録しない方針を明記
+
+### 残課題
+
+- [ ] AI連携の最初の対象業務を決める
+- [ ] テスト用スプレッドシートの列定義を決める
+- [ ] ChatWork通知先ルームIDと通知文面を決める
+- [ ] テスト用GASを `yumekango.com` 側で作成できるか確認する
+- [ ] 既存Workerを分岐拡張するか、テスト用Workerを別名で作るか決める
