@@ -146,3 +146,31 @@
 - [ ] 最新版GASコードをApps Scriptへ反映し、固定返信テストモードを有効化する
 - [ ] 公式LINEでテキスト投稿し、Kアラート用スプレッドシートへの記録を確認する
 - [ ] 既存の家計簿LIFF入力が従来どおり動くか確認する
+
+---
+
+## 2026-05-28｜Kアラート疎通テスト修正
+
+### 背景
+
+- ユーザーが公式LINEから全角スペース区切りでテスト送信した
+- スプレッドシートには過去行が見えたが、会話ログと固定返信記録が残っておらず、Cloudflareから参照していたGAS URLも404になっていた
+
+### 対応内容
+
+- `clasp login` を再実施し、Apps Scriptへのpush権限を復旧
+- `gas/Code.gs` の最新版をApps Scriptへpush
+- `appsscript.json` にWebアプリ設定を追加
+  - `executeAs`: `USER_DEPLOYING`
+  - `access`: `ANYONE_ANONYMOUS`
+- 新しいWebアプリデプロイを作成し、HTTP 200で `KアラートGAS is running.` が返ることを確認
+- Cloudflare Worker `yumekango` の `K_ALERT_GAS_URL` Secretを正しいWebアプリURLへ更新
+- Cloudflare WorkerへLINE形式のテストPOSTを実施
+- `アラート` シートに `Codex疎通テスト` が記録され、会話ログと固定返信文、AI未実行メモが入ることを確認
+- `アラート` シートA1が `h` になっていたため `No` に修正
+
+### 残課題
+
+- [ ] ユーザーの公式LINEから再テストし、実際のLINE返信を確認する
+- [ ] 既存の家計簿LIFF入力が従来どおり動くか確認する
+- [ ] AI解析を有効化するタイミングで `ENABLE_AI_ANALYSIS=true` を設定する

@@ -6,6 +6,7 @@
 - `wrangler` は2026-05-28にOAuth認証済み
 - Worker `yumekango` へ `LEGACY_GAS_URL` と `K_ALERT_GAS_URL` をSecretとして設定済み
 - `k-alert-test/worker/yumekango_worker_integration.js` をWorker `yumekango` へデプロイ済み
+- `K_ALERT_GAS_URL` は、`appsscript.json` にWebアプリ設定を追加した後に作成したHTTP 200確認済みのWebアプリURLを使用する
 - 既存WorkerのGitHub上ファイルはmultipart境界文字が混ざっているため、そのまま再デプロイしない
 
 ## 実施済み手順

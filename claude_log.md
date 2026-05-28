@@ -381,3 +381,26 @@ dori-manga/
 - [ ] 最新版GASコードをApps Scriptへ反映して固定返信テストモードを有効化
 - [ ] 公式LINEから実メッセージを送信して、スプレッドシート記録とLINE返信を確認
 - [ ] 既存の家計簿LIFF入力の回帰確認
+
+---
+
+## 2026-05-28｜Kアラート疎通テスト修正
+
+### 背景
+- ユーザーが公式LINEから全角スペース区切りでテスト送信した
+- 既存シートに行はあったが、固定返信・会話ログの記録が確認できず、Cloudflareに設定したGAS URLが404だった
+
+### 対応内容
+- `clasp login` を再実施し、Apps Script pushを復旧
+- 最新版 `gas/Code.gs` をApps Scriptへpush
+- `appsscript.json` にWebアプリ設定を追加
+- 新しいWebアプリデプロイを作成し、HTTP 200応答を確認
+- Cloudflare Worker `yumekango` の `K_ALERT_GAS_URL` Secretを正しいWebアプリURLへ更新
+- LINE形式のテストPOSTで `Codex疎通テスト` がスプレッドシートへ記録されることを確認
+- 固定返信文と会話ログ、AI未実行メモが記録されることを確認
+- `アラート` シートA1を `No` に修正
+
+### 残課題
+- [ ] 公式LINEから再テストし、実際の返信を確認
+- [ ] 家計簿LIFF入力の回帰確認
+- [ ] AI解析有効化時に `ENABLE_AI_ANALYSIS=true` を設定
