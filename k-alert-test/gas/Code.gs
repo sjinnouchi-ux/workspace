@@ -309,6 +309,104 @@ function ensureHeader(sheet) {
   }
 }
 
+function setupSpreadsheetFormatting() {
+  const ss = SpreadsheetApp.openById(getRequiredProperty('SPREADSHEET_ID'));
+  const alertSheet = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
+  ensureHeader(alertSheet);
+  formatAlertSheet(alertSheet);
+
+  const settingsSheet = ss.getSheetByName('設定') || ss.insertSheet('設定');
+  ensureSettingsSheet(settingsSheet);
+  formatSettingsSheet(settingsSheet);
+
+  return jsonOutput({
+    ok: true,
+    message: 'Spreadsheet formatting completed.'
+  });
+}
+
+function formatAlertSheet(sheet) {
+  const maxRows = Math.max(sheet.getMaxRows(), 100);
+  const headerRange = sheet.getRange(1, 1, 1, 11);
+  const bodyRange = sheet.getRange(2, 1, maxRows - 1, 11);
+  const tableRange = sheet.getRange(1, 1, maxRows, 11);
+
+  headerRange
+    .setBackground('#0F766E')
+    .setFontColor('#FFFFFF')
+    .setFontWeight('bold')
+    .setHorizontalAlignment('center')
+    .setVerticalAlignment('middle')
+    .setWrap(true);
+
+  bodyRange
+    .setBackground('#FFFFFF')
+    .setFontColor('#111827')
+    .setVerticalAlignment('top')
+    .setWrap(true);
+
+  tableRange.setBorder(true, true, true, true, true, true, '#CBD5E1', SpreadsheetApp.BorderStyle.SOLID);
+
+  sheet.setFrozenRows(1);
+  sheet.setRowHeight(1, 34);
+  sheet.setColumnWidth(1, 56);
+  sheet.setColumnWidth(2, 260);
+  sheet.setColumnWidth(3, 120);
+  sheet.setColumnWidth(4, 150);
+  sheet.setColumnWidth(5, 150);
+  sheet.setColumnWidth(6, 220);
+  sheet.setColumnWidth(7, 240);
+  sheet.setColumnWidth(8, 90);
+  sheet.setColumnWidth(9, 260);
+  sheet.setColumnWidth(10, 360);
+  sheet.setColumnWidth(11, 220);
+
+  sheet.getRange('A:A').setHorizontalAlignment('center');
+  sheet.getRange('H:H').setHorizontalAlignment('center');
+  sheet.getRange(2, 1, maxRows - 1, 1).setBackground('#F8FAFC');
+  sheet.getRange(2, 8, maxRows - 1, 1).setBackground('#FEF3C7');
+  sheet.getRange(2, 10, maxRows - 1, 1).setBackground('#F8FAFC');
+}
+
+function ensureSettingsSheet(sheet) {
+  const values = sheet.getRange(1, 1, 4, 3).getValues();
+  if (values[0].join('') !== '') return;
+
+  sheet.getRange(1, 1, 4, 3).setValues([
+    ['キー', '値', '備考'],
+    ['trigger_word', 'Kアラート', '公式LINEで開始する文言'],
+    ['urgency_options', '高,中,低', '緊急度候補'],
+    ['required_fields', 'いつ,どこで,だれが,なにを,どのように', '完了判定に使う項目']
+  ]);
+}
+
+function formatSettingsSheet(sheet) {
+  const maxRows = Math.max(sheet.getMaxRows(), 30);
+  const headerRange = sheet.getRange(1, 1, 1, 3);
+  const tableRange = sheet.getRange(1, 1, maxRows, 3);
+
+  headerRange
+    .setBackground('#1D4ED8')
+    .setFontColor('#FFFFFF')
+    .setFontWeight('bold')
+    .setHorizontalAlignment('center');
+
+  sheet.getRange(2, 1, maxRows - 1, 3)
+    .setBackground('#FFFFFF')
+    .setFontColor('#111827')
+    .setVerticalAlignment('top')
+    .setWrap(true);
+
+  tableRange.setBorder(true, true, true, true, true, true, '#CBD5E1', SpreadsheetApp.BorderStyle.SOLID);
+
+  sheet.setFrozenRows(1);
+  sheet.setRowHeight(1, 32);
+  sheet.setColumnWidth(1, 180);
+  sheet.setColumnWidth(2, 260);
+  sheet.setColumnWidth(3, 320);
+  sheet.getRange('A:A').setBackground('#F8FAFC');
+}
+
 function isKAlertStart(text) {
   return text === TRIGGER_WORD || text.indexOf(TRIGGER_WORD + ' ') === 0 || text.indexOf(TRIGGER_WORD + '　') === 0 || text.indexOf(TRIGGER_WORD + ':') === 0 || text.indexOf(TRIGGER_WORD + '：') === 0;
 }
@@ -350,4 +448,3 @@ function jsonOutput(value) {
     .createTextOutput(JSON.stringify(value))
     .setMimeType(ContentService.MimeType.JSON);
 }
-

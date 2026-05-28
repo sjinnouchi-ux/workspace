@@ -12,6 +12,7 @@
 ## Phase 2: GAS単体テスト
 
 - [x] `アラート` シートのヘッダー作成
+- [x] `アラート` / `設定` シートの初期整形
 - [ ] Script Properties設定
 - [ ] テストJSONで行追加できることを確認
 - [ ] OpenAI APIで初回コメントを構造化できることを確認
@@ -22,6 +23,7 @@
 - `SPREADSHEET_ID` と `OPENAI_MODEL` は設定済み
 - `LINE_CHANNEL_ACCESS_TOKEN` と `OPENAI_API_KEY` は未設定
 - `CHATWORK_API_TOKEN` と `CHATWORK_ROOM_ID` は第2段階で設定
+- Apps Scriptの初回承認画面がブラウザ内で進まなかったため、初期整形は既存のGoogle Sheets API認証で実施
 
 ## Phase 3: LINE連携
 
