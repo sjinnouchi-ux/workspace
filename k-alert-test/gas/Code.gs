@@ -1,6 +1,7 @@
 const SHEET_NAME = 'アラート';
 const TRIGGER_WORD = 'Kアラート';
 const REQUIRED_FIELDS = ['when', 'where', 'who', 'what', 'how'];
+const ACK_MESSAGE = '貴重な報告をありがとうございます。必要な情報を確認するので少々お待ちください';
 
 function doGet() {
   return jsonOutput({
@@ -48,25 +49,34 @@ function handleInitialComment(event, userId, text) {
   const initialComment = stripTriggerWord(text);
   const sheet = getAlertSheet();
   const rowNumber = appendInitialRow(sheet, initialComment);
+  appendConversationLog(sheet, rowNumber, 'user', initialComment);
+  appendConversationLog(sheet, rowNumber, 'bot', ACK_MESSAGE);
+  replyLine(event.replyToken, ACK_MESSAGE);
+
+  if (!isAiAnalysisEnabled()) {
+    sheet.getRange(rowNumber, 11).setValue('AI解析未実行: ENABLE_AI_ANALYSIS が true ではありません。初回疎通テストとして固定返信のみ実行。');
+    clearSession(userId);
+    return;
+  }
+
   const analysis = analyzeComment(initialComment, '');
   updateAnalysisToRow(sheet, rowNumber, analysis);
 
   const missingFields = getMissingFields(analysis);
-  appendConversationLog(sheet, rowNumber, 'user', initialComment);
 
   if (missingFields.length > 0) {
+    sheet.getRange(rowNumber, 11).setValue('AI解析完了。不足項目あり。次段階ではPush APIで追加質問を送信する。');
     const question = buildMissingQuestion(missingFields, analysis);
     appendConversationLog(sheet, rowNumber, 'bot', question);
     saveSession(userId, {
       rowNumber: rowNumber,
       missingFields: missingFields
     });
-    replyLine(event.replyToken, question);
     return;
   }
 
   clearSession(userId);
-  replyLine(event.replyToken, buildCompleteMessage(analysis));
+  sheet.getRange(rowNumber, 11).setValue('AI解析完了。必要項目は充足。');
 }
 
 function handleFollowUp(event, userId, session, text) {
@@ -441,6 +451,14 @@ function getRequiredProperty(key) {
     throw new Error('Script property is missing: ' + key);
   }
   return value;
+}
+
+function getOptionalProperty(key) {
+  return PropertiesService.getScriptProperties().getProperty(key) || '';
+}
+
+function isAiAnalysisEnabled() {
+  return getOptionalProperty('ENABLE_AI_ANALYSIS').toLowerCase() === 'true';
 }
 
 function jsonOutput(value) {

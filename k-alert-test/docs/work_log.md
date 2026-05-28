@@ -95,3 +95,30 @@
 
 - [ ] 次回以降の新規GASでも同フローを使う
 - [ ] Webアプリデプロイ時の承認・公開範囲は別途確認する
+
+---
+
+## 2026-05-28｜公式LINE実テスト準備
+
+### 背景
+
+- APIキーとLINEチャネルアクセストークンがGAS Script Propertiesへ設定された
+- 現在運用中の公式LINEはユーザー本人と奥様のみの利用のため、本番公式LINEでテストしてよい方針になった
+
+### 対応内容
+
+- GAS Webアプリをデプロイ
+- デプロイ設定は `自分（s.jinnouchi@yumekango.com）として実行` / `アクセスできるユーザー: 全員`
+- `OPENAI_API_KEY`, `OPENAI_MODEL`, `SPREADSHEET_ID`, `LINE_CHANNEL_ACCESS_TOKEN` がScript Propertiesに存在することを確認
+- `k-alert-test/gas/Code.gs` に初回保存・固定返信テストモードを追加
+- `clasp push --force` を試したが、`invalid_grant / rapt_required` で失敗
+- Codex内ブラウザのクリップボード制約により、最新版GASコードの貼り付けは未完了
+- `k-alert-test/worker/yumekango_worker_integration.js` にCloudflare Worker統合案を作成
+- `k-alert-test/docs/cloudflare_worker_setup.md` にCloudflare Dashboardでの接続手順を追加
+
+### 残課題
+
+- [ ] 最新版GASコードをApps Scriptへ反映し、必要なら再デプロイする
+- [ ] Cloudflare Workerへ `LEGACY_GAS_URL` と `K_ALERT_GAS_URL` を設定する
+- [ ] Cloudflare Workerへ統合コードを反映する
+- [ ] 公式LINEで `Kアラート テストです` を送信して疎通確認する

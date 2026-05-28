@@ -33,6 +33,12 @@
 - [ ] 追加回答で既存行を更新
 - [ ] 完了メッセージ返信
 
+補足:
+
+- 公式LINEはユーザー本人と奥様のみで利用しているため、現在運用中の公式LINEでテストする
+- `wrangler` は未ログインのため、Cloudflare Worker更新はDashboardまたはWranglerログイン後に実施する
+- `yumekango_worker_integration.js` は既存LIFF機能を残し、POSTだけKアラートGASへ先に照会する統合案
+
 ## Phase 4: ChatWork通知
 
 - [ ] ChatWork APIトークンを設定

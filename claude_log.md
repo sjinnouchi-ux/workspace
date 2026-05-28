@@ -337,3 +337,27 @@ dori-manga/
 ### 残課題
 - [ ] 新規GASの初回承認時は、Codexで作成・通常Chromeで本人承認・Codexで続行する
 - [ ] Webアプリ公開時の公開範囲は別途確認する
+
+---
+
+## 2026-05-28｜Kアラート公式LINE実テスト準備
+
+### 背景
+- ユーザーがOpenAI APIキーをGASに設定し、モデルは `gpt-4o-mini` にした
+- LINEチャネルアクセストークンもGAS Script Propertiesへ設定済み
+- 現在運用中の公式LINEでテストしてよい方針になった
+
+### 対応内容
+- `Kアラート・テスト開発 GAS` をWebアプリとしてデプロイ
+- Script Propertiesに必要なキー名が存在することを確認
+- 公式LINEの初回疎通向けに、初回コメント保存と固定返信を優先するテストモードを `k-alert-test/gas/Code.gs` に追加
+- `clasp push --force` を試行したが、`invalid_grant / rapt_required` で失敗
+- Codex内ブラウザのクリップボード制約により、最新版GASコードのApps Script反映は未完了
+- Cloudflare Worker統合案を `k-alert-test/worker/yumekango_worker_integration.js` に作成
+- Cloudflare接続手順を `k-alert-test/docs/cloudflare_worker_setup.md` に作成
+
+### 残課題
+- [ ] 最新版GASコードをApps Scriptへ反映
+- [ ] Cloudflare WorkerへKアラートGAS URLを設定
+- [ ] Cloudflare Workerへ統合コードを反映
+- [ ] 公式LINEで実テスト
