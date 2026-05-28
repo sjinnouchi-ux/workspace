@@ -1,33 +1,60 @@
 # workspace
 
 陣内 聡（株式会社ゆめ看護）の開発ワークスペースです。  
-**Claude Desktop・Claude Code CLI 共通の起動時読み込みファイルです。**
+**Claude Desktop・Claude Code CLI 共通の起動時読み込みリポジトリです。**
+
+---
+
+## 起動時の読み取り順序（必読）
+
+1. **`INDEX.json` を読む** ← 起動時の最初のステップ。全プロジェクトのowner・主要MDパス・最終更新日が集約されている
+2. 対象プロジェクトの `primary_docs`（多くは `CLAUDE.md` と `docs/work_log.md`）を読む
+3. 必要に応じて該当プロジェクトの他のMDを追加で読む
+
+> `INDEX.json.projects.<name>.claude_read_only` が `true` のプロジェクトは Claude 読取専用（Codex 担当）。Claude は編集してはならない。
 
 ---
 
 ## プロジェクト一覧
 
-| フォルダ | 概要 |
-|---------|------|
-| [market-pilot](./market-pilot/) | 株式市場分析・売買シグナル・LINE自動通知システム |
-| [code-exchange](./code-exchange/) | Claude Desktop ↔ CLI 間のコードやり取り |
-| [dori-manga](./dori-manga/) | どり看護師 Instagram 漫画化プロジェクト |
-| [codex](./codex/) | Codex専用の作業ルール・GASブラウザ操作運用 |
-| [k-alert-test](./k-alert-test/) | 公式LINE AI連携・Kアラートのテスト開発 |
+詳細・最新更新日は `INDEX.json` を参照。
+
+| フォルダ | 概要 | owner |
+|---------|------|-------|
+| [market-pilot](./market-pilot/) | 株式市場分析・売買シグナル・LINE自動通知 | claude |
+| [dori-manga](./dori-manga/) | どり看護師 Instagram 漫画化 | claude |
+| [code-exchange](./code-exchange/) | Claude Desktop ↔ CLI 間のコード交換 | both |
+| [codex](./codex/) | Codex 専用作業ルール・GASブラウザ運用 | codex（Claude読取専用） |
+| [k-alert-test](./k-alert-test/) | 公式LINE AI連携・Kアラート | codex（Claude読取専用） |
+| [api-monitor](./api-monitor/) | API利用費用の可視化ダッシュボード | claude |
+| [company-settings](./company-settings/) | GA4・Google Ads 設定 | claude |
+| [taiwan-outreach](./taiwan-outreach/) | 台湾向けインバウンド施策 | claude |
+| [yumekango-worker](./yumekango-worker/) | Cloudflare Worker（家計簿LIFF等） | codex（Claude読取専用） |
 
 ---
 
 ## 運用ルール
 
 ### Claude Desktop（Cowork）
-- **GitHub Web UI のみで操作**（ローカルへの直接書き込みは行わない）
-- ファイル操作後は必ずこの README.md の「Desktop作業ログ」を更新する
+- **GitHub Web UI / GitHub MCP のみで操作**（ローカルへの直接書き込みは行わない）
+- `claude_read_only: true` のプロジェクトは編集しない
 - code-exchange に渡すコードは `.md` + `.json` をセットで作成する
 
 ### Claude Code CLI
-- 起動時に `git pull` → この README.md を読んで最新状況を把握する
+- 起動時に `git pull` → `INDEX.json` を読んで最新状況を把握する
 - code-exchange の pending を確認して実行する
 - 作業後は `docs/work_log.md` と `claude_log.md` に記録して `git push`
+- push 後、GitHub Actions が `INDEX.json` の `last_updated` を自動更新する
+
+### claude_log.md のアーカイブ運用（月次）
+- ルート `claude_log.md` は **直近1ヶ月のみ**
+- それ以前は `docs/archive/claude_log_YYYY-MM.md` へ移動
+- 翌月初に前月分をアーカイブへ退避する
+
+### INDEX.json の更新
+- `last_updated` は **GitHub Actions が自動更新**（`.github/workflows/update-index.yml`）
+- プロジェクト追加・削除・owner変更などの構造変更は手動で `INDEX.json` を編集
+- 手動編集時は `paths-ignore: INDEX.json` によりActionsは発火しない
 
 ---
 
@@ -72,11 +99,12 @@ python code-exchange/manage.py complete <id>  # 完了処理
 
 ## Desktop作業ログ
 
-> CLIが `git pull` 後にここを確認することで、Desktopの最新作業を把握できます。
-> 📋 詳細: https://github.com/sjinnouchi-ux/workspace/commits/main
+> 直近の主要変更は `INDEX.json` の `last_updated` と GitHub の commit 履歴で把握できます。
+> 📋 commit履歴: https://github.com/sjinnouchi-ux/workspace/commits/main
 
 | 日付 | 作業内容 | 対象 |
 |------|----------|------|
+| 2026-05-28 | INDEX.json導入・自動更新ワークフロー追加 | `INDEX.json`, `.github/` |
 | 2026-05-28 | Kアラート・テスト開発プロジェクト初期化 | `k-alert-test/`, `README.md` |
 | 2026-05-28 | Codex専用フォルダ・GASブラウザ操作運用メモ追加 | `codex/`, `README.md` |
 | 2026-05-27 | GASワークフロールール追加（clasp run方式）| `README.md` |
@@ -84,15 +112,6 @@ python code-exchange/manage.py complete <id>  # 完了処理
 | 2026-05-19 | dori-manga プロジェクトフォルダ作成 | `dori-manga/` |
 | 2026-05-19 | code-exchange 疎通確認テスト投入 | `code-exchange/exchanges/20260519-001` |
 | 2026-05-19 | README運用ルール・Desktop作業ログ追加 | `README.md`, `CLAUDE.md` |
-
----
-
-## 作業フロー
-
-1. **起動時にこの README.md を読む**（Desktop作業ログで最新変更を確認）
-2. 対象プロジェクトの `CLAUDE.md` と `docs/work_log.md` を読む
-3. 作業実施
-4. `docs/work_log.md` と `claude_log.md` に記録 → `git push`
 
 ---
 
