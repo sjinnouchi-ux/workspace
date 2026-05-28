@@ -15,6 +15,7 @@
 | `market-pilot/` | 株式分析・LINE通知 | `market-pilot/docs/work_log.md` |
 | `dori-manga/` | どり看護師Instagram漫画化 | `dori-manga/docs/work_log.md` |
 | `code-exchange/` | Desktop↔CLIコード交換 | — |
+| `k-alert-test/` | 公式LINE AI連携・Kアラートテスト開発 | `k-alert-test/docs/work_log.md` |
 
 ## 運用ルール（重要）
 

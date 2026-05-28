@@ -226,3 +226,13 @@ AIは初回コメントを確認し、以下の5W1H系項目に分解する。
 3. 緊急度の選択肢と判定基準
 4. ChatWork通知先のルーム
 5. テスト用GASを `yumekango.com` 側で作るか、個人Googleアカウント側で先に作るか
+
+## 実装プロジェクト
+
+実装作業は `k-alert-test/` に分離して管理する。
+
+- `k-alert-test/docs/sheet_schema.md`: スプレッドシート設計
+- `k-alert-test/docs/implementation_plan.md`: 実装計画
+- `k-alert-test/docs/manual_setup.md`: 手動セットアップ手順
+- `k-alert-test/gas/Code.gs`: GAS雛形
+- `k-alert-test/worker/worker.js`: Cloudflare Worker雛形

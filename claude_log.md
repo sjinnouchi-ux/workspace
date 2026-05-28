@@ -254,3 +254,26 @@ dori-manga/
 - [ ] 緊急度の選択肢と判定基準を決める
 - [ ] ChatWork通知先ルームIDと通知文面を決める
 - [ ] テスト用GASとスプレッドシートを作成する
+
+---
+
+## 2026-05-28｜Kアラート開発プロジェクト初期化
+
+### 背景
+- 公式LINE AI連携を1からCodexで継続支援するため、専用の実装プロジェクトが必要
+- 既存の家計簿LIFF/GAS、market-pilotのLINE通知と分離して進める必要がある
+
+### 対応内容
+- `k-alert-test/` プロジェクトを作成
+- `docs/sheet_schema.md` に `Kアラート・テスト開発` のシート構成を整理
+- `docs/implementation_plan.md` に段階的な実装計画を整理
+- `docs/manual_setup.md` にGoogle/LINE/Cloudflare側の手動設定手順を整理
+- `gas/Code.gs` にKアラート用GAS雛形を作成
+- `worker/worker.js` にCloudflare Workerルーティング雛形を作成
+- ルート `README.md` と `CLAUDE.md` にプロジェクトを追加
+
+### 残課題
+- [ ] `yumekango.com` 側でスプレッドシート/GASを作成
+- [ ] GASのScript Propertiesを設定
+- [ ] Workerを既存公式LINE Webhook構成へ安全に統合
+- [ ] 公式LINEから初回テスト
