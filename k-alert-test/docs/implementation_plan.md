@@ -6,16 +6,22 @@
 - [x] スプレッドシート構成を定義
 - [x] GAS雛形を作成
 - [x] Worker雛形を作成
-- [ ] `yumekango.com` 側でテスト用スプレッドシートを作成
-- [ ] `yumekango.com` 側でテスト用GASを作成
+- [x] `yumekango.com` 側でテスト用スプレッドシートを作成
+- [x] `yumekango.com` 側でテスト用GASを作成
 
 ## Phase 2: GAS単体テスト
 
-- [ ] `アラート` シートのヘッダー作成
+- [x] `アラート` シートのヘッダー作成
 - [ ] Script Properties設定
 - [ ] テストJSONで行追加できることを確認
 - [ ] OpenAI APIで初回コメントを構造化できることを確認
 - [ ] 不足項目の質問文を生成できることを確認
+
+補足:
+
+- `SPREADSHEET_ID` と `OPENAI_MODEL` は設定済み
+- `LINE_CHANNEL_ACCESS_TOKEN` と `OPENAI_API_KEY` は未設定
+- `CHATWORK_API_TOKEN` と `CHATWORK_ROOM_ID` は第2段階で設定
 
 ## Phase 3: LINE連携
 
@@ -38,4 +44,3 @@
 - [ ] エラー時の備考記録
 - [ ] GAS実行ログ確認手順の確立
 - [ ] トークン直書き箇所の整理と再発行判断
-

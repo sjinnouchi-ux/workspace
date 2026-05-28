@@ -277,3 +277,26 @@ dori-manga/
 - [ ] GASのScript Propertiesを設定
 - [ ] Workerを既存公式LINE Webhook構成へ安全に統合
 - [ ] 公式LINEから初回テスト
+
+---
+
+## 2026-05-28｜Kアラート Google側テスト環境作成
+
+### 背景
+- `Kアラート・テスト開発` 用のGoogleスプレッドシートを完全新規で作成し、GASのテスト環境を作る
+- 本番家計簿GASとは分離し、`yumekango.com` 側で管理する方針
+
+### 対応内容
+- 新規Googleスプレッドシート `Kアラート・テスト開発` を作成
+- `アラート` シートと `設定` シートを作成
+- `アラート` シートに指定ヘッダーを設定
+- 新規Apps Scriptプロジェクト `Kアラート・テスト開発 GAS` を作成
+- `k-alert-test/gas/Code.gs` の内容をApps Scriptへ貼り付けて保存
+- Script Propertiesに `SPREADSHEET_ID` と `OPENAI_MODEL` を設定
+- 初期モデルはOpenAI公式ドキュメントで低コストかつStructured Outputs対応を確認した `gpt-5-nano` とした
+
+### 残課題
+- [ ] `LINE_CHANNEL_ACCESS_TOKEN` と `OPENAI_API_KEY` をScript Propertiesへ設定
+- [ ] GASをWebアプリとしてデプロイ
+- [ ] Cloudflare WorkerへKアラートルーティングを統合
+- [ ] 公式LINEで初回テスト

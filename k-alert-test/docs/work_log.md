@@ -20,9 +20,35 @@
 
 ### 残課題
 
-- [ ] `yumekango.com` 側で `Kアラート・テスト開発` スプレッドシートを作成
-- [ ] `yumekango.com` 側でGASを作成
+- [x] `yumekango.com` 側で `Kアラート・テスト開発` スプレッドシートを作成
+- [x] `yumekango.com` 側でGASを作成
 - [ ] Script Propertiesを設定
 - [ ] WorkerへKアラートルーティングを統合
 - [ ] 公式LINEで初回テスト
 
+---
+
+## 2026-05-28｜Google側テスト環境作成
+
+### 背景
+
+- `Kアラート・テスト開発` 用のスプレッドシートを完全新規で作成する
+- 作成したスプレッドシートへGASを接続し、Kアラート処理のテスト土台を整える
+
+### 対応内容
+
+- `yumekango.com` アカウントで新規Googleスプレッドシートを作成
+- スプレッドシート名を `Kアラート・テスト開発` に変更
+- `アラート` シートを作成し、指定ヘッダーを設定
+- `設定` シートを作成し、トリガー文言、緊急度候補、必須項目を設定
+- 新規Apps Scriptプロジェクト `Kアラート・テスト開発 GAS` を作成
+- `gas/Code.gs` のGAS雛形をApps Scriptへ貼り付けて保存
+- Script Propertiesに `SPREADSHEET_ID` と `OPENAI_MODEL` を設定
+
+### 残課題
+
+- [ ] Script Propertiesに `LINE_CHANNEL_ACCESS_TOKEN` を設定
+- [ ] Script Propertiesに `OPENAI_API_KEY` を設定
+- [ ] Webアプリとしてデプロイ
+- [ ] WorkerへKアラートGAS URLを設定
+- [ ] LINEから初回テスト
