@@ -168,3 +168,28 @@ dori-manga/
 ### 残課題
 - [ ] GA4 MCPサーバーの `tools/list` 接続終了原因を調査
 - [ ] 必要に応じてGA4 Data API直接利用の専用MCP/スクリプトへ切り替える
+
+---
+
+## 2026-05-28｜GAS操作用 clasp 認証確認
+
+### 背景
+- CodexからGoogleアカウントのGASを操作できるようにしたい
+- ブラウザ操作のトークン消費を抑えるため、まず `clasp` / Apps Script API 経由での操作可否を確認した
+
+### 対応内容
+- `clasp` 3.3.0 が利用可能であることを確認
+- `dori-manga/gas/clasp-project` の `.clasp.json` と `appsscript.json` を確認
+- 既存の `~/.clasprc.json` をバックアップ
+- 既定クライアントおよび `dori-manga/credentials.json` のOAuthクライアントで再認証を実施
+- `prompt=login` 付きの再認証も試行
+
+### 結果
+- `clasp status` は成功し、ローカルGASプロジェクトの追跡状態は確認可能
+- `clasp push` と `clasp deployments` は `invalid_grant / rapt_required` で失敗
+- Google Workspace 側の再認証ポリシーにより、CLI/APIからの更新系操作が制限されている可能性が高い
+
+### 残課題
+- [ ] Google Workspace / Cloud OAuth 側で `rapt_required` の原因を確認
+- [ ] CLI運用が難しい場合は、CodexブラウザでApps Scriptエディタを操作する運用に切り替える
+- [ ] Apps Script API直接実装でも同じOAuth制約が出る可能性があるため要検証
