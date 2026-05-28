@@ -119,6 +119,30 @@
 ### 残課題
 
 - [ ] 最新版GASコードをApps Scriptへ反映し、必要なら再デプロイする
-- [ ] Cloudflare Workerへ `LEGACY_GAS_URL` と `K_ALERT_GAS_URL` を設定する
-- [ ] Cloudflare Workerへ統合コードを反映する
+- [x] Cloudflare Workerへ `LEGACY_GAS_URL` と `K_ALERT_GAS_URL` を設定する
+- [x] Cloudflare Workerへ統合コードを反映する
 - [ ] 公式LINEで `Kアラート テストです` を送信して疎通確認する
+
+---
+
+## 2026-05-28｜Cloudflare Worker本番接続
+
+### 背景
+
+- 公式LINE Webhook URLは既存のCloudflare Worker `yumekango` に向いている
+- 既存の家計簿LIFF/家計簿GASを維持しつつ、LINEテキスト投稿だけKアラートGASへ先に振り分けたい
+
+### 対応内容
+
+- Cloudflare Dashboardログイン後、Wrangler CLIのOAuth認証を実施
+- Worker `yumekango` に `LEGACY_GAS_URL` と `K_ALERT_GAS_URL` をSecretとして登録
+- `k-alert-test/worker/yumekango_worker_integration.js` をWorker `yumekango` へデプロイ
+- デプロイ先は `yumekango.s-jinnouchi.workers.dev`
+- GET確認でLIFFフォームHTMLがHTTP 200で返ることを確認
+- Wranglerデプロイ履歴で新しいVersion IDが作成されたことを確認
+
+### 残課題
+
+- [ ] 最新版GASコードをApps Scriptへ反映し、固定返信テストモードを有効化する
+- [ ] 公式LINEでテキスト投稿し、Kアラート用スプレッドシートへの記録を確認する
+- [ ] 既存の家計簿LIFF入力が従来どおり動くか確認する

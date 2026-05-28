@@ -358,6 +358,26 @@ dori-manga/
 
 ### 残課題
 - [ ] 最新版GASコードをApps Scriptへ反映
-- [ ] Cloudflare WorkerへKアラートGAS URLを設定
-- [ ] Cloudflare Workerへ統合コードを反映
+- [x] Cloudflare WorkerへKアラートGAS URLを設定
+- [x] Cloudflare Workerへ統合コードを反映
 - [ ] 公式LINEで実テスト
+
+---
+
+## 2026-05-28｜Kアラート Cloudflare Worker本番接続
+
+### 背景
+- 公式LINE Webhook URLが既存Cloudflare Worker `yumekango` に向いているため、KアラートGASへLINEテキスト投稿を到達させる必要があった
+- 既存の家計簿LIFF/家計簿GASは壊さず維持する方針
+
+### 対応内容
+- Cloudflare Dashboardログイン後、Wrangler CLIをOAuth認証
+- Worker `yumekango` に `LEGACY_GAS_URL` と `K_ALERT_GAS_URL` をSecret登録
+- `k-alert-test/worker/yumekango_worker_integration.js` をWorker `yumekango` へ本番デプロイ
+- Worker URLのGET確認でLIFFフォームHTMLがHTTP 200で返ることを確認
+- Wranglerデプロイ履歴で2026-05-28のSecret ChangeとWorker更新を確認
+
+### 残課題
+- [ ] 最新版GASコードをApps Scriptへ反映して固定返信テストモードを有効化
+- [ ] 公式LINEから実メッセージを送信して、スプレッドシート記録とLINE返信を確認
+- [ ] 既存の家計簿LIFF入力の回帰確認
