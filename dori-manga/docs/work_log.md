@@ -1,5 +1,14 @@
 # 作業ログ
 
+## 2026-05-28（動作確認エントリ）
+- INDEX.json 自動更新ワークフロー（`.github/workflows/update-index.yml`）の発火確認のため、本ファイルを更新
+- 期待される自動挙動：
+  - push後、Actions が「Update INDEX.json」を実行
+  - `.github/scripts/update_index.py` が `dori-manga` の変更を検出
+  - INDEX.json の `projects.dori-manga.last_updated` を `2026-05-28` へ書き換え
+  - github-actions[bot] が `chore(INDEX): auto-update last_updated [skip ci]` でcommit
+- 確認後、本エントリは将来的に削除してよい（または残してINDEX運用の歴史として保持）
+
 ## 2026-05-23（4回目）
 - migrate_add_status_column.py 作成：A列（完了ドロップダウン）挿入 + 条件付き書式（完了→薄灰色） + R列（画像格納フォルダ）ヘッダー追加
 - write_to_sheets.py の COL dict を18列対応に更新（status=A, folder=R 追加）
