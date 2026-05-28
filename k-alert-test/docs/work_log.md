@@ -246,7 +246,31 @@
 
 ### 残課題
 
-- [ ] Apps ScriptのScript Propertiesへ `AI_PROVIDER=anthropic` を設定
-- [ ] Apps ScriptのScript Propertiesへ `ANTHROPIC_MODEL=claude-haiku-4-5` を設定
-- [ ] Apps ScriptのScript Propertiesへ `ANTHROPIC_API_KEY` を設定
-- [ ] 公式LINEでAI聞き取りを実機確認する
+- [x] Apps ScriptのScript Propertiesへ `AI_PROVIDER=anthropic` を設定
+- [x] Apps ScriptのScript Propertiesへ `ANTHROPIC_MODEL=claude-haiku-4-5` を設定
+- [x] Apps ScriptのScript Propertiesへ `ANTHROPIC_API_KEY` を設定
+- [x] 公式LINE相当のWebhook経路でAI聞き取りを確認する
+
+---
+
+## 2026-05-28｜Anthropic API疎通成功
+
+### 背景
+
+- ユーザーがApps ScriptのScript PropertiesにAnthropic用設定を追加した
+- Anthropic APIでKアラートの項目分解と不足項目聞き取りが動くか確認する必要があった
+
+### 対応内容
+
+- Cloudflare Worker経由でLINE形式のテストPOSTを実施
+- `匿名報告` の開始トリガーに対し、匿名報告案内が返ることを確認
+- 事象文から `いつ`, `どこで`, `だれが`, `なにを` がスプレッドシートに分解記録されることを確認
+- 不足項目 `どのように` だけを短く聞き返すことを確認
+- 追加回答で同じ行の `どのように` が更新されることを確認
+- 全項目充足後、`報告ありがとうございます。` が対応コメントと会話ログに記録されることを確認
+
+### 残課題
+
+- [ ] ユーザーの公式LINE実機で同じ流れを確認する
+- [ ] 既存の家計簿LIFF入力が従来どおり動くか確認する
+- [ ] 事例を増やし、聞き返し文の短さ・自然さを調整する
