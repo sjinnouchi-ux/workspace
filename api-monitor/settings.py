@@ -1,7 +1,8 @@
 """Settings tab — API keys and project/purpose customization.
 
 Phase 1 ships a minimum-viable UI that already persists to SQLite.
-Polished masking/copy controls are implemented in Phase 4.
+Phase 4 (this revision) adds one-click copy via ``st.code`` whose
+header carries Streamlit's built-in clipboard icon.
 """
 
 from __future__ import annotations
@@ -20,6 +21,12 @@ SERVICE_LABELS = {
     "google":    "Google (Gemini)",
 }
 
+ENV_KEY_NAMES = {
+    "openai":    "OPENAI_API_KEY",
+    "anthropic": "ANTHROPIC_API_KEY",
+    "google":    "GOOGLE_API_KEY",
+}
+
 
 def _mask(key: str) -> str:
     if not key:
@@ -29,6 +36,35 @@ def _mask(key: str) -> str:
     return f"{key[:6]}…{key[-4:]}"
 
 
+def _render_key_block(service: str, shown: str) -> None:
+    """Render the masked display + copy controls for a single service."""
+    show_key      = f"show_{service}"
+    copy_open_key = f"copy_open_{service}"
+    st.session_state.setdefault(copy_open_key, False)
+
+    show = st.toggle("キーを表示", key=show_key)
+    st.text_input(
+        "現在のキー",
+        value=(shown if show else _mask(shown)),
+        key=f"display_{service}",
+        disabled=True,
+    )
+
+    if not shown:
+        st.caption("まだキーが登録されていません。下のフォームから登録してください。")
+        return
+
+    btn_label = "閉じる" if st.session_state[copy_open_key] else "📋 コピー用に表示"
+    if st.button(btn_label, key=f"copybtn_{service}"):
+        st.session_state[copy_open_key] = not st.session_state[copy_open_key]
+        st.rerun()
+
+    if st.session_state[copy_open_key]:
+        # ``st.code`` shows a copy-to-clipboard icon in the top-right corner.
+        st.code(shown, language=None, wrap_lines=True)
+        st.caption("右上のコピーアイコンをクリックするとクリップボードへコピーされます。")
+
+
 def render() -> None:
     st.subheader("APIキー管理")
 
@@ -36,21 +72,13 @@ def render() -> None:
 
     for service in SUPPORTED_SERVICES:
         with st.expander(SERVICE_LABELS[service], expanded=False):
-            current = keys.get(service, {}).get("api_key", "")
-            env_value = os.environ.get({
-                "openai":    "OPENAI_API_KEY",
-                "anthropic": "ANTHROPIC_API_KEY",
-                "google":    "GOOGLE_API_KEY",
-            }[service], "")
+            current   = keys.get(service, {}).get("api_key", "")
+            env_value = os.environ.get(ENV_KEY_NAMES[service], "")
+            shown     = current or env_value
 
-            shown = current or env_value
-            show = st.toggle("キーを表示", key=f"show_{service}")
-            st.text_input(
-                "現在のキー",
-                value=(shown if show else _mask(shown)),
-                key=f"display_{service}",
-                disabled=True,
-            )
+            _render_key_block(service, shown)
+
+            st.divider()
 
             new_key = st.text_input(
                 "新しいキーを登録 / 上書き",
@@ -66,6 +94,8 @@ def render() -> None:
                     st.warning("空のキーは保存しません。")
             if cols[1].button("削除", key=f"del_{service}"):
                 db.delete_api_key(service)
+                # Reset the copy panel so the deleted key disappears immediately.
+                st.session_state[f"copy_open_{service}"] = False
                 st.success("削除しました。")
 
     st.divider()
