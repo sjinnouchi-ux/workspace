@@ -1,0 +1,43 @@
+name: Update INDEX.json
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'INDEX.json'
+      - '.github/**'
+      - 'docs/archive/**'
+
+jobs:
+  update-index:
+    runs-on: ubuntu-latest
+    # bot自身のpushでは再実行しない（無限ループ防止）
+    if: github.actor != 'github-actions[bot]'
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Update INDEX.json last_updated
+        run: python .github/scripts/update_index.py
+
+      - name: Commit and push if changed
+        run: |
+          if git diff --quiet INDEX.json; then
+            echo "No INDEX.json change."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add INDEX.json
+          git commit -m "chore(INDEX): auto-update last_updated [skip ci]"
+          git push
