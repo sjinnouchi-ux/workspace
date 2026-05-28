@@ -223,3 +223,30 @@
 - [ ] OpenAI APIの課金・利用枠を有効化して、AI解析の実機確認を行う
 - [ ] 追加回答で既存行が更新されることを実機確認する
 - [ ] 既存の家計簿LIFF入力が従来どおり動くか確認する
+
+---
+
+## 2026-05-28｜Anthropic API切り替え準備
+
+### 背景
+
+- OpenAI APIの利用枠不足によりAI解析が止まっている
+- Anthropic APIにはクレジットがあるため、テスト用の安価モデルへ切り替える
+
+### 対応内容
+
+- Anthropic公式ドキュメントでMessages APIとStructured Outputsの仕様を確認
+- `AI_PROVIDER` によるAIプロバイダ切り替えを実装
+- `AI_PROVIDER=anthropic` の場合はAnthropic Messages APIを使用するよう変更
+- Anthropic用Script Propertiesとして `ANTHROPIC_API_KEY` と `ANTHROPIC_MODEL` を追加想定
+- テスト用モデルは `claude-haiku-4-5` とした
+- Anthropic Structured Outputsの `output_config.format` を使い、既存のKアラートJSONスキーマを流用
+- Apps Script version 6を作成し、既存WebアプリURLをversion 6へ更新
+- `setupAnthropicProperties()` を追加したが、`clasp run` はAPI executable未設定のため実行不可。プロパティはApps Script画面で手動設定する
+
+### 残課題
+
+- [ ] Apps ScriptのScript Propertiesへ `AI_PROVIDER=anthropic` を設定
+- [ ] Apps ScriptのScript Propertiesへ `ANTHROPIC_MODEL=claude-haiku-4-5` を設定
+- [ ] Apps ScriptのScript Propertiesへ `ANTHROPIC_API_KEY` を設定
+- [ ] 公式LINEでAI聞き取りを実機確認する

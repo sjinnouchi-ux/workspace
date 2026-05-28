@@ -25,16 +25,20 @@ CodexのCLI認証ではGAS更新系操作に制約があるため、当面はCod
 |---|---|
 | `SPREADSHEET_ID` | `Kアラート・テスト開発` のスプレッドシートID |
 | `LINE_CHANNEL_ACCESS_TOKEN` | LINE Messaging APIのチャネルアクセストークン |
-| `OPENAI_API_KEY` | OpenAI APIキー |
-| `OPENAI_MODEL` | 利用モデル名 |
+| `AI_PROVIDER` | `anthropic` |
+| `ANTHROPIC_API_KEY` | Anthropic APIキー |
+| `ANTHROPIC_MODEL` | `claude-haiku-4-5` |
+| `OPENAI_API_KEY` | OpenAI APIへ戻す場合のみ使用 |
+| `OPENAI_MODEL` | OpenAI APIへ戻す場合のみ使用 |
 | `CHATWORK_API_TOKEN` | 第2段階で設定 |
 | `CHATWORK_ROOM_ID` | 第2段階で設定 |
 
 補足:
 
-- OpenAI APIの利用枠不足がある場合、AI解析は実行できない
+- `AI_PROVIDER=anthropic` の場合、`ANTHROPIC_API_KEY` と `ANTHROPIC_MODEL` を使う
+- `AI_PROVIDER=openai` の場合、`OPENAI_API_KEY` と `OPENAI_MODEL` を使う
+- Anthropicのテストモデルは `claude-haiku-4-5` を基本にする
 - API利用枠不足時は、ユーザーへ `記録しました。確認後に対応します。` と短く返信する
-- ChatGPTのサブスクリプション枠とOpenAI APIの課金枠は別管理
 
 ## 3. GAS Webアプリデプロイ
 

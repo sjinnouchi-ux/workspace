@@ -472,3 +472,27 @@ dori-manga/
 ### 残課題
 - [ ] 2026-06-01以降、本ファイルの2026-05分を `docs/archive/claude_log_2026-05.md` に切り出す
 - [ ] Actions の初回発火を確認し、`last_updated` が自動更新されるか検証
+
+---
+
+## 2026-05-28｜Kアラート Anthropic API切り替え準備
+
+### 背景
+- OpenAI APIの利用枠不足によりAI解析が止まっている
+- Anthropic APIにはクレジットがあるため、テスト用の安価モデルへ切り替える
+
+### 対応内容
+- Anthropic公式ドキュメントでMessages APIとStructured Outputsの仕様を確認
+- `AI_PROVIDER` によるAIプロバイダ切り替えを実装
+- `AI_PROVIDER=anthropic` の場合はAnthropic Messages APIを使用
+- `ANTHROPIC_API_KEY` と `ANTHROPIC_MODEL` をScript Propertiesに追加する設計へ変更
+- テスト用モデルを `claude-haiku-4-5` とした
+- Anthropic Structured Outputsの `output_config.format` を使用
+- Apps Script version 6を作成し、既存WebアプリURLへ反映
+- `setupAnthropicProperties()` は追加したが、`clasp run` はAPI executable未設定のため実行不可だった
+
+### 残課題
+- [ ] Script Propertiesへ `AI_PROVIDER=anthropic` を設定
+- [ ] Script Propertiesへ `ANTHROPIC_MODEL=claude-haiku-4-5` を設定
+- [ ] Script Propertiesへ `ANTHROPIC_API_KEY` を設定
+- [ ] 公式LINEでAI聞き取りを実機確認

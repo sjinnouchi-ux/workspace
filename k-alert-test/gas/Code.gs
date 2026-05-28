@@ -191,9 +191,28 @@ function readRowAsAnalysis(sheet, rowNumber) {
 }
 
 function analyzeComment(initialComment, followUpText, current) {
-  const apiKey = getRequiredProperty('OPENAI_API_KEY');
-  const model = getRequiredProperty('OPENAI_MODEL');
-  const schema = {
+  const provider = getAiProvider();
+  const schema = buildAnalysisSchema();
+  const inputText = buildAnalysisPrompt(initialComment, followUpText, current);
+
+  if (provider === 'anthropic') {
+    return analyzeCommentWithAnthropic(inputText, schema);
+  }
+  if (provider === 'openai') {
+    return analyzeCommentWithOpenAi(inputText, schema);
+  }
+  throw new Error('Unsupported AI_PROVIDER: ' + provider);
+}
+
+function getAiProvider() {
+  const configured = getOptionalProperty('AI_PROVIDER').toLowerCase();
+  if (configured) return configured;
+  if (getOptionalProperty('ANTHROPIC_API_KEY')) return 'anthropic';
+  return 'openai';
+}
+
+function buildAnalysisSchema() {
+  return {
     type: 'object',
     additionalProperties: false,
     required: ['when', 'where', 'who', 'what', 'how', 'urgency', 'notes'],
@@ -207,8 +226,10 @@ function analyzeComment(initialComment, followUpText, current) {
       notes: { type: 'string', description: '判断根拠や補足。なければ空文字。' }
     }
   };
+}
 
-  const inputText = [
+function buildAnalysisPrompt(initialComment, followUpText, current) {
+  return [
     'あなたは看護・介護関連の連絡内容を記録用に整理するアシスタントです。',
     '初回コメントと追加回答から、Kアラートの項目を抽出してください。',
     '推測しすぎず、不明な項目は空文字にしてください。',
@@ -223,7 +244,11 @@ function analyzeComment(initialComment, followUpText, current) {
     '追加回答:',
     followUpText || ''
   ].join('\n');
+}
 
+function analyzeCommentWithOpenAi(inputText, schema) {
+  const apiKey = getRequiredProperty('OPENAI_API_KEY');
+  const model = getRequiredProperty('OPENAI_MODEL');
   const response = UrlFetchApp.fetch('https://api.openai.com/v1/responses', {
     method: 'post',
     contentType: 'application/json',
@@ -254,6 +279,44 @@ function analyzeComment(initialComment, followUpText, current) {
   return parseOpenAiStructuredOutput(JSON.parse(body));
 }
 
+function analyzeCommentWithAnthropic(inputText, schema) {
+  const apiKey = getRequiredProperty('ANTHROPIC_API_KEY');
+  const model = getOptionalProperty('ANTHROPIC_MODEL') || 'claude-haiku-4-5';
+  const response = UrlFetchApp.fetch('https://api.anthropic.com/v1/messages', {
+    method: 'post',
+    contentType: 'application/json',
+    headers: {
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01'
+    },
+    payload: JSON.stringify({
+      model: model,
+      max_tokens: 700,
+      messages: [
+        {
+          role: 'user',
+          content: inputText
+        }
+      ],
+      output_config: {
+        format: {
+          type: 'json_schema',
+          schema: schema
+        }
+      }
+    }),
+    muteHttpExceptions: true
+  });
+
+  const status = response.getResponseCode();
+  const body = response.getContentText();
+  if (status < 200 || status >= 300) {
+    throw new Error('Anthropic API error: ' + status + ' ' + body);
+  }
+
+  return parseAnthropicStructuredOutput(JSON.parse(body));
+}
+
 function parseOpenAiStructuredOutput(response) {
   if (response.output_parsed) {
     return response.output_parsed;
@@ -270,6 +333,16 @@ function parseOpenAiStructuredOutput(response) {
     }
   }
   throw new Error('OpenAI structured output was not found.');
+}
+
+function parseAnthropicStructuredOutput(response) {
+  const content = response.content || [];
+  for (let i = 0; i < content.length; i++) {
+    if (content[i].type === 'text' && content[i].text) {
+      return JSON.parse(content[i].text);
+    }
+  }
+  throw new Error('Anthropic structured output was not found.');
 }
 
 function getMissingFields(analysis) {
@@ -433,6 +506,18 @@ function formatSettingsSheet(sheet) {
   sheet.setColumnWidth(2, 260);
   sheet.setColumnWidth(3, 320);
   sheet.getRange('A:A').setBackground('#F8FAFC');
+}
+
+function setupAnthropicProperties() {
+  PropertiesService.getScriptProperties().setProperties({
+    AI_PROVIDER: 'anthropic',
+    ANTHROPIC_MODEL: 'claude-haiku-4-5'
+  }, false);
+
+  return jsonOutput({
+    ok: true,
+    message: 'Anthropic properties were set. Add ANTHROPIC_API_KEY manually.'
+  });
 }
 
 function getStartPayload(text) {
