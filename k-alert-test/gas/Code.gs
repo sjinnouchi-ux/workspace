@@ -1,7 +1,10 @@
 const SHEET_NAME = 'アラート';
 const TRIGGER_WORD = 'Kアラート';
+const START_TRIGGER_TEXTS = ['Kアラート', '匿名報告', '匿名報告開始', '報告する'];
 const REQUIRED_FIELDS = ['when', 'where', 'who', 'what', 'how'];
-const ACK_MESSAGE = '貴重な報告をありがとうございます。必要な情報を確認するので少々お待ちください';
+const INTRO_MESSAGE = 'こんにちは。このLINEのチャット内容は匿名報告として取り扱われますのでご安心ください。必要に応じて皆様に危害が及ばないように担当者より対応させていただきます。今回はどのような事象がありましたか？';
+const COMPLETE_MESSAGE = '報告ありがとうございます。';
+const AI_ERROR_MESSAGE = '記録しました。確認後に対応します。';
 
 function doGet() {
   return jsonOutput({
@@ -27,17 +30,32 @@ function doPost(e) {
     const userId = event.source && event.source.userId ? event.source.userId : 'unknown';
     const text = event.message.text.trim();
     const session = getSession(userId);
+    const start = getStartPayload(text);
 
-    if (!isKAlertStart(text) && !session) {
+    if (session && start.isStart && !start.content) {
+      startReportSession(event, userId);
+      return jsonOutput({ handled: true, mode: 'restart' });
+    }
+
+    if (!start.isStart && !session) {
       return jsonOutput({ handled: false, reason: 'not_k_alert' });
     }
 
     if (session) {
-      handleFollowUp(event, userId, session, text);
+      if (session.status === 'waiting_initial') {
+        handleInitialReport(event, userId, text, session);
+      } else {
+        handleFollowUp(event, userId, session, text);
+      }
       return jsonOutput({ handled: true, mode: 'follow_up' });
     }
 
-    handleInitialComment(event, userId, text);
+    if (!start.content) {
+      startReportSession(event, userId);
+      return jsonOutput({ handled: true, mode: 'intro' });
+    }
+
+    handleInitialReport(event, userId, start.content, null);
     return jsonOutput({ handled: true, mode: 'initial' });
   } catch (err) {
     console.error(err);
@@ -45,38 +63,63 @@ function doPost(e) {
   }
 }
 
-function handleInitialComment(event, userId, text) {
-  const initialComment = stripTriggerWord(text);
-  const sheet = getAlertSheet();
-  const rowNumber = appendInitialRow(sheet, initialComment);
-  appendConversationLog(sheet, rowNumber, 'user', initialComment);
-  appendConversationLog(sheet, rowNumber, 'bot', ACK_MESSAGE);
-  replyLine(event.replyToken, ACK_MESSAGE);
+function startReportSession(event, userId) {
+  saveSession(userId, {
+    status: 'waiting_initial',
+    introMessage: INTRO_MESSAGE
+  });
+  replyLine(event.replyToken, INTRO_MESSAGE);
+}
 
-  if (!isAiAnalysisEnabled()) {
-    sheet.getRange(rowNumber, 11).setValue('AI解析未実行: ENABLE_AI_ANALYSIS が true ではありません。初回疎通テストとして固定返信のみ実行。');
-    clearSession(userId);
+function handleInitialReport(event, userId, text, session) {
+  const initialComment = text.trim();
+  if (!initialComment) {
+    startReportSession(event, userId);
     return;
   }
 
-  const analysis = analyzeComment(initialComment, '');
-  updateAnalysisToRow(sheet, rowNumber, analysis);
+  const sheet = getAlertSheet();
+  const rowNumber = appendInitialRow(sheet, initialComment);
+  if (session && session.introMessage) {
+    appendConversationLog(sheet, rowNumber, 'bot', session.introMessage);
+  }
+  appendConversationLog(sheet, rowNumber, 'user', initialComment);
+  analyzeAndReply(event, userId, sheet, rowNumber, initialComment, '', null);
+}
 
+function analyzeAndReply(event, userId, sheet, rowNumber, initialComment, followUpText, current) {
+  let analysis;
+  try {
+    analysis = analyzeComment(initialComment, followUpText, current);
+  } catch (err) {
+    console.error(err);
+    sheet.getRange(rowNumber, 11).setValue('AI解析エラー: ' + summarizeError(err.message));
+    clearSession(userId);
+    recordBotReply(sheet, rowNumber, AI_ERROR_MESSAGE);
+    replyLine(event.replyToken, AI_ERROR_MESSAGE);
+    return;
+  }
+
+  updateAnalysisToRow(sheet, rowNumber, analysis);
   const missingFields = getMissingFields(analysis);
 
   if (missingFields.length > 0) {
-    sheet.getRange(rowNumber, 11).setValue('AI解析完了。不足項目あり。次段階ではPush APIで追加質問を送信する。');
+    sheet.getRange(rowNumber, 11).setValue('AI解析中。不足項目: ' + missingFields.join(','));
     const question = buildMissingQuestion(missingFields, analysis);
-    appendConversationLog(sheet, rowNumber, 'bot', question);
     saveSession(userId, {
+      status: 'collecting',
       rowNumber: rowNumber,
       missingFields: missingFields
     });
+    recordBotReply(sheet, rowNumber, question);
+    replyLine(event.replyToken, question);
     return;
   }
 
   clearSession(userId);
   sheet.getRange(rowNumber, 11).setValue('AI解析完了。必要項目は充足。');
+  recordBotReply(sheet, rowNumber, COMPLETE_MESSAGE);
+  replyLine(event.replyToken, COMPLETE_MESSAGE);
 }
 
 function handleFollowUp(event, userId, session, text) {
@@ -84,25 +127,7 @@ function handleFollowUp(event, userId, session, text) {
   appendConversationLog(sheet, session.rowNumber, 'user', text);
 
   const current = readRowAsAnalysis(sheet, session.rowNumber);
-  const analysis = analyzeComment(current.initialComment, text, current);
-  updateAnalysisToRow(sheet, session.rowNumber, analysis);
-
-  const missingFields = getMissingFields(analysis);
-  if (missingFields.length > 0) {
-    const question = buildMissingQuestion(missingFields, analysis);
-    appendConversationLog(sheet, session.rowNumber, 'bot', question);
-    saveSession(userId, {
-      rowNumber: session.rowNumber,
-      missingFields: missingFields
-    });
-    replyLine(event.replyToken, question);
-    return;
-  }
-
-  clearSession(userId);
-  const completeMessage = buildCompleteMessage(analysis);
-  appendConversationLog(sheet, session.rowNumber, 'bot', completeMessage);
-  replyLine(event.replyToken, completeMessage);
+  analyzeAndReply(event, userId, sheet, session.rowNumber, current.initialComment, text, current);
 }
 
 function appendInitialRow(sheet, initialComment) {
@@ -146,6 +171,11 @@ function appendConversationLog(sheet, rowNumber, speaker, text) {
   cell.setValue(current ? current + '\n' + line : line);
 }
 
+function recordBotReply(sheet, rowNumber, text) {
+  sheet.getRange(rowNumber, 9).setValue(text);
+  appendConversationLog(sheet, rowNumber, 'bot', text);
+}
+
 function readRowAsAnalysis(sheet, rowNumber) {
   const values = sheet.getRange(rowNumber, 1, 1, 11).getValues()[0];
   return {
@@ -182,6 +212,7 @@ function analyzeComment(initialComment, followUpText, current) {
     'あなたは看護・介護関連の連絡内容を記録用に整理するアシスタントです。',
     '初回コメントと追加回答から、Kアラートの項目を抽出してください。',
     '推測しすぎず、不明な項目は空文字にしてください。',
+    '既存値にある情報は、追加回答で否定されない限り保持してください。',
     '',
     '既存値:',
     JSON.stringify(current || {}, null, 2),
@@ -249,29 +280,16 @@ function getMissingFields(analysis) {
 
 function buildMissingQuestion(missingFields) {
   const labels = {
-    when: 'いつの出来事ですか？',
-    where: 'どこで起きましたか？',
-    who: 'だれに関する内容ですか？',
-    what: 'なにが起きましたか？',
-    how: 'どのような状況でしたか？'
+    when: 'いつ',
+    where: 'どこで',
+    who: 'だれの件',
+    what: '何が起きたか',
+    how: 'どのような状況か'
   };
-  const lines = ['記録しました。確認のため、次の点だけ教えてください。', ''];
-  missingFields.forEach(function(field, index) {
-    lines.push(index + 1 + '. ' + labels[field]);
+  const missingLabels = missingFields.map(function(field) {
+    return labels[field];
   });
-  return lines.join('\n');
-}
-
-function buildCompleteMessage(analysis) {
-  return [
-    'Kアラートを記録しました。',
-    'いつ: ' + analysis.when,
-    'どこで: ' + analysis.where,
-    'だれが: ' + analysis.who,
-    'なにを: ' + analysis.what,
-    'どのように: ' + analysis.how,
-    '緊急度: ' + (analysis.urgency || '未判定')
-  ].join('\n');
+  return '確認です。' + missingLabels.join('、') + 'を教えてください。';
 }
 
 function replyLine(replyToken, text) {
@@ -417,12 +435,26 @@ function formatSettingsSheet(sheet) {
   sheet.getRange('A:A').setBackground('#F8FAFC');
 }
 
-function isKAlertStart(text) {
-  return text === TRIGGER_WORD || text.indexOf(TRIGGER_WORD + ' ') === 0 || text.indexOf(TRIGGER_WORD + '　') === 0 || text.indexOf(TRIGGER_WORD + ':') === 0 || text.indexOf(TRIGGER_WORD + '：') === 0;
-}
-
-function stripTriggerWord(text) {
-  return text.replace(/^Kアラート[\s　:：]*/, '').trim() || text;
+function getStartPayload(text) {
+  const normalized = text.trim();
+  for (let i = 0; i < START_TRIGGER_TEXTS.length; i++) {
+    const trigger = START_TRIGGER_TEXTS[i];
+    if (normalized === trigger) {
+      return { isStart: true, content: '' };
+    }
+    if (
+      normalized.indexOf(trigger + ' ') === 0 ||
+      normalized.indexOf(trigger + '　') === 0 ||
+      normalized.indexOf(trigger + ':') === 0 ||
+      normalized.indexOf(trigger + '：') === 0
+    ) {
+      return {
+        isStart: true,
+        content: normalized.substring(trigger.length).replace(/^[\s　:：]+/, '').trim()
+      };
+    }
+  }
+  return { isStart: false, content: '' };
 }
 
 function getSession(userId) {
@@ -457,8 +489,14 @@ function getOptionalProperty(key) {
   return PropertiesService.getScriptProperties().getProperty(key) || '';
 }
 
-function isAiAnalysisEnabled() {
-  return getOptionalProperty('ENABLE_AI_ANALYSIS').toLowerCase() === 'true';
+function summarizeError(message) {
+  if (message.indexOf('insufficient_quota') !== -1 || message.indexOf('exceeded your current quota') !== -1) {
+    return 'OpenAI APIの利用枠不足';
+  }
+  if (message.length > 240) {
+    return message.substring(0, 240) + '...';
+  }
+  return message;
 }
 
 function jsonOutput(value) {
