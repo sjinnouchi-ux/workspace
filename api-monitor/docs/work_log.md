@@ -79,10 +79,45 @@
 4. `cd api-monitor && python3 db.py` でDB初期化（`data/api_log.db` 生成）
 5. `streamlit run app.py` → `http://localhost:8501` を開く
 
-### 残課題（Phase 3〜5）
+---
 
-- [ ] Phase 3: モニタータブのグラフをplotlyに置換（ドーナツ・重ね折れ線）
-- [ ] Phase 4: APIキーのコピー UI（マスク・表示切替は実装済み、ワンクリックコピー追加）
+## 2026-05-28｜Phase 4 部分実装：APIキーのワンクリックコピー
+
+### 方針変更
+
+- 陣内さんの判断で **Phase 3（plotly化）はスキップ**。Streamlit標準グラフのままで十分
+- Phase 4 のうち **APIキーのワンクリックコピー** から優先実装
+
+### 対応内容
+
+- `settings.py` を改訂（追加ライブラリ不要）
+  - ヘルパー `_render_key_block(service, shown)` に分離してテスト容易に
+  - `ENV_KEY_NAMES` を辞書に切り出し
+  - キー登録済みのとき：**「📋 コピー用に表示」ボタン**を表示
+    - クリックでセッション状態 `copy_open_{service}` をトグル
+    - 表示中は `st.code(shown, language=None, wrap_lines=True)` で出力
+    - `st.code` の右上に **Streamlit標準のコピーアイコン**が付き、クリックでクリップボードへ
+    - もう一度ボタンを押すと閉じる（マスク状態に戻る）
+  - キー未登録のとき：「まだキーが登録されていません」と案内のみ
+  - キー削除時に `copy_open_{service}` をFalseに戻す（パネル残留防止）
+
+### 実装の根拠
+
+- `st.code` は `streamlit>=1.36` でブロック右上に **clipboard アイコン**を自動表示する
+- そのため `pyperclip` / `streamlit_extras` / JS components を一切追加せず実装できる
+- マスク表示・表示切替トグルは Phase 1 のままで併存
+
+### 動作確認（陣内さん側）
+
+```
+cd ~/sjinnouchi-ux-workspace && git pull
+```
+
+を実行するだけ。Streamlitはファイル変更を自動検知して再読み込みします（左上に「Source file changed」が出たら "Rerun"）。
+ブラウザの `http://localhost:8501` → 設定タブ → 各サービスのexpander → 「📋 コピー用に表示」を確認。
+
+### 残課題（Phase 4 残り / Phase 5）
+
 - [ ] Phase 4: 用途カスタマイズの編集・削除UI
 - [ ] Phase 5: launchd でMac起動時自動起動
 - [ ] Phase 5: 費用単価の最新化＆公式単価との突合
