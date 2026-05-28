@@ -1,0 +1,15 @@
+# API Monitor dependencies
+# Python 3.13.3
+
+# UI
+streamlit>=1.36.0
+
+# API SDKs
+openai>=1.40.0
+anthropic>=0.34.0
+google-generativeai>=0.7.0
+
+# Utilities
+python-dotenv>=1.0.0
+pandas>=2.2.0
+plotly>=5.22.0
