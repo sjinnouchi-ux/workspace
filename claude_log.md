@@ -193,3 +193,23 @@ dori-manga/
 - [ ] Google Workspace / Cloud OAuth 側で `rapt_required` の原因を確認
 - [ ] CLI運用が難しい場合は、CodexブラウザでApps Scriptエディタを操作する運用に切り替える
 - [ ] Apps Script API直接実装でも同じOAuth制約が出る可能性があるため要検証
+
+---
+
+## 2026-05-28｜Codex専用フォルダ作成
+
+### 背景
+- GAS等の操作オペレーションがClaude CoworkとCodexで異なる
+- Codex専用の運用メモをGitHub上で管理する必要がある
+- GASは当面Codex内ブラウザを使ってコーディング・エラー確認・デプロイする方針
+
+### 対応内容
+- `codex/` フォルダを作成
+- `codex/README.md` を作成
+- `codex/gas_browser_operation.md` にGASブラウザ操作方針を記録
+- `codex/work_log.md` を作成
+- ルート `README.md` のプロジェクト一覧と作業ログに `codex/` を追加
+
+### 残課題
+- [ ] 最初のGASブラウザ操作タスクで手順を実地検証する
+- [ ] `clasp` の `rapt_required` 解消可否を別途確認する

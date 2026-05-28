@@ -12,6 +12,7 @@
 | [market-pilot](./market-pilot/) | 株式市場分析・売買シグナル・LINE自動通知システム |
 | [code-exchange](./code-exchange/) | Claude Desktop ↔ CLI 間のコードやり取り |
 | [dori-manga](./dori-manga/) | どり看護師 Instagram 漫画化プロジェクト |
+| [codex](./codex/) | Codex専用の作業ルール・GASブラウザ操作運用 |
 
 ---
 
@@ -75,6 +76,7 @@ python code-exchange/manage.py complete <id>  # 完了処理
 
 | 日付 | 作業内容 | 対象 |
 |------|----------|------|
+| 2026-05-28 | Codex専用フォルダ・GASブラウザ操作運用メモ追加 | `codex/`, `README.md` |
 | 2026-05-27 | GASワークフロールール追加（clasp run方式）| `README.md` |
 | 2026-05-27 | どり漫画管理フォルダ作成GASスクリプト追加 | `dori-manga/gas/` |
 | 2026-05-19 | dori-manga プロジェクトフォルダ作成 | `dori-manga/` |
