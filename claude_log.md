@@ -1,5 +1,13 @@
 # Claude 作業記録
 
+> **📂 アーカイブ運用ルール（月次）**
+>
+> - このファイルは **直近1ヶ月分のみ** active として保持する
+> - 翌月初に前月分を `docs/archive/claude_log_YYYY-MM.md` へ切り出す
+>   - 例：2026年7月初に、2026年6月分のログを `docs/archive/claude_log_2026-06.md` に移動
+> - 過去のログを参照する場合は `docs/archive/` を確認
+> - このルールにより、Cowork / CLI 起動時に読まれるログ量を最小化する
+
 Claude Code CLIが実行した作業の記録です。各プロジェクトの詳細ログは各フォルダの `docs/work_log.md` を参照。
 
 ---
@@ -445,3 +453,22 @@ dori-manga/
 - [ ] OpenAI APIの課金・利用枠を有効化してAI解析を実機確認
 - [ ] 追加回答で既存行が更新されることを実機確認
 - [ ] 家計簿LIFF入力の回帰確認
+
+---
+
+## 2026-05-28｜INDEX.json導入とMD保管ルール整備
+
+### 背景
+- Coworkでのトークン利用制限に達する時間が短くなったため、起動時に読まれるMD量を削減する必要があった
+- 案C（INDEX.json導入＋月次アーカイブ＋自動更新）で継続的なMD保管ルールを確立
+
+### 対応内容
+- `INDEX.json` をルート直下に新規作成（9プロジェクトのowner / primary_docs / last_updated / claude_read_only を集約）
+- `.github/scripts/update_index.py` を追加（push時に変更されたプロジェクトの last_updated を本日に書き換える）
+- `.github/workflows/update-index.yml` を追加（push時に自動更新を発火、bot自身のpushは無視）
+- ルート `CLAUDE.md` と `README.md` に「起動時はINDEX.jsonを最初に読む」「Kアラート等はClaude読取専用」「claude_log.md は月次アーカイブ」のルールを追記
+- 本ファイル冒頭にアーカイブ運用ルールを追記
+
+### 残課題
+- [ ] 2026-06-01以降、本ファイルの2026-05分を `docs/archive/claude_log_2026-05.md` に切り出す
+- [ ] Actions の初回発火を確認し、`last_updated` が自動更新されるか検証
