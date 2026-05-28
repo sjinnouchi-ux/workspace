@@ -1,0 +1,106 @@
+{
+  "schema_version": "1.0",
+  "generated": "2026-05-28",
+  "description": "Cowork / Codex が起動時に最初に読むナビゲーションインデックス。各プロジェクトのオーナーと主要MDパス、最終更新日のみを集約する。詳細は primary_docs を参照。",
+  "rules": {
+    "purpose": "起動時のトークン消費を削減するため、まずこのファイルを読んで該当プロジェクトを特定し、必要なMDだけを後追いで読む。",
+    "owner_meaning": {
+      "claude": "Claude (Cowork / Desktop) が編集・読取を担当",
+      "codex": "Codex が編集を担当。Claude は読取専用",
+      "both": "Claude と Codex の両方が編集する。同一ファイル同時編集は避ける"
+    },
+    "archive_rule": "ルート claude_log.md は直近1ヶ月のみ。それ以前は docs/archive/claude_log_YYYY-MM.md へ移動する。",
+    "auto_update": "last_updated は .github/workflows/update-index.yml により push 時に自動更新される。"
+  },
+  "projects": {
+    "market-pilot": {
+      "owner": "claude",
+      "claude_read_only": false,
+      "summary": "株式市場分析・売買シグナル・LINE自動通知システム",
+      "primary_docs": [
+        "market-pilot/CLAUDE.md",
+        "market-pilot/docs/work_log.md"
+      ],
+      "last_updated": "2026-05-19"
+    },
+    "dori-manga": {
+      "owner": "claude",
+      "claude_read_only": false,
+      "summary": "どり看護師 Instagram 漫画化プロジェクト",
+      "primary_docs": [
+        "dori-manga/CLAUDE.md",
+        "dori-manga/docs/work_log.md"
+      ],
+      "last_updated": "2026-05-27"
+    },
+    "code-exchange": {
+      "owner": "both",
+      "claude_read_only": false,
+      "summary": "Claude Desktop ↔ CLI 間のコードやり取り",
+      "primary_docs": [
+        "code-exchange/CLAUDE.md",
+        "code-exchange/README.md"
+      ],
+      "last_updated": "2026-05-28"
+    },
+    "codex": {
+      "owner": "codex",
+      "claude_read_only": true,
+      "summary": "Codex 専用の作業ルール・GAS ブラウザ操作運用",
+      "primary_docs": [
+        "codex/README.md",
+        "codex/work_log.md"
+      ],
+      "last_updated": "2026-05-28"
+    },
+    "k-alert-test": {
+      "owner": "codex",
+      "claude_read_only": true,
+      "summary": "公式 LINE AI 連携・K アラートのテスト開発",
+      "primary_docs": [
+        "k-alert-test/README.md",
+        "k-alert-test/docs/work_log.md"
+      ],
+      "last_updated": "2026-05-28"
+    },
+    "api-monitor": {
+      "owner": "claude",
+      "claude_read_only": false,
+      "summary": "API 利用費用の可視化ダッシュボード (Streamlit + SQLite)",
+      "primary_docs": [
+        "api-monitor/README.md",
+        "api-monitor/docs/work_log.md"
+      ],
+      "last_updated": "2026-05-28"
+    },
+    "company-settings": {
+      "owner": "claude",
+      "claude_read_only": false,
+      "summary": "GA4・Google Ads などの会社共通設定ドキュメント",
+      "primary_docs": [
+        "company-settings/ga4-setup.md",
+        "company-settings/google-ads-setup.md"
+      ],
+      "last_updated": "2026-05-19"
+    },
+    "taiwan-outreach": {
+      "owner": "claude",
+      "claude_read_only": false,
+      "summary": "台湾向けインバウンド施策 (LP草稿・SNS ハッシュタグ戦略)",
+      "primary_docs": [
+        "taiwan-outreach/lp-fukushima-hachimangu.md",
+        "taiwan-outreach/sns-hashtag-strategy.md"
+      ],
+      "last_updated": "2026-05-19"
+    },
+    "yumekango-worker": {
+      "owner": "codex",
+      "claude_read_only": true,
+      "summary": "Cloudflare Worker (公式LINE Webhookルーティング・家計簿LIFF)",
+      "primary_docs": [
+        "yumekango-worker/worker.js"
+      ],
+      "last_updated": "2026-05-28"
+    }
+  }
+}
