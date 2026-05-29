@@ -150,6 +150,30 @@ cd ~/sjinnouchi-ux-workspace && git pull
 - 用途別の費用集計は **DBの `project` / `purpose` フィールド + 設定タブのカスタマイズ**で実現
 - 厳密な分離が必要なら各社の Project Keys / Workspace / Cloud Project 機能で別キー発行も可能（今は不要）
 
+---
+
+## 2026-05-30｜Streamlit 非推奨API対応
+
+### 背景
+
+- 起動時のターミナルログに次の非推奨警告が出ていた：
+  ```
+  Please replace `use_container_width` with `width`.
+  `use_container_width` will be removed after 2025-12-31.
+  ```
+- 廃止予定日 **2025-12-31 を既に約5ヶ月超過**しており（現在 2026-05-30）、次のStreamlitアップデートで完全に削除される可能性が高い
+
+### 対応内容
+
+- `monitor.py`：`st.dataframe(... use_container_width=True ...)` → `width="stretch"` に置換（履歴テーブル）
+- `settings.py`：`st.dataframe(rows, use_container_width=True, ...)` → `width="stretch"` に置換（用途一覧テーブル）
+
+### 動作確認
+
+- ブラウザ更新（または `Source file changed` → Rerun）で即時反映
+- 機能・見た目は完全に同等（`width="stretch"` は `use_container_width=True` の新名称）
+- ターミナルの DeprecationWarning が出なくなることを確認
+
 ### 現時点のPhase進捗
 
 | Phase | 内容 | 状態 |
@@ -159,6 +183,7 @@ cd ~/sjinnouchi-ux-workspace && git pull
 | Phase 3 | モニタータブのplotly化 | ⏸ スキップ（標準グラフで十分） |
 | Phase 4 | APIキーのワンクリックコピー | ✅ 完了 |
 | Phase 4 | 用途カスタマイズの編集・削除UI | ⏳ 未着手（必要時に実装） |
+| Phase 5 | Streamlit非推奨API対応 | ✅ 完了（2026-05-30） |
 | Phase 5 | launchdでMac起動時自動起動 | ⏳ 未着手 |
 | Phase 5 | 費用単価の最新化＆公式単価との突合 | ⏳ 未着手 |
 | テスト | 実APIキーで `call()` のログ記録確認 | ⏳ 実利用と同時並行で検証 |
