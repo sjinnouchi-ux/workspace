@@ -5,35 +5,41 @@
 
 ---
 
-## 2026-05-31 午後 Claude セッション（Supabase 設定 — 一部ブロック中）
+## 2026-05-31 午後 Claude セッション（Supabase 設定 — 完了）
 
-### 方針決定（確定）
-- Supabase は **案A：market-pilot 専用プロジェクトを新規作成**で進める（陣内さん承認済み・月額$0）。
-- 組織: Yumekango（guyqarwmyjauzqcrxrnd）/ 想定リージョン: ap-northeast-1 / 想定名: market-pilot
-- RLS 方針: 全テーブル RLS 有効・ポリシー未作成（外部全拒否）。Python は service_role で接続しバイパス。
+### 完了内容（実データで検証済み）
+- Supabase コネクタを **read-write で再接続**し、書き込み権限を確認。
+- **market-pilot 専用プロジェクトを新規作成**（案A）。
+  - 組織: Yumekango（guyqarwmyjauzqcrxrnd）
+  - プロジェクト名: **market-pilot**
+  - **ref: bxhfqmeltavkpkratmfr**
+  - DB host: db.bxhfqmeltavkpkratmfr.supabase.co
+  - URL: https://bxhfqmeltavkpkratmfr.supabase.co
+  - リージョン: ap-northeast-1（東京） / Postgres 17 / 月額 $0（無料枠） / ACTIVE_HEALTHY
+- **マイグレーション適用（2本・成功）**
+  - stage_a_initial_schema … 6テーブル + 初期データ
+  - enable_rls_all_tables … 全テーブル RLS 有効化
+- **検証 OK（実データ確認）**
+  - 6テーブル: tickers / strategy_rules / market_snapshots / signals / run_logs / notifications
+  - tickers 8行: QQQ/XLE/XLV/XLF/GLD/TLT/BTC-USD/ETH-USD
+  - strategy_rules 7行: 全 RESEARCH・notify_line=true
+  - market_snapshots/signals/run_logs/notifications は 0行（想定通り、これから記録）
+  - **security advisor: 警告ゼロ（lints: []）**
 
-### 発生したブロッカー（重要）
-- **Supabase MCP コネクタが read-only モード**で接続されている。
-- そのため `create_project` / `apply_migration` / `execute_sql` / `list_tables` 等の書き込み・実行系がすべて
-  `MCP error -32600: You do not have permission to perform this action` で失敗。
-- 読み取り系（list_organizations / list_projects / get_cost）のみ成功。
-- → **プロジェクト作成も 001_initial.sql 適用もまだ未完了**（この時点で DB は空のまま）。
+### RLS 方針（記録）
+- 全6テーブル RLS 有効・ポリシー未作成 = anon/authenticated は外部アクセス全拒否。
+- Python バッチは **service_role キー**で接続 → RLS バイパス（動作影響なし）。
 
-### 解除に必要な対応（陣内さん）
-- Supabase コネクタを **書き込み可能（read-write）** で再接続する。
-  - Claude デスクトップのコネクタ設定で Supabase を一度切断 → 再接続時に read-only オプションを外す
-  - または Supabase 側で MCP 用アクセストークンを full-access で再発行
-- 解除後、Claude 側で create_project → apply_migration → 検証 を一括実行する。
+### Python から接続する際に必要な情報
+- SUPABASE_URL = https://bxhfqmeltavkpkratmfr.supabase.co
+- SUPABASE_SERVICE_ROLE_KEY = Supabaseダッシュボード（market-pilot） → Project Settings → API → service_role secret から取得し **.env に格納**（GitHub 非コミット・チャットに貼らない）
 
-### 代替案（コネクタ権限を変えたくない場合）
-- 既存の手順（GitHub の 001_initial.sql）を **Supabase Web SQL Editor に貼って Run** すれば手動で適用可能。
-  - その場合もプロジェクトは陣内さんが先に手動作成する必要あり。
-
-### 次の再開ポイント
-1. Supabase コネクタを read-write で再接続（または手動でプロジェクト作成＋SQL適用）
-2. 001_initial.sql 適用 → 6テーブル / tickers 8行 / strategy_rules 7行 を検証
-3. RLS 有効化マイグレーション適用
-4. Phase 1 Python 側（lib共通化 / ユニバース8銘柄 / 06_daily_report.py に Supabase 記録）
+### 次の再開ポイント（Phase 1 Python 側）
+1. .env に SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY を配置
+2. requirements.txt に supabase / python-dotenv 追加
+3. scripts/lib/ 共通モジュール作成（config / supabase_client / indicators / line_notify / universe）
+4. ユニバースを8銘柄に拡張
+5. 06_daily_report.py に Supabase 記録を追加（§10 準拠: シグナル理由・異常値INVALID・run_logs厚め）。**LINE通知挙動は維持。トークンは平文のまま=陣内さんが別途.env化**
 
 ---
 
@@ -46,9 +52,8 @@
   - §10.3 run_logs を厚めに保存（run_id で束ね、銘柄/戦略別の部分失敗を可視化）
   - §10.4 初期は全戦略 RESEARCH 扱い（通知は可）
 - Phase 1 の DB マイグレーション `supabase/migrations/001_initial.sql` を作成・コミット（commit d7faa567）
-  - Stage A 6テーブル: tickers / strategy_rules / market_snapshots / signals / run_logs / notifications
-  - 初期データ: 8シンボル（QQQ/XLE/XLV/XLF/GLD/TLT + BTC-USD/ETH-USD）、戦略7種（全RESEARCH）
-- **Supabase MCP コネクタを接続**（ただし read-only。書き込みは午後ブロックされた）
+  - Stage A 6テーブル / 8シンボル / 戦略7種（全RESEARCH）
+- Supabase MCP コネクタを接続（最初 read-only でブロック → 午後 read-write で再接続し解決）
 
 ### 申し送り（恒久ルール）
 - LINEトークンの.env化は陣内さんが別途対応。本チャットでは平文のまま進行する
