@@ -64,3 +64,23 @@
 - [ ] GASエディタを元のフルコードへ戻し、`sendBudgetReport()` だけを最小パッチへ差し替える
 - [ ] 再デプロイ後、GAS URLの `?action=getCategories` がJSONを返すことを確認する
 - [ ] 問題なければCloudflare Workerの `LEGACY_GAS_URL` を更新する
+
+## 2026-06-01｜公式LINE GAS再デプロイ後の復旧確認
+
+### 背景
+- ユーザーがGASコードを再構成し、公式LINE用GASを再デプロイした
+- 前回は `doGet` が見つからない状態だったため、GAS単体とWorker経由の疎通確認が必要だった
+
+### 対応内容
+- 共有されたGAS URLの `?action=getCategories` にアクセス
+- 共有されたGAS URLの通常GETにアクセス
+- 本番Worker `https://yumekango.s-jinnouchi.workers.dev/` にアクセス
+
+### 結果
+- `?action=getCategories` はカテゴリJSONを返した
+- GAS通常GETは `doGet` が認識され、家計簿入力HTMLを返した
+- Worker経由のLIFF画面も6月表示で返った
+- 共有URLは既存Worker内のGAS URLと同じため、Cloudflare Workerの `LEGACY_GAS_URL` Secret更新は不要と判断
+
+### 残課題
+- [ ] 公式LINEで `家計消化状況` を送信し、6月実績で表示されることを実機確認する
