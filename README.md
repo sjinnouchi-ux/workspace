@@ -21,7 +21,7 @@
 
 | フォルダ | 概要 | owner |
 |---------|------|-------|
-| [market-pilot](./market-pilot/) | 株式市場分析・売買シグナル・LINE自動通知 | claude |
+| [market-pilot](https://github.com/sjinnouchi-ux/market-pilot) | 株式市場分析・売買シグナル・LINE自動通知（単体repoが正本） | codex（Claude読取専用） |
 | [dori-manga](./dori-manga/) | どり看護師 Instagram 漫画化 | claude |
 | [code-exchange](./code-exchange/) | Claude Desktop ↔ CLI 間のコード交換 | both |
 | [codex](./codex/) | Codex 専用作業ルール・GASブラウザ運用 | codex（Claude読取専用） |
@@ -104,6 +104,7 @@ python code-exchange/manage.py complete <id>  # 完了処理
 
 | 日付 | 作業内容 | 対象 |
 |------|----------|------|
+| 2026-06-06 | market-pilotを単体repoへ一本化し、workspace内の重複フォルダを削除 | `INDEX.json`, `market-pilot/` |
 | 2026-05-28 | INDEX.json導入・自動更新ワークフロー追加 | `INDEX.json`, `.github/` |
 | 2026-05-28 | Kアラート・テスト開発プロジェクト初期化 | `k-alert-test/`, `README.md` |
 | 2026-05-28 | Codex専用フォルダ・GASブラウザ操作運用メモ追加 | `codex/`, `README.md` |

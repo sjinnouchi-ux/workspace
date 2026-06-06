@@ -14,14 +14,15 @@
   },
   "projects": {
     "market-pilot": {
-      "owner": "claude",
-      "claude_read_only": false,
-      "summary": "株式市場分析・売買シグナル・LINE自動通知システム",
+      "owner": "codex",
+      "claude_read_only": true,
+      "summary": "株式市場分析・売買シグナル・LINE自動通知システム。正本は単体リポジトリ sjinnouchi-ux/market-pilot。",
+      "external_repo": "https://github.com/sjinnouchi-ux/market-pilot",
       "primary_docs": [
-        "market-pilot/CLAUDE.md",
-        "market-pilot/docs/work_log.md"
+        "https://github.com/sjinnouchi-ux/market-pilot/blob/main/AGENTS.md",
+        "https://github.com/sjinnouchi-ux/market-pilot/blob/main/docs/windows-codex/residual_tasks.md"
       ],
-      "last_updated": "2026-05-30"
+      "last_updated": "2026-06-06"
     },
     "dori-manga": {
       "owner": "claude",

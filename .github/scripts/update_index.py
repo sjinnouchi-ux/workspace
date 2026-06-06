@@ -18,7 +18,6 @@ INDEX_PATH = REPO_ROOT / "INDEX.json"
 
 # トップレベルディレクトリ -> INDEX.json の projects キー
 DIR_TO_PROJECT = {
-    "market-pilot": "market-pilot",
     "dori-manga": "dori-manga",
     "code-exchange": "code-exchange",
     "codex": "codex",

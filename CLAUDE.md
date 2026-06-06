@@ -24,7 +24,7 @@
 
 | フォルダ | 概要 | owner |
 |---------|------|-------|
-| `market-pilot/` | 株式分析・LINE通知 | claude |
+| `market-pilot` | 株式分析・LINE通知（正本: `sjinnouchi-ux/market-pilot`） | codex（Claude読取専用） |
 | `dori-manga/` | どり看護師 Instagram 漫画化 | claude |
 | `code-exchange/` | Desktop ↔ CLI コード交換 | both |
 | `codex/` | Codex 専用作業ルール | codex（Claude読取専用） |
