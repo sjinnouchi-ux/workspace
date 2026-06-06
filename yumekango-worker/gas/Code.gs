@@ -56,12 +56,18 @@ function getCategories_() {
   const categories = [];
   for (let i = 0; i < values.length; i++) {
     if (!values[i][0]) break;
+    const name = values[i][0].toString();
     categories.push({
-      name: values[i][0].toString(),
-      needsPayment: values[i][1] === true
+      name,
+      needsPayment: categoryNeedsPayment_(name, values[i][1])
     });
   }
   return categories;
+}
+
+function categoryNeedsPayment_(categoryName, sheetFlag) {
+  const name = String(categoryName || '');
+  return sheetFlag === true || name === '交通費（経費計上）';
 }
 
 // =====================================================
@@ -485,7 +491,7 @@ function handleKakeiboStep(token, msg, userId, cache, step) {
       cache.put(userId + '_category', msg);
       const list = sheet.getRange('G4:H' + sheet.getLastRow()).getValues();
       const selected = list.find(row => row[0].toString() === msg);
-      if (selected && selected[1] === true) {
+      if (selected && categoryNeedsPayment_(msg, selected[1])) {
         cache.put(userId + '_step', 'payment_method');
         sendQuickReply(token, '支払方法を選んでください。', ['キャッシュ', 'カード']);
       } else {
