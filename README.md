@@ -7,9 +7,11 @@
 
 ## 起動時の読み取り順序（必読）
 
-1. **`INDEX.json` を読む** ← 起動時の最初のステップ。全プロジェクトのowner・主要MDパス・最終更新日が集約されている
-2. 対象プロジェクトの `primary_docs`（多くは `CLAUDE.md` と `docs/work_log.md`）を読む
-3. 必要に応じて該当プロジェクトの他のMDを追加で読む
+1. **`AGENTS.md` を読む** ← Codex向けの起動時入口。Notion API再開方法と読み取り順序を確認する
+2. **`INDEX.json` を読む** ← 全プロジェクトのowner・主要MDパス・最終更新日が集約されている
+3. **`docs/notion/projects.csv` を読む** ← Notion上層管理と同じプロジェクト一覧を確認する
+4. 対象プロジェクトの `primary_docs`（多くは `CLAUDE.md` と `docs/work_log.md`）を読む
+5. 必要に応じて該当プロジェクトの他のMDを追加で読む
 
 > `INDEX.json.projects.<name>.claude_read_only` が `true` のプロジェクトは Claude 読取専用（Codex 担当）。Claude は編集してはならない。
 
