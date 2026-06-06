@@ -1,74 +1,59 @@
-# APIモニター
+# API Monitor
 
-OpenAI・Anthropic (Claude)・Google (Gemini) の3社APIの利用状況・費用・トークン数をブラウザでリアルタイム監視するStreamlitダッシュボード。
+OpenAI、Anthropic Claude、Google Gemini の API 利用料をローカルブラウザで確認するための Streamlit アプリです。
 
-## 目的
+今後は Windows 管理を前提に、まずこのアプリを `http://localhost:8501` で動かし、必要に応じて Notion には「集計結果・リンク・運用メモ」を同期する構成にします。
 
-- 複数AIサービスの費用を一元管理する
-- プロジェクト別・モデル別の利用状況を可視化する
-- APIキーをアプリから安全にコピーできるようにする
-- 将来的な多モデル切り替えに備えた管理基盤を構築する
+## できること
 
-## 画面構成
+- AI API の月間コスト、トークン数、APIコール数を確認
+- 日別コスト推移とサービス別コストをグラフ表示
+- APIキーをローカルDBに保存して管理
+- プロジェクト名、モデル、用途メモを記録
 
-### モニタータブ
-- サマリー指標（今月費用・総トークン数・APIコール数・最多モデル）
-- 日別費用推移グラフ（3社重ね表示）
-- サービス別費用比率（ドーナツグラフ）
-- 直近のAPIコール履歴テーブル
+## Windowsでの起動
 
-### 設定タブ
-- APIキー管理（マスク表示・コピー・表示切替・登録）
-- API用途カスタマイズ（プロジェクト名・使用モデル・用途メモを自由編集）
+PowerShellでこのフォルダを開き、次を実行します。
 
-## 対応サービス（初回から3社同時接続）
-
-| サービス | モデル例 | SDKライブラリ |
-|---------|---------|-------------|
-| OpenAI | gpt-4o-mini, gpt-4o | openai |
-| Anthropic (Claude) | claude-haiku-4-5, claude-opus-4-7 | anthropic |
-| Google (Gemini) | gemini-1.5-flash, gemini-1.5-pro | google-generativeai |
-
-## 技術スタック
-
-- **フロントエンド兼バックエンド**：Streamlit（Python）
-- **データ保存**：SQLite（ローカル）
-- **APIログ取得**：各APIレスポンスの `usage` オブジェクトから取得
-- **起動方法**：`streamlit run app.py`（ローカルMac上で常時起動）
-
-## 構成
-
-```text
-api-monitor/
-├── README.md
-├── AGENTS.md
-├── docs/
-│   ├── implementation_plan.md
-│   └── work_log.md
-├── app.py              ← Streamlitメインアプリ
-├── db.py               ← SQLite操作モジュール
-├── monitor.py          ← モニタータブUI
-├── settings.py         ← 設定タブUI
-├── api_clients/
-│   ├── openai_client.py
-│   ├── claude_client.py
-│   └── gemini_client.py
-├── requirements.txt
-└── .env.example
+```powershell
+.\run_windows.ps1
 ```
 
-## セットアップ手順
+初回実行時は `.venv` を作成し、`requirements.txt` の依存関係をインストールします。起動後、ブラウザで次のURLを開きます。
 
-1. `pip install -r requirements.txt --break-system-packages`
-2. `.env.example` をコピーして `.env` を作成し、APIキーを記入
-3. `streamlit run app.py` で起動
-4. ブラウザで `http://localhost:8501` を開く
+```text
+http://localhost:8501
+```
 
-## 秘密情報の扱い
+## 手動起動
 
-以下はGitHubへ保存しない。
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m streamlit run app.py --server.address 127.0.0.1 --server.port 8501
+```
 
-- OpenAI APIキー
-- Anthropic APIキー
-- Google APIキー
-- `.env` ファイル本体
+## APIキー
+
+`.env.example` を `.env` にコピーして、必要なAPIキーを入れます。
+
+```text
+OPENAI_API_KEY=
+ANTHROPIC_API_KEY=
+GOOGLE_API_KEY=
+```
+
+`.env` はGitHubへ保存しないでください。APIキー本体もNotionには貼らず、Notionには利用料の集計や管理リンクだけを置く運用にします。
+
+## Notion連携方針
+
+Notionホーム画面では、API利用料アプリそのものを完全に動かすよりも、以下を管理する形が現実的です。
+
+- アプリURL: `http://localhost:8501`
+- 今月の合計利用料
+- サービス別コスト
+- 注意が必要なAPIキーやモデル
+- 月次確認タスク
+
+実際の集計やグラフ表示は、このStreamlitアプリで行うのが早く、Windowsでも安定します。

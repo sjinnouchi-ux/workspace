@@ -1,6 +1,6 @@
-"""API Monitor — Streamlit entry point.
+"""API Monitor - Streamlit entry point.
 
-Run:
+Run on Windows:
     streamlit run app.py
 """
 
@@ -26,7 +26,7 @@ def main() -> None:
     )
 
     st.title("API Monitor")
-    st.caption("OpenAI / Anthropic / Google — usage, cost & token dashboard")
+    st.caption("OpenAI / Anthropic / Google のAPI利用料・トークン・呼び出し履歴を確認するWindows向けダッシュボード")
 
     tab_monitor, tab_settings = st.tabs(["モニター", "設定"])
 
