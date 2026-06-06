@@ -60,6 +60,7 @@
 - Notionへの初期インポート用CSVは `docs/notion/projects.csv`
 - Notionの項目設計と運用ルールは `docs/notion/README.md`
 - Notionには詳細ログをコピーせず、ステータス・優先度・次アクションのみを管理する
+- 新しい会話の最初は `INDEX.json` と `docs/notion/projects.csv` だけで全体像を把握し、特定プロジェクトを進める段階で初めて詳細Markdownを読む
 
 ---
 

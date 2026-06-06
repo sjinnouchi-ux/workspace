@@ -9,6 +9,9 @@
       "codex": "Codex が編集を担当。Claude は読取専用",
       "both": "Claude と Codex の両方が編集する。同一ファイル同時編集は避ける"
     },
+    "initial_chat_rule": "新しい会話の最初は INDEX.json と docs/notion/projects.csv だけで全体像を把握する。ユーザーが特定プロジェクトを指定するまで、詳細な work_log.md や設計書は読まない。",
+    "notion_role": "Notion はプロジェクトのステータス、ステージ、優先度、次アクション、主要URLを管理する上層ダッシュボード。GitHub はコード、詳細Markdown、作業ログの正本。",
+    "notion_import_csv": "docs/notion/projects.csv",
     "archive_rule": "ルート claude_log.md は直近1ヶ月のみ。それ以前は docs/archive/claude_log_YYYY-MM.md へ移動する。",
     "auto_update": "last_updated は .github/workflows/update-index.yml により push 時に自動更新される。"
   },

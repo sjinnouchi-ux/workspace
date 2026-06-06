@@ -21,10 +21,28 @@
 
 - Project
 - Status
+- Stage
 - Priority
 - Owner
 - GitHub URL
 - Primary Docs
+- Production URL
+- Preview URL
+- Supabase URL
+- Google Drive URL
+- Google Sheets URL
+- Apps Script URL
+- Admin URL
+- Reference URLs
 - Next Action
+- Blocker
+- Review Cycle
 - Last Updated
 - Notes
+
+## AI初期会話ルール
+
+- 最初の会話では `INDEX.json` と `docs/notion/projects.csv` だけで全体像を把握する。
+- ユーザーが特定プロジェクト名を出すまで、詳細な `work_log.md` や設計書は読みに行かない。
+- ユーザーが「market-pilotを進めたい」「dori-mangaを確認したい」のように指定した時だけ、`Primary Docs` に記載されたファイルから読む。
+- Notionは進捗とURLの司令塔、GitHubは詳細ログと制作物の正本として扱う。
