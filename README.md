@@ -104,6 +104,7 @@ python code-exchange/manage.py complete <id>  # 完了処理
 
 | 日付 | 作業内容 | 対象 |
 |------|----------|------|
+| 2026-06-06 | dori-mangaのDB設計・ChatGPT指示・Supabase連携GASをworkspace内へ集約 | `dori-manga/`, `INDEX.json` |
 | 2026-06-06 | market-pilotを単体repoへ一本化し、workspace内の重複フォルダを削除 | `INDEX.json`, `market-pilot/` |
 | 2026-05-28 | INDEX.json導入・自動更新ワークフロー追加 | `INDEX.json`, `.github/` |
 | 2026-05-28 | Kアラート・テスト開発プロジェクト初期化 | `k-alert-test/`, `README.md` |

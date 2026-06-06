@@ -27,12 +27,12 @@
     "dori-manga": {
       "owner": "claude",
       "claude_read_only": false,
-      "summary": "どり看護師 Instagram 漫画化プロジェクト",
+      "summary": "どり看護師 Instagram 漫画化プロジェクト。DB設計・ChatGPT評価指示・Supabase連携GASもこのフォルダに集約。",
       "primary_docs": [
         "dori-manga/CLAUDE.md",
         "dori-manga/docs/work_log.md"
       ],
-      "last_updated": "2026-05-28"
+      "last_updated": "2026-06-06"
     },
     "code-exchange": {
       "owner": "both",

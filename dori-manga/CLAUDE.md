@@ -15,7 +15,8 @@ dori-manga/
 └── docs/
     ├── work_log.md            # 作業ログ
     ├── concept.md             # キャラクター・世界観・コンセプト設定
-    └── episode_list.md        # エピソード管理リスト
+    ├── episode_list.md        # エピソード管理リスト
+    └── supabase/              # 画像評価DB設計・ChatGPT連携指示
 ```
 
 ## キャラクター設定
@@ -36,4 +37,5 @@ dori-manga/
 ## 作業フロー
 1. `docs/concept.md` でキャラクター・世界観を確認
 2. `docs/episode_list.md` で制作状況・ネタを確認
-3. 作業後は `docs/work_log.md` に記録して git push
+3. DB連携や画像評価フローは `docs/supabase/` を確認
+4. 作業後は `docs/work_log.md` に記録して git push
