@@ -56,6 +56,11 @@
 - プロジェクト追加・削除・owner変更などの構造変更は手動で `INDEX.json` を編集
 - 手動編集時は `paths-ignore: INDEX.json` によりActionsは発火しない
 
+### Notion上層管理
+- Notionへの初期インポート用CSVは `docs/notion/projects.csv`
+- Notionの項目設計と運用ルールは `docs/notion/README.md`
+- Notionには詳細ログをコピーせず、ステータス・優先度・次アクションのみを管理する
+
 ---
 
 ## code-exchange の使い方
@@ -104,6 +109,7 @@ python code-exchange/manage.py complete <id>  # 完了処理
 
 | 日付 | 作業内容 | 対象 |
 |------|----------|------|
+| 2026-06-06 | Notion上層管理の事前準備としてプロジェクトCSVと運用ルールを追加 | `docs/notion/` |
 | 2026-06-06 | dori-mangaのDB設計・ChatGPT指示・Supabase連携GASをworkspace内へ集約 | `dori-manga/`, `INDEX.json` |
 | 2026-06-06 | market-pilotを単体repoへ一本化し、workspace内の重複フォルダを削除 | `INDEX.json`, `market-pilot/` |
 | 2026-05-28 | INDEX.json導入・自動更新ワークフロー追加 | `INDEX.json`, `.github/` |
