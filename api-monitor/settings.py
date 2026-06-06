@@ -54,7 +54,7 @@ def _render_key_block(service: str, shown: str) -> None:
         st.rerun()
 
     if st.session_state[copy_open_key]:
-        st.code(shown, language=None, wrap_lines=True)
+        st.code(shown, language=None)
         st.caption("右上のコピーアイコンからクリップボードへコピーできます。")
 
 
