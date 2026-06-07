@@ -1,7 +1,7 @@
 const SHEET_NAME = 'アラート';
 const TRIGGER_WORD = 'Kアラート';
 const START_TRIGGER_TEXTS = ['Kアラート', '匿名報告', '匿名報告開始', '報告する'];
-const REQUIRED_FIELDS = ['when', 'where', 'who', 'what', 'how'];
+const REQUIRED_FIELDS = ['when', 'where', 'who', 'toWhom', 'what', 'how'];
 const INTRO_MESSAGE = 'こんにちは。このLINEのチャット内容は匿名報告として取り扱われますのでご安心ください。必要に応じて皆様に危害が及ばないように担当者より対応させていただきます。今回はどのような事象がありましたか？';
 const COMPLETE_MESSAGE = '報告ありがとうございます。';
 const AI_ERROR_MESSAGE = '記録しました。確認後に対応します。';
@@ -93,7 +93,7 @@ function analyzeAndReply(event, userId, sheet, rowNumber, initialComment, follow
     analysis = analyzeComment(initialComment, followUpText, current);
   } catch (err) {
     console.error(err);
-    sheet.getRange(rowNumber, 11).setValue('AI解析エラー: ' + summarizeError(err.message));
+    sheet.getRange(rowNumber, 12).setValue('AI解析エラー: ' + summarizeError(err.message));
     clearSession(userId);
     recordBotReply(sheet, rowNumber, AI_ERROR_MESSAGE);
     replyLine(event.replyToken, AI_ERROR_MESSAGE);
@@ -104,7 +104,7 @@ function analyzeAndReply(event, userId, sheet, rowNumber, initialComment, follow
   const missingFields = getMissingFields(analysis);
 
   if (missingFields.length > 0) {
-    sheet.getRange(rowNumber, 11).setValue('AI解析中。不足項目: ' + missingFields.join(','));
+    sheet.getRange(rowNumber, 12).setValue('AI解析中。不足項目: ' + missingFields.join(','));
     const question = buildMissingQuestion(missingFields, analysis);
     saveSession(userId, {
       status: 'collecting',
@@ -117,7 +117,7 @@ function analyzeAndReply(event, userId, sheet, rowNumber, initialComment, follow
   }
 
   clearSession(userId);
-  sheet.getRange(rowNumber, 11).setValue('AI解析完了。必要項目は充足。');
+  sheet.getRange(rowNumber, 12).setValue('AI解析完了。必要項目は充足。');
   recordBotReply(sheet, rowNumber, COMPLETE_MESSAGE);
   replyLine(event.replyToken, COMPLETE_MESSAGE);
 }
@@ -133,9 +133,10 @@ function handleFollowUp(event, userId, session, text) {
 function appendInitialRow(sheet, initialComment) {
   const nextNo = Math.max(1, sheet.getLastRow());
   const row = sheet.getLastRow() + 1;
-  sheet.getRange(row, 1, 1, 11).setValues([[
+  sheet.getRange(row, 1, 1, 12).setValues([[
     nextNo,
     initialComment,
+    '',
     '',
     '',
     '',
@@ -150,21 +151,22 @@ function appendInitialRow(sheet, initialComment) {
 }
 
 function updateAnalysisToRow(sheet, rowNumber, analysis) {
-  sheet.getRange(rowNumber, 3, 1, 6).setValues([[
+  sheet.getRange(rowNumber, 3, 1, 7).setValues([[
     analysis.when || '',
     analysis.where || '',
     analysis.who || '',
+    analysis.toWhom || '',
     analysis.what || '',
     analysis.how || '',
     analysis.urgency || ''
   ]]);
   if (analysis.notes) {
-    sheet.getRange(rowNumber, 11).setValue(analysis.notes);
+    sheet.getRange(rowNumber, 12).setValue(analysis.notes);
   }
 }
 
 function appendConversationLog(sheet, rowNumber, speaker, text) {
-  const cell = sheet.getRange(rowNumber, 10);
+  const cell = sheet.getRange(rowNumber, 11);
   const current = cell.getValue();
   const timestamp = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy/MM/dd HH:mm:ss');
   const line = '[' + timestamp + '] ' + speaker + ': ' + text;
@@ -172,21 +174,22 @@ function appendConversationLog(sheet, rowNumber, speaker, text) {
 }
 
 function recordBotReply(sheet, rowNumber, text) {
-  sheet.getRange(rowNumber, 9).setValue(text);
+  sheet.getRange(rowNumber, 10).setValue(text);
   appendConversationLog(sheet, rowNumber, 'bot', text);
 }
 
 function readRowAsAnalysis(sheet, rowNumber) {
-  const values = sheet.getRange(rowNumber, 1, 1, 11).getValues()[0];
+  const values = sheet.getRange(rowNumber, 1, 1, 12).getValues()[0];
   return {
     initialComment: values[1] || '',
     when: values[2] || '',
     where: values[3] || '',
     who: values[4] || '',
-    what: values[5] || '',
-    how: values[6] || '',
-    urgency: values[7] || '',
-    notes: values[10] || ''
+    toWhom: values[5] || '',
+    what: values[6] || '',
+    how: values[7] || '',
+    urgency: values[8] || '',
+    notes: values[11] || ''
   };
 }
 
@@ -215,12 +218,13 @@ function buildAnalysisSchema() {
   return {
     type: 'object',
     additionalProperties: false,
-    required: ['when', 'where', 'who', 'what', 'how', 'urgency', 'notes'],
+    required: ['when', 'where', 'who', 'toWhom', 'what', 'how', 'urgency', 'notes'],
     properties: {
       when: { type: 'string', description: 'いつ。日時、日付、時期、期限。分からない場合は空文字。' },
       where: { type: 'string', description: 'どこで。場所、施設、部屋、状況の発生箇所。分からない場合は空文字。' },
-      who: { type: 'string', description: 'だれが。対象者、関係者、投稿者。分からない場合は空文字。' },
-      what: { type: 'string', description: 'なにを。起きたこと、依頼内容、問題。分からない場合は空文字。' },
+      who: { type: 'string', description: 'だれが。行為者、報告者、発信者、起点になった人。分からない場合は空文字。' },
+      toWhom: { type: 'string', description: 'だれに。対象者、被害者、依頼先、影響を受けた人。分からない場合は空文字。' },
+      what: { type: 'string', description: 'なにを。起きたこと、依頼内容、問題、行為の内容。分からない場合は空文字。' },
       how: { type: 'string', description: 'どのように。状態、方法、経過、程度。分からない場合は空文字。' },
       urgency: { type: 'string', enum: ['高', '中', '低', ''], description: '緊急度。判断できない場合は空文字。' },
       notes: { type: 'string', description: '判断根拠や補足。なければ空文字。' }
@@ -355,7 +359,8 @@ function buildMissingQuestion(missingFields) {
   const labels = {
     when: 'いつ',
     where: 'どこで',
-    who: 'だれの件',
+    who: 'だれが',
+    toWhom: 'だれに',
     what: '何が起きたか',
     how: 'どのような状況か'
   };
@@ -396,6 +401,7 @@ function ensureHeader(sheet) {
     'いつ',
     'どこで',
     'だれが',
+    'だれに',
     'なにを',
     'どのように',
     '緊急度',
@@ -428,9 +434,9 @@ function setupSpreadsheetFormatting() {
 
 function formatAlertSheet(sheet) {
   const maxRows = Math.max(sheet.getMaxRows(), 100);
-  const headerRange = sheet.getRange(1, 1, 1, 11);
-  const bodyRange = sheet.getRange(2, 1, maxRows - 1, 11);
-  const tableRange = sheet.getRange(1, 1, maxRows, 11);
+  const headerRange = sheet.getRange(1, 1, 1, 12);
+  const bodyRange = sheet.getRange(2, 1, maxRows - 1, 12);
+  const tableRange = sheet.getRange(1, 1, maxRows, 12);
 
   headerRange
     .setBackground('#0F766E')
@@ -455,18 +461,19 @@ function formatAlertSheet(sheet) {
   sheet.setColumnWidth(3, 120);
   sheet.setColumnWidth(4, 150);
   sheet.setColumnWidth(5, 150);
-  sheet.setColumnWidth(6, 220);
-  sheet.setColumnWidth(7, 240);
-  sheet.setColumnWidth(8, 90);
-  sheet.setColumnWidth(9, 260);
-  sheet.setColumnWidth(10, 360);
-  sheet.setColumnWidth(11, 220);
+  sheet.setColumnWidth(6, 150);
+  sheet.setColumnWidth(7, 220);
+  sheet.setColumnWidth(8, 240);
+  sheet.setColumnWidth(9, 90);
+  sheet.setColumnWidth(10, 260);
+  sheet.setColumnWidth(11, 360);
+  sheet.setColumnWidth(12, 220);
 
   sheet.getRange('A:A').setHorizontalAlignment('center');
-  sheet.getRange('H:H').setHorizontalAlignment('center');
+  sheet.getRange('I:I').setHorizontalAlignment('center');
   sheet.getRange(2, 1, maxRows - 1, 1).setBackground('#F8FAFC');
-  sheet.getRange(2, 8, maxRows - 1, 1).setBackground('#FEF3C7');
-  sheet.getRange(2, 10, maxRows - 1, 1).setBackground('#F8FAFC');
+  sheet.getRange(2, 9, maxRows - 1, 1).setBackground('#FEF3C7');
+  sheet.getRange(2, 11, maxRows - 1, 1).setBackground('#F8FAFC');
 }
 
 function ensureSettingsSheet(sheet) {
@@ -477,7 +484,7 @@ function ensureSettingsSheet(sheet) {
     ['キー', '値', '備考'],
     ['trigger_word', 'Kアラート', '公式LINEで開始する文言'],
     ['urgency_options', '高,中,低', '緊急度候補'],
-    ['required_fields', 'いつ,どこで,だれが,なにを,どのように', '完了判定に使う項目']
+    ['required_fields', 'いつ,どこで,だれが,だれに,なにを,どのように', '完了判定に使う項目']
   ]);
 }
 
