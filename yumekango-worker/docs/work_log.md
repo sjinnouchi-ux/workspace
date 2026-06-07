@@ -129,3 +129,21 @@
 ### 残課題
 - [ ] 法人GASエディタへ `yumekango-worker/gas/Code.gs` を反映し、デプロイを更新する。
 - [ ] 家計簿公式LINEで `家計簿入力開始` と `家計消化状況` を実機確認する。
+
+## 2026-06-07｜法人GAS URL向けに家計簿Workerを整理
+
+### 背景
+- 家計簿GASを法人GASとしてデプロイしたため、Cloudflare Worker `yumekango` も新しいGAS URLへ向ける。
+
+### 対応内容
+- `yumekango-worker/worker.js` に混ざっていたmultipart境界文字を除去。
+- WorkerをシンプルなGAS中継構成に整理。
+- GETは新GASのHTML/JSONを取得して返す。
+- POSTはLINE Webhook本文を新GASへ転送し、LINEには即時 `200 OK` を返す。
+- 新GAS WebアプリURL:
+  - `https://script.google.com/macros/s/AKfycbx2Dw3tpCTC8PZxRwIH68d00TflY98ekTAkxv2-KY7t7EByJdcN676gUOonCg58rg_4/exec`
+
+### 残課題
+- [ ] Cloudflare Worker `yumekango` のコードをGitHub版に差し替えてデプロイする。
+- [ ] `https://yumekango.s-jinnouchi.workers.dev/` のGET/POSTを確認する。
+- [ ] 家計簿公式LINEのWebhook検証と実機確認を行う。
