@@ -105,21 +105,6 @@ function doPost(e) {
   const userMessage = event.message.text.trim();
   const step = cache.get(userId + '_step');
 
-  if (userMessage === '保管と入力') {
-    startDemoTextStorage_(replyToken, userId, cache);
-    return ContentService.createTextOutput('OK');
-  }
-
-  if (step === 'wait_text') {
-    finishDemoTextStorage_(replyToken, userMessage, userId, cache);
-    return ContentService.createTextOutput('OK');
-  }
-
-  if (userMessage === '情報参照') {
-    sendDemoInfoOptions_(replyToken);
-    return ContentService.createTextOutput('OK');
-  }
-
   if (userMessage === '家計簿入力開始') {
     const liffUrl = 'https://liff.line.me/' + LIFF_ID;
     replyLineRaw(replyToken, {
@@ -160,46 +145,12 @@ function doPost(e) {
     return ContentService.createTextOutput('OK');
   }
 
-  if (step && step !== 'wait_text') {
+  if (step) {
     handleKakeiboStep(replyToken, userMessage, userId, cache, step);
     return ContentService.createTextOutput('OK');
   }
 
-  replyDemoInfoIfMatched_(replyToken, userMessage, step);
   return ContentService.createTextOutput('OK');
-}
-
-// =====================================================
-// DEMO機能（Kアラート移植予定）
-// 後で家計簿専用LINEから分離しやすいよう、このブロックに集約する。
-// =====================================================
-function startDemoTextStorage_(replyToken, userId, cache) {
-  cache.put(userId + '_step', 'wait_text');
-  replyLine(replyToken, 'メモしたい内容を入力してください。公式LINE_3に記録します。');
-}
-
-function finishDemoTextStorage_(replyToken, text, userId, cache) {
-  saveTextToSheet(text);
-  replyLine(replyToken, '✅ 公式LINE_3に記録しました。');
-  cache.remove(userId + '_step');
-}
-
-function sendDemoInfoOptions_(replyToken) {
-  const values = SpreadsheetApp.openById(getSpreadsheetId_()).getSheetByName('公式LINE_2').getRange('A2:A').getValues();
-  const options = [];
-  for (let i = 0; i < values.length; i++) {
-    if (values[i][0] === '') break;
-    options.push(values[i][0].toString());
-  }
-  if (options.length > 0) sendQuickReply(replyToken, '項目を選択してください', options);
-}
-
-function replyDemoInfoIfMatched_(replyToken, userMessage, step) {
-  const infoData = SpreadsheetApp.openById(getSpreadsheetId_()).getSheetByName('公式LINE_2').getRange('A2:B100').getValues();
-  const matchRow = infoData.find(row => row[0].toString() === userMessage);
-  if (matchRow && !step) {
-    replyLine(replyToken, matchRow[1].toString());
-  }
 }
 
 // =====================================================
@@ -584,19 +535,6 @@ function saveToExpenseSheet(month, amount, content) {
     if (i === data.length - 1) targetRow = data.length + 2;
   }
   sheet.getRange(targetRow, 1, 1, 4).setValues([[date, month, Number(amount), content]]);
-}
-
-function saveTextToSheet(text) {
-  const ss = SpreadsheetApp.openById(getSpreadsheetId_());
-  const sheet = ss.getSheetByName('公式LINE_3');
-  const date = Utilities.formatDate(getTokyoNow_(), 'JST', 'yyyy/MM/dd HH:mm');
-  const data = sheet.getRange('A2:A').getValues();
-  let targetRow = 2;
-  for (let i = 0; i < data.length; i++) {
-    if (data[i][0] === '' || data[i][0] === null) { targetRow = i + 2; break; }
-    if (i === data.length - 1) targetRow = data.length + 2;
-  }
-  sheet.getRange(targetRow, 1, 1, 2).setValues([[date, text]]);
 }
 
 // =====================================================

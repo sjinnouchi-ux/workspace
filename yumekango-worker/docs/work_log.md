@@ -114,3 +114,18 @@
 ### 残課題
 - [ ] 別公式LINEアカウント作成後、DEMO機能ブロックを移植する
 - [ ] 移植後、このGASからデモ機能ブロックと `公式LINE_2` / `公式LINE_3` 依存を削除し、家計簿専用コードへ整理する
+
+## 2026-06-07｜Kアラートデモ機能を家計簿GASから削除
+
+### 背景
+- Kアラートを別公式LINEと法人GASへ移したため、家計簿GASを本来の家計簿機能だけに戻す。
+
+### 対応内容
+- `保管と入力` / `情報参照` / `wait_text` の入口を削除。
+- `公式LINE_2` / `公式LINE_3` 依存処理を削除。
+- `startDemoTextStorage_()`, `finishDemoTextStorage_()`, `sendDemoInfoOptions_()`, `replyDemoInfoIfMatched_()`, `saveTextToSheet()` を削除。
+- 家計簿本体の `家計簿入力開始`, `家計消化状況`, LINE会話型入力、LIFF登録、経費転写処理は維持。
+
+### 残課題
+- [ ] 法人GASエディタへ `yumekango-worker/gas/Code.gs` を反映し、デプロイを更新する。
+- [ ] 家計簿公式LINEで `家計簿入力開始` と `家計消化状況` を実機確認する。
