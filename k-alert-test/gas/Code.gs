@@ -1,10 +1,12 @@
 const SHEET_NAME = 'アラート';
 const TRIGGER_WORD = 'Kアラート';
-const START_TRIGGER_TEXTS = ['Kアラート', '匿名報告', '匿名報告開始', '報告する'];
+const START_TRIGGER_TEXTS = ['相談する'];
+const DEVELOPMENT_TRIGGER_TEXTS = ['大人の保健室', '通報する'];
 const REQUIRED_FIELDS = ['when', 'where', 'who', 'toWhom', 'what', 'how'];
 const INTRO_MESSAGE = 'こんにちは。このLINEのチャット内容は匿名報告として取り扱われますのでご安心ください。必要に応じて皆様に危害が及ばないように担当者より対応させていただきます。今回はどのような事象がありましたか？';
 const COMPLETE_MESSAGE = '報告ありがとうございます。';
 const AI_ERROR_MESSAGE = '記録しました。確認後に対応します。';
+const DEVELOPMENT_MESSAGE = '開発中です。';
 
 function doGet() {
   return jsonOutput({
@@ -31,6 +33,11 @@ function doPost(e) {
     const text = event.message.text.trim();
     const session = getSession(userId);
     const start = getStartPayload(text);
+
+    if (isDevelopmentTrigger(text)) {
+      replyLine(event.replyToken, DEVELOPMENT_MESSAGE);
+      return jsonOutput({ handled: true, mode: 'development' });
+    }
 
     if (session && start.isStart && !start.content) {
       startReportSession(event, userId);
@@ -547,6 +554,11 @@ function getStartPayload(text) {
     }
   }
   return { isStart: false, content: '' };
+}
+
+function isDevelopmentTrigger(text) {
+  const normalized = text.trim();
+  return DEVELOPMENT_TRIGGER_TEXTS.indexOf(normalized) !== -1;
 }
 
 function getSession(userId) {
