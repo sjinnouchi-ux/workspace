@@ -3,7 +3,7 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbx2Dw3tpCTC8PZxRwIH68d0
 export default {
   async fetch(request, env, ctx) {
     if (request.method === "GET") {
-      return proxyGet(request);
+      return redirectToGas(request);
     }
 
     if (request.method !== "POST") {
@@ -25,21 +25,10 @@ export default {
   }
 };
 
-async function proxyGet(request) {
+function redirectToGas(request) {
   const requestUrl = new URL(request.url);
   const gasUrl = new URL(GAS_URL);
   gasUrl.search = requestUrl.search;
 
-  const gasResponse = await fetch(gasUrl.toString(), {
-    method: "GET",
-    redirect: "follow"
-  });
-
-  return new Response(gasResponse.body, {
-    status: gasResponse.status,
-    headers: {
-      "Content-Type": gasResponse.headers.get("Content-Type") || "text/html; charset=utf-8",
-      "Cache-Control": "no-store"
-    }
-  });
+  return Response.redirect(gasUrl.toString(), 302);
 }
