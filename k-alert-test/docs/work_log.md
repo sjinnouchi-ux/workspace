@@ -303,3 +303,25 @@
 - 家計簿LIFFの回帰確認
 - 報告内容のランク付けと返信文最適化
 - ChatWork API通知
+
+---
+
+## 2026-06-08｜KアラートLINE設定と環境値の整理
+
+### 背景
+
+- 家計簿LIFFとの分離後、Kアラート専用公式LINEのAPI設定値を汎用 `.env` に整理する必要があった。
+- 将来的にKアラートにもLIFF詳細入力を追加する想定があるため、現在のLIFF作成可否を確認した。
+
+### 対応内容
+
+- KアラートProvider `Kアラート・テスト開発` 内にあるMessaging APIチャネルを確認。
+- Messaging API Channel IDは `2010315694`。
+- Channel secretとChannel access tokenはLINE Developersの対象チャネル画面で確認する。
+- Messaging APIチャネルのLIFFタブを確認し、現在の画面上で `Messaging APIチャネルには、LIFFアプリを追加できません。LINEログインチャネルに追加してください。` と表示されることを確認。
+- Kアラート用LIFF IDは現時点で未作成。今後必要になった時点で同Provider内にLINEログインチャネルを作成し、LIFFアプリを追加する方針。
+- Cloudflare Worker名は `k-alert-test` と確認。
+
+### 注意
+
+- LINE channel access token、channel secret、Supabase service_role keyなどの秘匿値はGitHub/Notion本文には保存しない。

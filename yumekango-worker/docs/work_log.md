@@ -147,3 +147,20 @@
 - [ ] Cloudflare Worker `yumekango` のコードをGitHub版に差し替えてデプロイする。
 - [ ] `https://yumekango.s-jinnouchi.workers.dev/` のGET/POSTを確認する。
 - [ ] 家計簿公式LINEのWebhook検証と実機確認を行う。
+
+## 2026-06-08｜LINE Developers表示名と環境値の整理
+
+### 背景
+- 家計簿LIFFとKアラートの分離後、LINE Developers上に `ゆめ看護` Providerが重複して表示され、家計簿のMessaging APIチャネルとLIFFチャネルの識別が分かりづらくなっていた。
+- 汎用 `.env` に入れるため、Cloudflare / Notion / API Monitor / Supabase の参照値も整理する必要があった。
+
+### 対応内容
+- 空Provider `2004471073` はチャネルなしを確認して削除。
+- 本番Provider `2004471113` を `ゆめ看護` から `家計簿` へ名称変更。
+- LINE Official Account Managerで公式LINEアカウント名を `ゆめ看護` から `家計簿` へ変更し、公開済み状態を確認。
+- 家計簿Messaging APIチャネルは `2007959459`、LIFF IDは `2010069897-X9JY7R2h` と整理。
+- Cloudflare Worker名は `yumekango` と確認。
+- Notion Projects DB ID、API Monitor SQLite DBパス、SupabaseプロジェクトURLを確認。
+
+### 注意
+- LINE channel access token、Supabase service_role key、Notion tokenなどの秘匿値はGitHub/Notion本文には保存しない。
