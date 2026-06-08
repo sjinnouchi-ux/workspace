@@ -196,3 +196,30 @@
 - [ ] GASエディタへ最新版 `yumekango-worker/gas/Code.gs` を反映し、デプロイを更新する。
 - [ ] Cloudflare Worker `yumekango` をデプロイする。
 - [ ] LINE実機で `家計消化状況` の合計行が0%ではなくなることを確認する。
+
+## 2026-06-08｜家計簿アプリ完了報告
+
+### 背景
+- ユーザーから家計簿アプリのプロジェクト完了報告があった。
+- 直前の復旧作業で、リッチメニュー補助機能、家計消化状況の合計行、LIFFのApps Script警告対策まで完了した。
+
+### 対応内容
+- ユーザーが最新版GASを法人GASへ反映し、デプロイ更新したことを確認。
+- `global.env` から `CLOUDFLARE_API_TOKEN` を読み込み、Cloudflare Worker `yumekango` を本番デプロイ。
+- Worker側でApps Scriptラッパーを除去し、LIFFフォーム本体HTMLだけを返す方式へ更新。
+- 作業内容を `docs/reports/2026-06-07-k-alert-kakeibo-completion.md` に追記。
+
+### 確認
+- GAS `?action=getCategories`: `200 OK`
+- GAS通常GET: `200 OK`
+- Worker通常GET: `200 OK`
+- WorkerカテゴリJSON: `200 OK`
+- Worker通常GETでGASへの302リダイレクトなし。
+- Worker通常GETでApps Scriptラッパーなし。
+- Worker通常GETで `script.google.com` 文字列なし。
+- Worker内のLIFF送信先 `GAS_URL` は `https://yumekango.s-jinnouchi.workers.dev/` に置換済み。
+- Cloudflare Worker Version ID: `ed9fd1dd-7370-4db6-ba20-0ce10e9519a1`
+
+### 最終状態
+- 家計簿アプリは完了。
+- 今後は通常運用・月次レビュー時に、家計簿入力、リッチメニュー2/3/4、LIFF表示を確認する。
