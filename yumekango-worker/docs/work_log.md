@@ -164,3 +164,19 @@
 
 ### 注意
 - LINE channel access token、Supabase service_role key、Notion tokenなどの秘匿値はGitHub/Notion本文には保存しない。
+
+## 2026-06-08｜家計簿GASのリッチメニュー補助機能復旧
+
+### 背景
+- Kアラート機能を家計簿GASから削除した際、家計簿公式LINEで利用していたリッチメニュー補助機能も一緒に削除されていた。
+- 具体的には、リッチメニュー2/3の `情報参照` / `保管と入力` が反応しない、リッチメニュー4の家計消化状況の集計がズレる、LIFF画面でApps Script由来の表示が再発する、という相談があった。
+
+### 対応内容
+- `公式LINE_2` を使う情報参照と、`公式LINE_3` へ記録する保管入力を、Kアラートではなく家計簿公式LINEの補助機能として復旧。
+- `家計消化状況` の当月判定を、`6月` の完全一致だけでなく、日付・数値月・全角数字・年月文字列にも対応するよう修正。
+- Cloudflare WorkerのGET処理をGASへの302リダイレクトから、GASのHTML/JSONをWorker側で取得して返す方式へ変更。
+
+### 残課題
+- [ ] GASエディタへ `yumekango-worker/gas/Code.gs` を反映し、デプロイを更新する。
+- [ ] Cloudflare Worker `yumekango` をデプロイする。
+- [ ] 公式LINEでリッチメニュー2/3/4とLIFF表示を実機確認する。

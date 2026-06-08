@@ -3,7 +3,7 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbx2Dw3tpCTC8PZxRwIH68d0
 export default {
   async fetch(request, env, ctx) {
     if (request.method === "GET") {
-      return redirectToGas(request);
+      return serveGasResponse(request);
     }
 
     if (request.method !== "POST") {
@@ -25,10 +25,33 @@ export default {
   }
 };
 
-function redirectToGas(request) {
+async function serveGasResponse(request) {
   const requestUrl = new URL(request.url);
   const gasUrl = new URL(GAS_URL);
   gasUrl.search = requestUrl.search;
 
-  return Response.redirect(gasUrl.toString(), 302);
+  const gasResponse = await fetch(gasUrl.toString(), { redirect: "follow" });
+  const contentType = gasResponse.headers.get("Content-Type") || "";
+
+  if (requestUrl.searchParams.get("action") === "getCategories" || contentType.includes("application/json")) {
+    return new Response(gasResponse.body, {
+      status: gasResponse.status,
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+        "Cache-Control": "no-store"
+      }
+    });
+  }
+
+  let html = await gasResponse.text();
+  const workerUrl = `${requestUrl.origin}${requestUrl.pathname}`;
+  html = html.replace(/const GAS_URL = '.*?';/, `const GAS_URL = '${workerUrl}';`);
+
+  return new Response(html, {
+    status: gasResponse.status,
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": "no-store"
+    }
+  });
 }

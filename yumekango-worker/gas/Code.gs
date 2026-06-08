@@ -7,6 +7,9 @@
 // - EXPENSE_SS_ID
 const SUMMARY_SHEET_NAME = '集計';
 const LIFF_ID = '2010069897-X9JY7R2h';
+const INFO_SHEET_NAME = '公式LINE_2';
+const MEMO_SHEET_NAME = '公式LINE_3';
+const MEMO_STEP = 'wait_text';
 
 function getRequiredProperty_(key) {
   const value = PropertiesService.getScriptProperties().getProperty(key);
@@ -105,6 +108,21 @@ function doPost(e) {
   const userMessage = event.message.text.trim();
   const step = cache.get(userId + '_step');
 
+  if (userMessage === '保管と入力') {
+    startLineMemoInput_(replyToken, userId, cache);
+    return ContentService.createTextOutput('OK');
+  }
+
+  if (step === MEMO_STEP) {
+    finishLineMemoInput_(replyToken, userMessage, userId, cache);
+    return ContentService.createTextOutput('OK');
+  }
+
+  if (userMessage === '情報参照') {
+    sendLineInfoOptions_(replyToken);
+    return ContentService.createTextOutput('OK');
+  }
+
   if (userMessage === '家計簿入力開始') {
     const liffUrl = 'https://liff.line.me/' + LIFF_ID;
     replyLineRaw(replyToken, {
@@ -150,7 +168,93 @@ function doPost(e) {
     return ContentService.createTextOutput('OK');
   }
 
+  if (replyLineInfoIfMatched_(replyToken, userMessage)) {
+    return ContentService.createTextOutput('OK');
+  }
+
   return ContentService.createTextOutput('OK');
+}
+
+// =====================================================
+// リッチメニュー補助機能
+// =====================================================
+function startLineMemoInput_(replyToken, userId, cache) {
+  cache.put(userId + '_step', MEMO_STEP);
+  replyLine(replyToken, 'メモしたい内容を入力してください。公式LINE_3に記録します。');
+}
+
+function finishLineMemoInput_(replyToken, text, userId, cache) {
+  try {
+    saveLineMemoToSheet_(text);
+    replyLine(replyToken, '✅ 公式LINE_3に記録しました。');
+  } catch (err) {
+    replyLine(replyToken, '❌ 記録に失敗しました: ' + err.message);
+  } finally {
+    cache.remove(userId + '_step');
+  }
+}
+
+function sendLineInfoOptions_(replyToken) {
+  const sheet = getOptionalSheet_(INFO_SHEET_NAME);
+  if (!sheet) {
+    replyLine(replyToken, INFO_SHEET_NAME + ' シートが見つかりません。');
+    return;
+  }
+
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) {
+    replyLine(replyToken, '参照できる項目がありません。');
+    return;
+  }
+
+  const values = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+  const options = [];
+  for (let i = 0; i < values.length; i++) {
+    if (values[i][0] === '' || values[i][0] === null) break;
+    options.push(values[i][0].toString());
+  }
+
+  if (options.length > 0) {
+    sendQuickReply(replyToken, '項目を選択してください', options);
+  } else {
+    replyLine(replyToken, '参照できる項目がありません。');
+  }
+}
+
+function replyLineInfoIfMatched_(replyToken, userMessage) {
+  const sheet = getOptionalSheet_(INFO_SHEET_NAME);
+  if (!sheet || sheet.getLastRow() < 2) return false;
+
+  const infoData = sheet.getRange(2, 1, sheet.getLastRow() - 1, 2).getValues();
+  const message = normalizeText_(userMessage);
+  const matchRow = infoData.find(row => normalizeText_(row[0]) === message);
+  if (!matchRow) return false;
+
+  const answer = matchRow[1] ? matchRow[1].toString() : '';
+  replyLine(replyToken, answer || '表示できる内容が未入力です。');
+  return true;
+}
+
+function saveLineMemoToSheet_(text) {
+  const sheet = getOptionalSheet_(MEMO_SHEET_NAME);
+  if (!sheet) throw new Error(MEMO_SHEET_NAME + ' シートが見つかりません。');
+
+  const date = Utilities.formatDate(getTokyoNow_(), 'JST', 'yyyy/MM/dd HH:mm');
+  const data = sheet.getRange('A2:A').getValues();
+  let targetRow = 2;
+  for (let i = 0; i < data.length; i++) {
+    if (data[i][0] === '' || data[i][0] === null) { targetRow = i + 2; break; }
+    if (i === data.length - 1) targetRow = data.length + 2;
+  }
+  sheet.getRange(targetRow, 1, 1, 2).setValues([[date, text]]);
+}
+
+function getOptionalSheet_(sheetName) {
+  return SpreadsheetApp.openById(getSpreadsheetId_()).getSheetByName(sheetName);
+}
+
+function normalizeText_(value) {
+  return String(value || '').trim();
 }
 
 // =====================================================
@@ -325,7 +429,7 @@ function sendBudgetReport(replyToken) {
       return;
     }
 
-    const spendingByCategory = readMonthlySpendingByCategory_(kakeiboSheet, monthLabel);
+    const spendingByCategory = readMonthlySpendingByCategory_(kakeiboSheet, now);
     const rows = budgetRows.map(row => {
       const spent = spendingByCategory[row.name] || 0;
       const remaining = row.budget - spent;
@@ -369,7 +473,7 @@ function readBudgetRows_(summarySheet) {
   for (let i = headerIdx + 1; i < data.length; i++) {
     const name = data[i][0];
     if (!name) break;
-    const nameText = name.toString();
+    const nameText = normalizeCategoryName_(name);
     if (nameText.startsWith('経費')) continue;
     rows.push({
       name: nameText,
@@ -380,10 +484,12 @@ function readBudgetRows_(summarySheet) {
   return rows;
 }
 
-function readMonthlySpendingByCategory_(kakeiboSheet, monthLabel) {
+function readMonthlySpendingByCategory_(kakeiboSheet, targetDate) {
   const lastRow = kakeiboSheet.getLastRow();
   if (lastRow < 4) return {};
 
+  const targetYear = targetDate.getFullYear();
+  const targetMonth = targetDate.getMonth() + 1;
   const values = kakeiboSheet.getRange(4, 2, lastRow - 3, 4).getValues();
   const spending = {};
   for (let i = 0; i < values.length; i++) {
@@ -391,11 +497,44 @@ function readMonthlySpendingByCategory_(kakeiboSheet, monthLabel) {
     const category = values[i][1];
     const amount = Number(values[i][3]) || 0;
     if (!rowMonth || !category) continue;
-    if (rowMonth.toString().trim() !== monthLabel) continue;
-    const key = category.toString();
+    if (!isSameMonthValue_(rowMonth, targetYear, targetMonth)) continue;
+    const key = normalizeCategoryName_(category);
     spending[key] = (spending[key] || 0) + amount;
   }
   return spending;
+}
+
+function isSameMonthValue_(value, targetYear, targetMonth) {
+  if (value instanceof Date) {
+    return value.getFullYear() === targetYear && (value.getMonth() + 1) === targetMonth;
+  }
+
+  if (typeof value === 'number') {
+    return value === targetMonth;
+  }
+
+  const text = toHalfWidthNumber_(String(value || '').trim());
+  if (!text) return false;
+
+  const yearMonth = text.match(/(20\d{2})\D+(\d{1,2})/);
+  if (yearMonth) {
+    return Number(yearMonth[1]) === targetYear && Number(yearMonth[2]) === targetMonth;
+  }
+
+  const monthOnly = text.match(/^(\d{1,2})\s*月?$/);
+  if (monthOnly) {
+    return Number(monthOnly[1]) === targetMonth;
+  }
+
+  return text === targetMonth + '月';
+}
+
+function normalizeCategoryName_(value) {
+  return String(value || '').trim();
+}
+
+function toHalfWidthNumber_(text) {
+  return text.replace(/[０-９]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0));
 }
 
 function makeBudgetRow(name, budget, remaining, pctVal) {
