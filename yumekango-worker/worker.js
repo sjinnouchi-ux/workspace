@@ -43,9 +43,9 @@ async function serveGasResponse(request) {
     });
   }
 
-  let html = await gasResponse.text();
+  let html = extractAppsScriptUserHtml(await gasResponse.text());
   const workerUrl = `${requestUrl.origin}${requestUrl.pathname}`;
-  html = html.replace(/const GAS_URL = '.*?';/, `const GAS_URL = '${workerUrl}';`);
+  html = html.replace(/const GAS_URL = ['"].*?['"];/, `const GAS_URL = '${workerUrl}';`);
 
   return new Response(html, {
     status: gasResponse.status,
@@ -54,4 +54,20 @@ async function serveGasResponse(request) {
       "Cache-Control": "no-store"
     }
   });
+}
+
+function extractAppsScriptUserHtml(html) {
+  const match = html.match(/\\x22userHtml\\x22:\\x22([\s\S]*?)\\x22,\\x22ncc\\x22/);
+  if (!match) return html;
+
+  const jsonEscaped = match[1].replace(/\\x([0-9A-Fa-f]{2})/g, (_, hex) => `\\u00${hex}`);
+  try {
+    return JSON.parse(`"${jsonEscaped.replace(/"/g, '\\"')}"`)
+      .replace(/\\n/g, "\n")
+      .replace(/\\"/g, '"')
+      .replace(/\\\//g, "/");
+  } catch (err) {
+    console.log("Failed to extract Apps Script userHtml:", err);
+    return html;
+  }
 }
