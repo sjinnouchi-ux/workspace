@@ -423,7 +423,7 @@ function sendBudgetReport(replyToken) {
     const today = now.getDate();
     const daysInMonth = new Date(now.getFullYear(), month, 0).getDate();
 
-    const budgetRows = readBudgetRows_(summarySheet);
+    const budgetRows = readBudgetRows_(summarySheet, now);
     if (budgetRows.length === 0) {
       replyLine(replyToken, '❌ 集計シートに表示対象の項目が見つかりません。');
       return;
@@ -431,7 +431,7 @@ function sendBudgetReport(replyToken) {
 
     const spendingByCategory = readMonthlySpendingByCategory_(kakeiboSheet, now);
     const rows = budgetRows.map(row => {
-      const spent = spendingByCategory[row.name] || 0;
+      const spent = row.summarySpent !== null ? row.summarySpent : (spendingByCategory[row.name] || 0);
       const remaining = row.budget - spent;
       const pctVal = row.isFixed ? '-' : (row.budget > 0 ? spent / row.budget : 0);
       return { name: row.name, budget: row.budget, diff: remaining, pctVal: pctVal };
@@ -462,13 +462,14 @@ function sendBudgetReport(replyToken) {
   }
 }
 
-function readBudgetRows_(summarySheet) {
-  const data = summarySheet.getRange('A1:D35').getValues();
+function readBudgetRows_(summarySheet, targetDate) {
+  const data = summarySheet.getRange('A1:P35').getValues();
   const headerIdx = data.findIndex(r => r[0].toString().trim() === '項目');
   if (headerIdx === -1) {
     return [];
   }
 
+  const monthCol = findSummaryMonthColumn_(data[headerIdx], targetDate.getMonth() + 1);
   const rows = [];
   for (let i = headerIdx + 1; i < data.length; i++) {
     const name = data[i][0];
@@ -478,10 +479,23 @@ function readBudgetRows_(summarySheet) {
     rows.push({
       name: nameText,
       budget: Number(data[i][1]) || 0,
-      isFixed: data[i][3].toString().trim() === '-'
+      isFixed: data[i][3].toString().trim() === '-',
+      summarySpent: monthCol >= 0 ? (Number(data[i][monthCol]) || 0) : null
     });
   }
   return rows;
+}
+
+function findSummaryMonthColumn_(headerRow, targetMonth) {
+  for (let i = 0; i < headerRow.length; i++) {
+    const value = headerRow[i];
+    if (value instanceof Date && (value.getMonth() + 1) === targetMonth) return i;
+    if (typeof value === 'number' && value === targetMonth) return i;
+
+    const text = toHalfWidthNumber_(String(value || '').trim());
+    if (text === targetMonth + '月' || text === String(targetMonth)) return i;
+  }
+  return -1;
 }
 
 function readMonthlySpendingByCategory_(kakeiboSheet, targetDate) {
