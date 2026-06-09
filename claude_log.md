@@ -1165,3 +1165,30 @@ dori-manga/
 ### 残課題
 - [ ] 来週、別GASプロジェクト側でWebhook URLと応答処理を設定する
 - [ ] 必要に応じてChannel access tokenを発行し、秘匿値として保存する
+
+---
+
+## 2026-06-09｜KアラートLIFF報告フォームのGAS記録準備
+
+### 背景
+- KアラートLIFFで、AI APIを使わずに報告フォーム内容をスプレッドシートへ自動記載する方針になった
+- GAS由来の警告画面を避けるため、画面はCloudflare Workerで表示し、送信処理だけGASへ転送する構成にした
+
+### 対応内容
+- 対象スプレッドシート `1c1VK_l7xSsT29WLPZiBBYRc5we-yHfGpJuYr24dMNWA` を開き、対象シートGID `1527545544` のヘッダーを確認
+- ヘッダーは `No`, `企業名`, `名前（任意）`, `入力１`, `入力２`, `入力３`, `その他（自由記載）`, `相談受付希望`
+- `k-alert-test/gas/Code.gs` に `source: liff_report` のJSON POST処理を追加
+- A列NoはGASで既存最大値+1を自動採番
+- B〜H列へフォーム内容を追記し、C列は任意、H列は `希望する` / `希望しない` のみ許可
+- `k-alert-test/worker/k_alert_dedicated_worker.js` に `/report` のLIFFフォームと `/api/report` のGAS転送APIを追加
+- フォームはブラウザalertを使わず、画面内ステータスで送信結果を表示
+
+### 確認
+- `worker/k_alert_dedicated_worker.js` の構文チェック成功
+- `gas/Code.gs` のJavaScript構文チェック成功
+- ローカルプレビューでフォーム項目と必須/任意設定を確認
+
+### 残課題
+- [ ] Apps Scriptへ最新版 `Code.gs` を反映し、Webアプリを再デプロイする
+- [ ] Cloudflare Workerへ最新版を反映する
+- [ ] LIFFからテスト送信し、対象シートA〜H列への自動記載を確認する

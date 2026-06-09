@@ -12,6 +12,8 @@ const REPORT_LINK_TITLE = '通報する';
 const REPORT_LINK_BODY = '匿名での報告となりますので、安心して報告してください';
 const REPORT_LINK_BUTTON = '報告画面を開く';
 const REPORT_LINK_URL_MISSING_MESSAGE = '報告画面URLが未設定です。管理者へ確認してください。';
+const LIFF_REPORT_SHEET_ID = 1527545544;
+const LIFF_REPORT_ALLOWED_CONSULTATION = ['希望する', '希望しない'];
 
 function doGet() {
   return jsonOutput({
@@ -24,6 +26,11 @@ function doGet() {
 function doPost(e) {
   try {
     const payload = parseJsonBody(e);
+
+    if (payload.source === 'liff_report') {
+      return handleLiffReportSubmission(payload);
+    }
+
     const events = payload.events || [];
     if (events.length === 0) {
       return jsonOutput({ handled: false, reason: 'no_events' });
@@ -78,6 +85,100 @@ function doPost(e) {
     console.error(err);
     return jsonOutput({ handled: true, error: err.message });
   }
+}
+
+function handleLiffReportSubmission(payload) {
+  const report = normalizeLiffReportPayload(payload);
+  const sheet = getLiffReportSheet();
+  ensureLiffReportHeader(sheet);
+  const nextNo = getNextLiffReportNo(sheet);
+
+  sheet.appendRow([
+    nextNo,
+    report.companyName,
+    report.reporterName,
+    report.input1,
+    report.input2,
+    report.input3,
+    report.freeText,
+    report.consultationRequest
+  ]);
+
+  return jsonOutput({
+    ok: true,
+    handled: true,
+    mode: 'liff_report',
+    no: nextNo
+  });
+}
+
+function normalizeLiffReportPayload(payload) {
+  const report = payload.report || {};
+  const normalized = {
+    companyName: normalizeField(report.companyName),
+    reporterName: normalizeField(report.reporterName),
+    input1: normalizeField(report.input1),
+    input2: normalizeField(report.input2),
+    input3: normalizeField(report.input3),
+    freeText: normalizeField(report.freeText),
+    consultationRequest: normalizeField(report.consultationRequest)
+  };
+
+  const requiredFields = ['companyName', 'input1', 'input2', 'input3', 'freeText', 'consultationRequest'];
+  const missing = requiredFields.filter(function(field) {
+    return !normalized[field];
+  });
+  if (missing.length > 0) {
+    throw new Error('Missing required LIFF report fields: ' + missing.join(','));
+  }
+
+  if (LIFF_REPORT_ALLOWED_CONSULTATION.indexOf(normalized.consultationRequest) === -1) {
+    throw new Error('Invalid consultationRequest: ' + normalized.consultationRequest);
+  }
+
+  return normalized;
+}
+
+function normalizeField(value) {
+  return value === null || value === undefined ? '' : value.toString().trim();
+}
+
+function getLiffReportSheet() {
+  const ss = SpreadsheetApp.openById(getRequiredProperty('SPREADSHEET_ID'));
+  const sheets = ss.getSheets();
+  for (let i = 0; i < sheets.length; i++) {
+    if (sheets[i].getSheetId() === LIFF_REPORT_SHEET_ID) return sheets[i];
+  }
+  throw new Error('LIFF report sheet was not found: ' + LIFF_REPORT_SHEET_ID);
+}
+
+function ensureLiffReportHeader(sheet) {
+  const headers = [
+    'No',
+    '企業名',
+    '名前（任意）',
+    '入力１',
+    '入力２',
+    '入力３',
+    'その他（自由記載）',
+    '相談受付希望'
+  ];
+  const current = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
+  if (current.join('') === '') {
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+    sheet.setFrozenRows(1);
+  }
+}
+
+function getNextLiffReportNo(sheet) {
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return 1;
+  const values = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+  const maxNo = values.reduce(function(max, row) {
+    const no = Number(row[0]);
+    return Number.isFinite(no) && no > max ? no : max;
+  }, 0);
+  return maxNo + 1;
 }
 
 function startReportSession(event, userId) {
