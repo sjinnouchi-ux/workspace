@@ -363,3 +363,32 @@
 - [x] 最新GASコードをApps Scriptへ反映し、必要ならWebアプリを再デプロイする
 - [x] 公式LINE実機で `通報する` からカードが返ることを確認する
 - [ ] Cloudflare Workerの `/report` にLIFF詳細報告フォームを実装する
+
+---
+
+## 2026-06-09｜Kアラート・（株）LOPE 公式LINE作成とMessaging API有効化
+
+### 背景
+
+- 先行して設定したKアラート公式LINEとは別に、来週以降の別GASプロジェクト用として新しい公式LINEを作成する
+- 今回はGAS連携やWebhook実装には進まず、Messaging APIチャネルの有効化までを行う
+
+### 対応内容
+
+- LINE公式アカウント `Kアラート・（株）LOPE` を作成
+- Basic IDは `@137dxxtv`
+- LINE Official Account Manager URLは `https://manager.line.biz/account/@137dxxtv`
+- Messaging API設定で新規プロバイダー `Kアラート・（株）LOPE` を作成し、同アカウントと連携
+- Messaging APIのステータスが `利用中` になったことを確認
+- Channel IDは `2010344304`
+
+### 注意
+
+- このアカウントは先ほどのKアラートLIFF設定済み公式LINEとは別アカウント
+- 対応予定のGASプロジェクトも別プロジェクト
+- Channel secretやアクセストークンなどの秘匿値は記録しない
+
+### 残課題
+
+- [ ] 来週、別GASプロジェクト側でWebhook URLと応答処理を設定する
+- [ ] 必要に応じてChannel access tokenを発行し、秘匿値として保存する

@@ -1145,3 +1145,23 @@ dori-manga/
 - LIFFエンドポイントURL: `https://k-alert-test.s-jinnouchi.workers.dev/report`
 - GAS POST `通報する`: `200 OK`, `{"handled":true,"mode":"report_link"}`
 - Cloudflare Worker POST `通報する`: `200 OK`
+
+---
+
+## 2026-06-09｜Kアラート・（株）LOPE 公式LINE作成とMessaging API有効化
+
+### 背景
+- 既存のKアラート公式LINEとは別に、来週以降の別GASプロジェクト用として公式LINEを追加する方針になった
+- 今回はGAS連携やWebhook実装には進まず、Messaging APIチャネルの有効化までを行った
+
+### 対応内容
+- LINE公式アカウント `Kアラート・（株）LOPE` を作成
+- Basic ID: `@137dxxtv`
+- LINE Official Account Manager URL: `https://manager.line.biz/account/@137dxxtv`
+- 新規プロバイダー `Kアラート・（株）LOPE` と連携してMessaging APIを有効化
+- Messaging APIステータス: `利用中`
+- Channel ID: `2010344304`
+
+### 残課題
+- [ ] 来週、別GASプロジェクト側でWebhook URLと応答処理を設定する
+- [ ] 必要に応じてChannel access tokenを発行し、秘匿値として保存する
