@@ -441,3 +441,29 @@
 - `https://k-alert-test.s-jinnouchi.workers.dev/report` がHTTP 200でLIFFフォームHTMLを返すことを確認
 - ブラウザで公開フォームの表示項目を確認
 - スプレッドシートへの実送信テストは、テスト行が残るため未実施
+
+---
+
+## 2026-06-09｜本日の作業終了メモ
+
+### 到達点
+
+- リッチメニュー右下 `通報する` からLIFF報告画面を開く導線を作成
+- LINEログインチャネル `KアラートLIFF` とLIFFアプリ `Kアラート報告画面` を作成
+- LIFF URL `https://liff.line.me/2010343610-N2psO7GW` をGAS Script Propertiesへ設定済み
+- GAS Webアプリを最新版へ更新済み
+- Cloudflare Worker `k-alert-test` へLIFF報告フォームを反映済み
+- 公開フォーム `https://k-alert-test.s-jinnouchi.workers.dev/report` の表示を確認済み
+- 別アカウント `Kアラート・（株）LOPE` の公式LINE作成とMessaging API有効化まで完了
+
+### 次回アクション
+
+- LIFFから報告フォームを実送信し、対象スプレッドシートA〜H列へ自動記載されることを確認する
+- テスト行を残す場合は内容をテストデータとして明記する
+- 必要に応じてフォーム項目名、説明文、デザインを本番向けに調整する
+- `Kアラート・（株）LOPE` は来週以降、別GASプロジェクトでWebhook URLと応答処理を設定する
+
+### 未実施
+
+- LIFFフォームからの実送信テスト
+- Notionの月次レビュー、KPI、SNS/PR、意思決定ログへの記載
