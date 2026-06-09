@@ -1118,3 +1118,21 @@ dori-manga/
 ### 完了判定
 - Kアラートのテスト開発はここで一旦完了
 - 公式LINE相当のWebhook経路で、Anthropic APIによる項目分解、不足項目聞き取り、同一行更新、完了返信まで確認済み
+
+---
+
+## 2026-06-09｜Kアラート 通報するのLIFF導線カード準備
+
+### 背景
+- リッチメニュー右下の `通報する` から、LIFF詳細報告画面へ進むためのカードをLINE上に表示したい
+
+### 対応内容
+- `k-alert-test/gas/Code.gs` に `通報する` 専用のFlex Message返信を追加
+- カード文言は `警報OBへ相談`、`担当者へ内容を共有します`、`報告画面を開く`
+- ボタンURLは `K_ALERT_LIFF_URL` Script Propertyから読む設計にした
+- `k-alert-test/docs/manual_setup.md` と `k-alert-test/docs/work_log.md` を更新
+
+### 残課題
+- [ ] LIFF URL発行後、Apps ScriptのScript Propertiesへ `K_ALERT_LIFF_URL` を設定
+- [ ] 最新GASコードをApps Scriptへ反映
+- [ ] 公式LINE実機でカード表示とボタン遷移を確認

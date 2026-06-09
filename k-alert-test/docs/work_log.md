@@ -325,3 +325,27 @@
 ### 注意
 
 - LINE channel access token、channel secret、Supabase service_role keyなどの秘匿値はGitHub/Notion本文には保存しない。
+
+---
+
+## 2026-06-09｜通報するのLIFF導線カード準備
+
+### 背景
+
+- リッチメニュー右下の `通報する` を押したとき、画像例のように `報告画面を開く` ボタン付きのリンク表示を出したい
+- ボタン押下後はLIFFの詳細報告画面を開く想定
+
+### 対応内容
+
+- `gas/Code.gs` で `通報する` を `開発中です。` 返信から分離
+- `警報OBへ相談` / `担当者へ内容を共有します` / `報告画面を開く` のFlex Messageカードを追加
+- ボタンURLはScript Propertiesの `K_ALERT_LIFF_URL` から読む設計にした
+- `K_ALERT_LIFF_URL` 未設定時は、報告画面URL未設定の案内文を返す
+- `docs/manual_setup.md` に `K_ALERT_LIFF_URL` とLINEテスト手順を追記
+
+### 残課題
+
+- [ ] Kアラート用LINEログインチャネルを作成し、LIFF URLを発行する
+- [ ] Apps ScriptのScript Propertiesへ `K_ALERT_LIFF_URL` を設定する
+- [ ] 最新GASコードをApps Scriptへ反映し、必要ならWebアプリを再デプロイする
+- [ ] 公式LINE実機で `通報する` からカードが返ることを確認する

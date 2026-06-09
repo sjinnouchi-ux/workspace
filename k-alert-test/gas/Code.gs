@@ -1,12 +1,17 @@
 const SHEET_NAME = 'アラート';
 const TRIGGER_WORD = 'Kアラート';
 const START_TRIGGER_TEXTS = ['相談する'];
-const DEVELOPMENT_TRIGGER_TEXTS = ['大人の保健室', '通報する'];
+const REPORT_LINK_TRIGGER_TEXTS = ['通報する'];
+const DEVELOPMENT_TRIGGER_TEXTS = ['大人の保健室'];
 const REQUIRED_FIELDS = ['when', 'where', 'who', 'toWhom', 'what', 'how'];
 const INTRO_MESSAGE = 'こんにちは。このLINEのチャット内容は匿名報告として取り扱われますのでご安心ください。必要に応じて皆様に危害が及ばないように担当者より対応させていただきます。今回はどのような事象がありましたか？';
 const COMPLETE_MESSAGE = '報告ありがとうございます。';
 const AI_ERROR_MESSAGE = '記録しました。確認後に対応します。';
 const DEVELOPMENT_MESSAGE = '開発中です。';
+const REPORT_LINK_TITLE = '警報OBへ相談';
+const REPORT_LINK_BODY = '担当者へ内容を共有します';
+const REPORT_LINK_BUTTON = '報告画面を開く';
+const REPORT_LINK_URL_MISSING_MESSAGE = '報告画面URLが未設定です。管理者へ確認してください。';
 
 function doGet() {
   return jsonOutput({
@@ -33,6 +38,11 @@ function doPost(e) {
     const text = event.message.text.trim();
     const session = getSession(userId);
     const start = getStartPayload(text);
+
+    if (isReportLinkTrigger(text)) {
+      replyReportLinkCard(event.replyToken);
+      return jsonOutput({ handled: true, mode: 'report_link' });
+    }
 
     if (isDevelopmentTrigger(text)) {
       replyLine(event.replyToken, DEVELOPMENT_MESSAGE);
@@ -378,6 +388,19 @@ function buildMissingQuestion(missingFields) {
 }
 
 function replyLine(replyToken, text) {
+  replyLineMessages(replyToken, [{ type: 'text', text: text }]);
+}
+
+function replyReportLinkCard(replyToken) {
+  const reportFormUrl = getOptionalProperty('K_ALERT_LIFF_URL');
+  if (!reportFormUrl) {
+    replyLine(replyToken, REPORT_LINK_URL_MISSING_MESSAGE);
+    return;
+  }
+  replyLineMessages(replyToken, [buildReportLinkFlexMessage(reportFormUrl)]);
+}
+
+function replyLineMessages(replyToken, messages) {
   const token = getRequiredProperty('LINE_CHANNEL_ACCESS_TOKEN');
   const response = UrlFetchApp.fetch('https://api.line.me/v2/bot/message/reply', {
     method: 'post',
@@ -387,11 +410,73 @@ function replyLine(replyToken, text) {
     },
     payload: JSON.stringify({
       replyToken: replyToken,
-      messages: [{ type: 'text', text: text }]
+      messages: messages
     }),
     muteHttpExceptions: true
   });
   console.log('LINE reply:', response.getResponseCode(), response.getContentText());
+}
+
+function buildReportLinkFlexMessage(reportFormUrl) {
+  return {
+    type: 'flex',
+    altText: REPORT_LINK_TITLE,
+    contents: {
+      type: 'bubble',
+      size: 'kilo',
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        paddingAll: '0px',
+        contents: [
+          {
+            type: 'box',
+            layout: 'vertical',
+            backgroundColor: '#142d52',
+            paddingTop: '7px',
+            paddingBottom: '7px',
+            paddingStart: '12px',
+            paddingEnd: '12px',
+            contents: [
+              {
+                type: 'text',
+                text: REPORT_LINK_TITLE,
+                color: '#ffd84a',
+                weight: 'bold',
+                size: 'sm'
+              }
+            ]
+          },
+          {
+            type: 'box',
+            layout: 'vertical',
+            paddingAll: '12px',
+            spacing: '8px',
+            contents: [
+              {
+                type: 'text',
+                text: REPORT_LINK_BODY,
+                color: '#4b5563',
+                size: 'xs',
+                wrap: true
+              },
+              {
+                type: 'button',
+                style: 'primary',
+                height: 'sm',
+                color: '#5ecf5f',
+                action: {
+                  type: 'uri',
+                  label: REPORT_LINK_BUTTON,
+                  uri: reportFormUrl
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  };
 }
 
 function getAlertSheet() {
@@ -559,6 +644,11 @@ function getStartPayload(text) {
 function isDevelopmentTrigger(text) {
   const normalized = text.trim();
   return DEVELOPMENT_TRIGGER_TEXTS.indexOf(normalized) !== -1;
+}
+
+function isReportLinkTrigger(text) {
+  const normalized = text.trim();
+  return REPORT_LINK_TRIGGER_TEXTS.indexOf(normalized) !== -1;
 }
 
 function getSession(userId) {
