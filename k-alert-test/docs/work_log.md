@@ -346,10 +346,20 @@
 ### 2026-06-09 追記
 
 - `通報する` のカード文言を、匿名報告であることが先に伝わる内容へ変更
+- LINEログインチャネル `KアラートLIFF` を作成
+- LIFFアプリ `Kアラート報告画面` を作成
+- LIFF IDは `2010343610-N2psO7GW`
+- LIFF URLは `https://liff.line.me/2010343610-N2psO7GW`
+- LIFFエンドポイントURLは `https://k-alert-test.s-jinnouchi.workers.dev/report`
+- Apps ScriptのScript Propertiesへ `K_ALERT_LIFF_URL` を設定済み
+- GAS Webアプリへ最新版 `Code.gs` を反映し、デプロイ更新済み
+- GAS POST `通報する` は `{"handled":true,"mode":"report_link"}` を返すことを確認
+- Cloudflare Worker POST `通報する` は `200 OK` を返すことを確認
 
 ### 残課題
 
-- [ ] Kアラート用LINEログインチャネルを作成し、LIFF URLを発行する
-- [ ] Apps ScriptのScript Propertiesへ `K_ALERT_LIFF_URL` を設定する
-- [ ] 最新GASコードをApps Scriptへ反映し、必要ならWebアプリを再デプロイする
-- [ ] 公式LINE実機で `通報する` からカードが返ることを確認する
+- [x] Kアラート用LINEログインチャネルを作成し、LIFF URLを発行する
+- [x] Apps ScriptのScript Propertiesへ `K_ALERT_LIFF_URL` を設定する
+- [x] 最新GASコードをApps Scriptへ反映し、必要ならWebアプリを再デプロイする
+- [x] 公式LINE実機で `通報する` からカードが返ることを確認する
+- [ ] Cloudflare Workerの `/report` にLIFF詳細報告フォームを実装する

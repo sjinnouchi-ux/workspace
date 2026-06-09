@@ -1133,6 +1133,15 @@ dori-manga/
 - `k-alert-test/docs/manual_setup.md` と `k-alert-test/docs/work_log.md` を更新
 
 ### 残課題
-- [ ] LIFF URL発行後、Apps ScriptのScript Propertiesへ `K_ALERT_LIFF_URL` を設定
-- [ ] 最新GASコードをApps Scriptへ反映
-- [ ] 公式LINE実機でカード表示とボタン遷移を確認
+- [x] LIFF URL発行後、Apps ScriptのScript Propertiesへ `K_ALERT_LIFF_URL` を設定
+- [x] 最新GASコードをApps Scriptへ反映
+- [x] 公式LINE実機でカード表示とボタン遷移を確認
+- [ ] Cloudflare Workerの `/report` にLIFF詳細報告フォームを実装
+
+### 2026-06-09 追記
+- LINEログインチャネル `KアラートLIFF` を作成
+- LIFFアプリ `Kアラート報告画面` を作成
+- LIFF URL: `https://liff.line.me/2010343610-N2psO7GW`
+- LIFFエンドポイントURL: `https://k-alert-test.s-jinnouchi.workers.dev/report`
+- GAS POST `通報する`: `200 OK`, `{"handled":true,"mode":"report_link"}`
+- Cloudflare Worker POST `通報する`: `200 OK`
