@@ -428,6 +428,16 @@
 
 ### 残課題
 
-- [ ] Apps Scriptへ最新版 `gas/Code.gs` を反映し、Webアプリを再デプロイする
-- [ ] Cloudflare Workerへ最新版 `worker/k_alert_dedicated_worker.js` を反映する
+- [x] Apps Scriptへ最新版 `gas/Code.gs` を反映し、Webアプリを再デプロイする
+- [x] Cloudflare Workerへ最新版 `worker/k_alert_dedicated_worker.js` を反映する
 - [ ] LIFFからテスト送信し、A〜H列に自動記載されることを確認する
+
+### 2026-06-09 追記
+
+- ユーザー側でGAS Webアプリのデプロイ更新完了を確認
+- WebアプリURL: `https://script.google.com/macros/s/AKfycbxm5GWC-3zcEyCNSiO7wLg5Ee4qd4c6SHKPBDLhffijuMDk4H0mRVdEwxDEThYstE2lHA/exec`
+- Cloudflare Worker `k-alert-test` へ `worker/k_alert_dedicated_worker.js` をデプロイ
+- Cloudflare Version ID: `02ae9f6c-f7b3-4ec5-807e-421ee2d0f86b`
+- `https://k-alert-test.s-jinnouchi.workers.dev/report` がHTTP 200でLIFFフォームHTMLを返すことを確認
+- ブラウザで公開フォームの表示項目を確認
+- スプレッドシートへの実送信テストは、テスト行が残るため未実施
