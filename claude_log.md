@@ -1128,7 +1128,7 @@ dori-manga/
 
 ### 対応内容
 - `k-alert-test/gas/Code.gs` に `通報する` 専用のFlex Message返信を追加
-- カード文言は `警報OBへ相談`、`担当者へ内容を共有します`、`報告画面を開く`
+- カード文言は `通報する`、`匿名での報告となりますので、安心して報告してください`、`報告画面を開く`
 - ボタンURLは `K_ALERT_LIFF_URL` Script Propertyから読む設計にした
 - `k-alert-test/docs/manual_setup.md` と `k-alert-test/docs/work_log.md` を更新
 
