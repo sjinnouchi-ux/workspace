@@ -194,3 +194,41 @@ cd ~/sjinnouchi-ux-workspace && git pull
 - [ ] Phase 5: launchd でMac起動時自動起動
 - [ ] Phase 5: 費用単価の最新化＆公式単価との突合
 - [ ] テスト：実APIキーで1回ずつ `call()` してログ記録を確認
+
+---
+
+## 2026-06-11｜方針変更：3社API利用実績の同期型モニターへ拡張
+
+### 背景
+
+- Claude APIを利用しているが、API Monitorのモニター画面に反映されていないことを確認
+- 現行設計では、`api_clients/claude_client.py` などアプリ内クライアント経由で呼び出した場合だけSQLiteへ記録される
+- Codex、Claude Desktop、公式Console、別アプリなど外部経路で使ったAPI利用は自動取得されない
+- ユーザー要望として、OpenAI / Gemini / Claude の3社APIを「利用したらデータが取得されるシステム」にしたいことを確認
+- そのため、単なるAPIキー登録画面ではなく、各社のusage/billing情報源から利用実績を同期するモニターへ拡張する
+
+### 切り分け結果
+
+- 費用単価の最新化だけでは、外部経路のClaude利用が反映されない問題は解決しない
+- 単価テーブルは、モデル単価が取れない場合の補助計算には必要
+- ただし、provider側からcostが取得できる場合は、OpenAI / Anthropic / Google側のusage/cost値を正とする
+
+### 追加した実装タスク
+
+`docs/implementation_plan.md` に `Phase 6: 3社API利用実績の自動取得` を追加。
+
+主な残タスク:
+
+- OpenAI Admin/Usage/Costs APIからusage/costを同期
+- Anthropic Usage & Cost Admin APIからusage/costを同期
+- GeminiはGoogle Cloud Billing Export to BigQueryからGemini API費用を同期
+- provider同期用SQLiteテーブルを追加
+- 設定タブを接続設定・同期状態中心へ改修
+- モニタータブでローカル呼び出しログとprovider同期データを区別表示
+- 各社公式ダッシュボードとの照合を実施
+
+### Notion更新方針
+
+- API Monitorプロジェクトのステータスを、実装待ちまたは設計済みの残タスク状態へ更新する
+- Next Actionには「3社API利用実績の自動取得Phase 6を実装」を設定する
+- 未確認の数値、費用、利用量は推測で記載しない
