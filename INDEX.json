@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated": "2026-06-09",
+  "generated": "2026-06-11",
   "description": "Cowork / Codex が起動時に最初に読むナビゲーションインデックス。各プロジェクトのオーナーと主要MDパス、最終更新日のみを集約する。詳細は primary_docs を参照。",
   "rules": {
     "purpose": "起動時のトークン消費を削減するため、まずこのファイルを読んで該当プロジェクトを特定し、必要なMDだけを後追いで読む。",
@@ -75,7 +75,7 @@
         "api-monitor/README.md",
         "api-monitor/docs/work_log.md"
       ],
-      "last_updated": "2026-06-06"
+      "last_updated": "2026-06-11"
     },
     "company-settings": {
       "owner": "claude",
