@@ -1333,3 +1333,25 @@ dori-manga/
 - Apps Scriptへ最新版 `gas/Code.gs` を反映し、Webアプリを再デプロイする
 - GASデプロイ後、LINE APIで新リッチメニュー `richmenu-1c4b5ee002be83902addce211de5364e` をデフォルトへ設定する
 - LINE実機で `相談する` 押下後に入力キーボードが開くこと、相談中に `相談を終了する` が表示されることを確認する
+
+---
+
+## 2026-06-11｜Kアラート相談開始リッチメニューのデフォルト反映
+
+### 背景
+- ユーザー側で最新版 `gas/Code.gs` をApps Scriptへ反映し、Webアプリを再デプロイした
+- GASのpostback対応が本番反映されたため、準備済みの新リッチメニューをデフォルトへ切り替えた
+
+### 対応内容
+- LINE APIで新リッチメニュー `richmenu-1c4b5ee002be83902addce211de5364e` をデフォルトに設定
+- GAS WebアプリURLのHTTP応答を確認
+
+### 確認
+- GAS Webアプリが `{"ok":true,"service":"k-alert-test"}` を返すことを確認
+- デフォルトリッチメニューIDが `richmenu-1c4b5ee002be83902addce211de5364e` になったことを確認
+- 左下エリアが `postback` / `action=consult` / `inputOption: openKeyboard` であることを確認
+- 右下 `通報する` は `message` アクションのまま維持
+
+### 次回確認
+- LINE実機で `相談する` 押下後に入力キーボードが開くことを確認する
+- 相談中の返信に `相談を終了する` が表示され、押下後に相談セッションが終了することを確認する
