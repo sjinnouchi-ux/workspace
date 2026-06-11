@@ -621,3 +621,44 @@
 
 - LINE実機で `相談する` 押下後に入力キーボードが開くことを確認する
 - 相談中の返信に `相談を終了する` が表示され、押下後に相談セッションが終了することを確認する
+
+---
+
+## 2026-06-11｜本日のKアラートLIFF・リッチメニュー作業まとめ
+
+### 完了内容
+
+- `Kアラート・テスト開発` 公式LINEのリッチメニュー画像を新デザインへ差し替え
+- LINE APIで新リッチメニューを作成し、デフォルト設定を更新
+- `通報する` からLIFF報告画面を開く導線を維持
+- LIFF報告フォームの `相談受付希望` ラジオ選択が入力できるように修正
+- LIFF報告フォームの `その他（自由記載）` を任意項目へ変更
+- LIFF送信完了画面から `報告番号` 表示を削除
+- `相談する` を `postback` + `inputOption: openKeyboard` に変更し、押下後に入力キーボードを開く設定へ更新
+- 相談中の返信に `相談を終了する` Quick Replyを追加
+- `相談を終了する` 押下で相談セッションを終了するGAS処理を追加
+- Apps Script反映後、Cloudflare WorkerとLINEリッチメニューの本番設定を更新
+
+### 現在の主要設定
+
+- LIFF URL: `https://liff.line.me/2010343610-N2psO7GW`
+- LIFF Worker URL: `https://k-alert-test.s-jinnouchi.workers.dev/report`
+- GAS WebアプリURL: `https://script.google.com/macros/s/AKfycbxm5GWC-3zcEyCNSiO7wLg5Ee4qd4c6SHKPBDLhffijuMDk4H0mRVdEwxDEThYstE2lHA/exec`
+- 現在のデフォルトリッチメニューID: `richmenu-1c4b5ee002be83902addce211de5364e`
+- 旧リッチメニューID: `richmenu-3eab5ad0af2747ff7933d15461431bf6`
+- Cloudflare Worker最新確認Version ID: `72c5be2f-8adf-434b-ad96-e5846c54e669`
+
+### 確認済み
+
+- GAS WebアプリがHTTP応答することを確認
+- Cloudflare Worker `/report` がHTTP 200で応答することを確認
+- ライブHTMLで `報告番号` 表示が消えていることを確認
+- LINE APIで左下 `相談する` が `postback` / `action=consult` / `inputOption: openKeyboard` であることを確認
+- LINE APIで右下 `通報する` が従来どおり `message` アクションであることを確認
+
+### 次回確認
+
+- LINE実機で `相談する` 押下後に入力キーボードが開くことを確認する
+- 相談中の返信に `相談を終了する` が表示されることを確認する
+- `相談を終了する` 押下後、相談セッションが終了することを確認する
+- `通報する` からLIFF報告フォームを開き、空欄任意項目とスプレッドシート記録を実機で確認する
