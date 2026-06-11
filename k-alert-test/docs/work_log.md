@@ -529,3 +529,30 @@
 - Apps Scriptへ最新版 `gas/Code.gs` を反映し、Webアプリを再デプロイする
 - Cloudflare Workerへ最新版 `worker/k_alert_dedicated_worker.js` を反映する
 - LIFF実機で `相談受付希望` の選択と、`その他（自由記載）` 空欄送信を確認する
+
+---
+
+## 2026-06-11｜LIFF報告フォーム修正版のCloudflare反映
+
+### 背景
+
+- ユーザー側で最新版 `gas/Code.gs` をApps Scriptへ反映し、Webアプリを再デプロイした
+- GASデプロイ完了後、Cloudflare Worker `k-alert-test` へLIFFフォーム修正版を反映した
+
+### 対応内容
+
+- `worker/k_alert_dedicated_worker.js` をCloudflare Worker `k-alert-test` へデプロイ
+- 公開URL `https://k-alert-test.s-jinnouchi.workers.dev/report` を確認
+
+### 確認
+
+- Wrangler deploy成功
+- Cloudflare Version ID: `4f5eafee-5ffd-41b2-af74-c6181ec2676f`
+- `/report` がHTTP 200で応答
+- ライブHTMLで `その他（自由記載）` の `required` が外れていることを確認
+- ライブHTMLで `相談受付希望` のラジオ入力と選択状態CSSが含まれることを確認
+
+### 次回確認
+
+- LINE実機のLIFFで `希望する` / `希望しない` を選択できることを確認する
+- `その他（自由記載）` 空欄でも送信でき、スプレッドシートへ記録されることを確認する
