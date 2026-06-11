@@ -1253,3 +1253,26 @@ dori-manga/
 ### 次回確認
 - 実機LINEでリッチメニュー表示が新画像に変わっていることを確認する
 - `相談する` と `通報する` のタップ位置が意図どおり反応することを確認する
+
+---
+
+## 2026-06-11｜KアラートLIFF報告フォームの入力修正
+
+### 背景
+- `通報する` LIFF報告フォームで、`相談受付希望` の `希望する` / `希望しない` が選択しづらい状態になっていた
+- `その他（自由記載）` を任意にしたいが、フォームとGASで必須扱いになっていた
+
+### 対応内容
+- `k-alert-test/worker/k_alert_dedicated_worker.js` のCSSを修正し、ラジオボタンのネイティブ表示と選択状態が見えるように変更
+- `その他（自由記載）` の `required` を外し、画面上も `任意` と表示するよう変更
+- `k-alert-test/gas/Code.gs` のLIFF報告バリデーションから `freeText` を必須項目として除外
+- `k-alert-test/docs/manual_setup.md` の入力仕様を、C列・G列は任意に更新
+
+### 確認
+- `worker/k_alert_dedicated_worker.js` の構文チェック成功
+- `gas/Code.gs` のJavaScript構文チェック成功
+
+### 残課題
+- Apps Scriptへ最新版 `Code.gs` を反映し、Webアプリを再デプロイする
+- Cloudflare Workerへ最新版を反映する
+- LIFF実機で `相談受付希望` の選択と、`その他（自由記載）` 空欄送信を確認する

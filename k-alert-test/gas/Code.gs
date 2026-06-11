@@ -124,7 +124,7 @@ function normalizeLiffReportPayload(payload) {
     consultationRequest: normalizeField(report.consultationRequest)
   };
 
-  const requiredFields = ['companyName', 'input1', 'input2', 'input3', 'freeText', 'consultationRequest'];
+  const requiredFields = ['companyName', 'input1', 'input2', 'input3', 'consultationRequest'];
   const missing = requiredFields.filter(function(field) {
     return !normalized[field];
   });

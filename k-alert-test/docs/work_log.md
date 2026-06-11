@@ -501,3 +501,31 @@
 
 - 実機LINEでリッチメニュー表示が新画像に変わっていることを確認する
 - `相談する` と `通報する` のタップ位置が意図どおり反応することを確認する
+
+---
+
+## 2026-06-11｜LIFF報告フォームの任意項目と相談受付選択修正
+
+### 背景
+
+- `通報する` から開くLIFF報告フォームで、`相談受付希望` の `希望する` / `希望しない` が選択しづらい状態になっていた
+- `その他（自由記載）` は任意項目にしたいが、フォームとGASの両方で必須扱いになっていた
+
+### 対応内容
+
+- `worker/k_alert_dedicated_worker.js` のCSSを修正し、通常のテキスト入力だけに `appearance: none` を適用するよう変更
+- ラジオボタンはネイティブ表示と `accent-color` を使い、選択状態が見えるようにした
+- `その他（自由記載）` の `required` を外し、画面上も `任意` と表示するよう変更
+- `gas/Code.gs` のLIFF報告バリデーションから `freeText` を必須項目として除外
+- `docs/manual_setup.md` の入力仕様を、C列・G列は任意に更新
+
+### 確認
+
+- `worker/k_alert_dedicated_worker.js` の構文チェック成功
+- `gas/Code.gs` のJavaScript構文チェック成功
+
+### 残課題
+
+- Apps Scriptへ最新版 `gas/Code.gs` を反映し、Webアプリを再デプロイする
+- Cloudflare Workerへ最新版 `worker/k_alert_dedicated_worker.js` を反映する
+- LIFF実機で `相談受付希望` の選択と、`その他（自由記載）` 空欄送信を確認する

@@ -124,7 +124,7 @@ label {
   font-size: 12px;
   font-weight: 600;
 }
-input, textarea {
+input:not([type="radio"]), textarea {
   appearance: none;
   background: #fff;
   border: 1px solid var(--line);
@@ -153,6 +153,7 @@ input:focus, textarea:focus {
   border: 1px solid var(--line);
   border-radius: 8px;
   color: #374151;
+  cursor: pointer;
   display: flex;
   font-weight: 700;
   justify-content: center;
@@ -160,9 +161,16 @@ input:focus, textarea:focus {
   padding: 10px;
 }
 .choice input {
+  accent-color: var(--green);
+  flex: 0 0 auto;
   height: 18px;
   margin: 0 8px 0 0;
   width: 18px;
+}
+.choice:has(input:checked) {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(63, 207, 98, 0.16);
+  color: #067647;
 }
 .status {
   color: var(--muted);
@@ -221,8 +229,8 @@ button:disabled {
       <textarea id="input3" name="input3" required></textarea>
     </section>
     <section class="panel">
-      <label for="freeText">その他（自由記載）</label>
-      <textarea id="freeText" name="freeText" required></textarea>
+      <label for="freeText">その他（自由記載） <span class="optional">任意</span></label>
+      <textarea id="freeText" name="freeText"></textarea>
     </section>
     <section class="panel">
       <label>相談受付希望</label>
