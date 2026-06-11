@@ -75,6 +75,8 @@ CodexのCLI認証ではGAS更新系操作に制約があるため、当面はCod
 9. スプレッドシートへ初回コメントが保存されるか確認
 10. OpenAI API利用枠が有効な場合、不足項目の短い聞き返しが届くか確認
 11. 追加回答で同じ行が更新されるか確認
+12. リッチメニュー左下 `相談する` がpostback設定の場合、押下後に入力キーボードが開くか確認
+13. 相談中の返信に `相談を終了する` が表示され、押下後に相談セッションが終了するか確認
 
 ## 6. LIFF報告フォームテスト
 
@@ -110,3 +112,4 @@ CodexのCLI認証ではGAS更新系操作に制約があるため、当面はCod
 4. `https://k-alert-test.s-jinnouchi.workers.dev/report` がLIFFフォームとして表示されるか確認する
 5. LIFF URL `https://liff.line.me/2010343610-N2psO7GW` からフォームを開く
 6. テスト送信後、対象シートのA〜H列に自動記載されることを確認する
+7. GASのpostback対応を反映した後、LINE APIで `相談する` が `postback` + `inputOption: openKeyboard` のリッチメニューをデフォルトに設定する

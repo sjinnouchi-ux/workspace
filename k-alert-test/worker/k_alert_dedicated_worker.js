@@ -283,7 +283,7 @@ document.getElementById('reportForm').addEventListener('submit', async (event) =
     if (!response.ok || !result.ok) throw new Error(result.error || '送信に失敗しました。');
 
     form.reset();
-    setStatus('送信しました。報告番号: ' + result.no, false, true);
+    setStatus('送信しました。ご報告ありがとうございます。', false, true);
     setTimeout(() => {
       if (window.liff && liff.isInClient()) liff.closeWindow();
     }, 1400);

@@ -1,10 +1,14 @@
 const SHEET_NAME = 'アラート';
 const TRIGGER_WORD = 'Kアラート';
 const START_TRIGGER_TEXTS = ['相談する'];
+const CONSULT_START_POSTBACK = 'action=consult';
+const CONSULT_END_POSTBACK = 'action=end_consult';
+const CONSULT_END_LABEL = '相談を終了する';
 const REPORT_LINK_TRIGGER_TEXTS = ['通報する'];
 const DEVELOPMENT_TRIGGER_TEXTS = ['大人の保健室'];
 const REQUIRED_FIELDS = ['when', 'where', 'who', 'toWhom', 'what', 'how'];
 const INTRO_MESSAGE = 'こんにちは。このLINEのチャット内容は匿名報告として取り扱われますのでご安心ください。必要に応じて皆様に危害が及ばないように担当者より対応させていただきます。今回はどのような事象がありましたか？';
+const CONSULT_END_MESSAGE = '相談を終了しました。必要なときは、また「相談する」から開始してください。';
 const COMPLETE_MESSAGE = '報告ありがとうございます。';
 const AI_ERROR_MESSAGE = '記録しました。確認後に対応します。';
 const DEVELOPMENT_MESSAGE = '開発中です。';
@@ -37,11 +41,16 @@ function doPost(e) {
     }
 
     const event = events[0];
+    const userId = event.source && event.source.userId ? event.source.userId : 'unknown';
+
+    if (event.type === 'postback') {
+      return handlePostbackEvent(event, userId);
+    }
+
     if (!event.message || event.message.type !== 'text') {
       return jsonOutput({ handled: false, reason: 'not_text' });
     }
 
-    const userId = event.source && event.source.userId ? event.source.userId : 'unknown';
     const text = event.message.text.trim();
     const session = getSession(userId);
     const start = getStartPayload(text);
@@ -110,6 +119,23 @@ function handleLiffReportSubmission(payload) {
     mode: 'liff_report',
     no: nextNo
   });
+}
+
+function handlePostbackEvent(event, userId) {
+  const data = event.postback && event.postback.data ? event.postback.data : '';
+
+  if (data === CONSULT_START_POSTBACK) {
+    startReportSession(event, userId);
+    return jsonOutput({ handled: true, mode: 'consult_start_postback' });
+  }
+
+  if (data === CONSULT_END_POSTBACK) {
+    clearSession(userId);
+    replyLine(event.replyToken, CONSULT_END_MESSAGE);
+    return jsonOutput({ handled: true, mode: 'consult_end' });
+  }
+
+  return jsonOutput({ handled: false, reason: 'unknown_postback' });
 }
 
 function normalizeLiffReportPayload(payload) {
@@ -186,7 +212,7 @@ function startReportSession(event, userId) {
     status: 'waiting_initial',
     introMessage: INTRO_MESSAGE
   });
-  replyLine(event.replyToken, INTRO_MESSAGE);
+  replyLineWithConsultEnd(event.replyToken, INTRO_MESSAGE);
 }
 
 function handleInitialReport(event, userId, text, session) {
@@ -230,7 +256,7 @@ function analyzeAndReply(event, userId, sheet, rowNumber, initialComment, follow
       missingFields: missingFields
     });
     recordBotReply(sheet, rowNumber, question);
-    replyLine(event.replyToken, question);
+    replyLineWithConsultEnd(event.replyToken, question);
     return;
   }
 
@@ -490,6 +516,31 @@ function buildMissingQuestion(missingFields) {
 
 function replyLine(replyToken, text) {
   replyLineMessages(replyToken, [{ type: 'text', text: text }]);
+}
+
+function replyLineWithConsultEnd(replyToken, text) {
+  replyLineMessages(replyToken, [buildConsultTextMessage(text)]);
+}
+
+function buildConsultTextMessage(text) {
+  return {
+    type: 'text',
+    text: text,
+    quickReply: {
+      items: [
+        {
+          type: 'action',
+          action: {
+            type: 'postback',
+            label: CONSULT_END_LABEL,
+            data: CONSULT_END_POSTBACK,
+            displayText: CONSULT_END_LABEL,
+            inputOption: 'closeRichMenu'
+          }
+        }
+      ]
+    }
+  };
 }
 
 function replyReportLinkCard(replyToken) {

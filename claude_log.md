@@ -1299,3 +1299,37 @@ dori-manga/
 ### 次回確認
 - LINE実機のLIFFで `希望する` / `希望しない` を選択できることを確認する
 - `その他（自由記載）` 空欄でも送信でき、スプレッドシートへ記録されることを確認する
+
+---
+
+## 2026-06-11｜Kアラート相談開始キーボード表示とLIFF完了文修正
+
+### 背景
+- リッチメニュー左下 `相談する` を押した後、ユーザーが手動で入力欄へ切り替える手間を減らしたい
+- 相談中にQuick Reply形式で `相談を終了する` ボタンを表示したい
+- LIFF報告送信後に `報告番号` をユーザー画面へ表示しないようにしたい
+
+### 対応内容
+- `k-alert-test/gas/Code.gs` に `action=consult` のpostback開始処理を追加
+- `k-alert-test/gas/Code.gs` に `action=end_consult` のpostback終了処理を追加
+- 相談開始時と追加質問時のLINE返信に `相談を終了する` Quick Replyを追加
+- `k-alert-test/worker/k_alert_dedicated_worker.js` のLIFF送信完了文を `送信しました。ご報告ありがとうございます。` に変更
+- LINE APIで `相談する` を `postback` + `inputOption: openKeyboard` にした新リッチメニューを作成
+
+### 確認
+- `gas/Code.gs` のJavaScript構文チェック成功
+- `worker/k_alert_dedicated_worker.js` の構文チェック成功
+- Cloudflare Worker `k-alert-test` へLIFF完了文修正版をデプロイ
+- Cloudflare Version ID: `72c5be2f-8adf-434b-ad96-e5846c54e669`
+- 公開URL `/report` がHTTP 200で応答
+- ライブHTMLに `報告番号` が含まれず、新完了文が含まれることを確認
+- 新リッチメニューID: `richmenu-1c4b5ee002be83902addce211de5364e`
+
+### 注意
+- GAS本番がpostback対応へ更新されるまでは、`相談する` が反応しない時間を作らないため旧デフォルトリッチメニューへ戻した
+- 現在のデフォルトリッチメニューID: `richmenu-3eab5ad0af2747ff7933d15461431bf6`
+
+### 次回手順
+- Apps Scriptへ最新版 `gas/Code.gs` を反映し、Webアプリを再デプロイする
+- GASデプロイ後、LINE APIで新リッチメニュー `richmenu-1c4b5ee002be83902addce211de5364e` をデフォルトへ設定する
+- LINE実機で `相談する` 押下後に入力キーボードが開くこと、相談中に `相談を終了する` が表示されることを確認する
