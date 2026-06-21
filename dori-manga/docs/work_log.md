@@ -1,5 +1,28 @@
 # 作業ログ
 
+## 2026-06-21
+- Notion API fallbackでプロジェクトDBの `dori-manga` 行を取得し、Git側ミラー `docs/notion/projects.csv` の同プロジェクト行をNotion最新値に同期。
+- Supabase休眠防止用に `gas/supabase-import/dori-manga-import.gs` を更新。
+  - スプレッドシートメニューに「Supabase更新を今すぐ実行」「3日ごとのSupabase更新を設定」「Supabase定期更新を停止」を追加。
+  - `installSupabaseKeepaliveTrigger()` で3日に1回の時間主導トリガーを作成。
+  - `runSupabaseKeepalive()` で `prompt_templates`、なければ `characters` の既存1行に `is_active` の軽いUPDATEを送る設計にした。
+  - 既存の画像評価インポート処理には手を入れず、keepalive用の独立関数として追加。
+- ローカル検証: `projects.csv` を `Import-Csv` で読み込み、`dori-manga` 行の列ずれがないことを確認。GASファイルはNodeの構文チェックを通過。
+- Notionの `dori-manga` 行も更新し、Next Actionを「Supabase復元後、GASへkeepalive関数を反映し、installSupabaseKeepaliveTriggerを1回実行する。」へ変更。更新後のNotion値を `docs/notion/projects.csv` に再同期。
+- Apps Script本体へのpushとトリガー有効化は、Windows環境に `clasp` と `.clasprc.json` が無いため未実行。GASエディタへ反映後、メニューまたは関数一覧から `installSupabaseKeepaliveTrigger()` を1回実行する必要がある。
+
+## 2026-06-11
+- Windows-Codex から `DORI_MANGA_SUPABASE_URL` / `DORI_MANGA_SUPABASE_SERVICE_ROLE_KEY` を `C:\Users\irodo\.codex\.sandbox-secrets\global.env` から一時読み込みし、Supabase REST API への接続を確認。
+- 接続先ホストは `vdntqwtywxyjxelycavx.supabase.co` で、設計書の REST API URL と一致。
+- 初回REST確認で404に見えた原因は、PowerShellの文字列 `"${table}?select=..."` 相当の書き方ではなく `"$table?select=..."` としていたため、`?select` 部分で変数展開が崩れ、テーブル名なしURLを叩いていたこと。
+- Supabase SQL Editor で `information_schema.tables` を確認し、`characters` / `prompt_templates` / `manga_episodes` / `manga_panels` / `generation_attempts` / `prompt_lessons` はすべて `public` schema に存在することを確認。
+- `curl.exe` でREST APIを再確認し、6テーブルすべて読み取り成功。件数は `characters` 2件、`prompt_templates` 2件、`manga_episodes` 1件、`manga_panels` 4件、`generation_attempts` 13件、`prompt_lessons` 39件。
+- `generation_attempts.final_generation_prompt` の格納状況を確認。OK 11件・NG 2件はいずれもプロンプトあり。CLOSEは現時点で該当レコードなし。
+- 環境変数上の anon key は publishable key 形式、service_role key は JWT 形式で存在することを確認。秘密値は表示・記録していない。
+- OK画像確認で、直近4件はどり看護師に聴診器がなく、DBプロンプトにも `stethoscope` / `聴診器` 指定がないことを確認。4件を `generation_attempts` 上で OK から NG に再分類し、`evaluation_summary` に「聴診器なし」を記録。
+- 再分類後の `generation_attempts` は OK 7件・NG 6件。OK 7件はすべてプロンプト内に `stethoscope` / `聴診器` 指定あり。
+- `prompt_lessons` に「どり看護師には必ず紫の聴診器を見える位置に描く。プロンプトには purple stethoscope, clearly visible を必ず入れる。聴診器がない画像はNG。」を追加。
+
 ## 2026-05-28（動作確認エントリ）
 - INDEX.json 自動更新ワークフロー（`.github/workflows/update-index.yml`）の発火確認のため、本ファイルを更新
 - 期待される自動挙動：
