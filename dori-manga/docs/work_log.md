@@ -10,6 +10,8 @@
 - ローカル検証: `projects.csv` を `Import-Csv` で読み込み、`dori-manga` 行の列ずれがないことを確認。GASファイルはNodeの構文チェックを通過。
 - Notionの `dori-manga` 行も更新し、Next Actionを「Supabase復元後、GASへkeepalive関数を反映し、installSupabaseKeepaliveTriggerを1回実行する。」へ変更。更新後のNotion値を `docs/notion/projects.csv` に再同期。
 - Apps Script本体へのpushとトリガー有効化は、Windows環境に `clasp` と `.clasprc.json` が無いため未実行。GASエディタへ反映後、メニューまたは関数一覧から `installSupabaseKeepaliveTrigger()` を1回実行する必要がある。
+- GitHub mainへGAS keepaliveコードを反映。コミット: `b7d32a3 Add dori manga Supabase keepalive`。
+- ユーザー報告により、Apps Script側のコード反映と `installSupabaseKeepaliveTrigger()` の実行完了を確認。NotionのNext Actionを「3日ごとのSupabase keepalive初回自動実行後に、Supabase側で更新履歴またはREST疎通を確認する。」へ更新し、`docs/notion/projects.csv` に同期。
 
 ## 2026-06-11
 - Windows-Codex から `DORI_MANGA_SUPABASE_URL` / `DORI_MANGA_SUPABASE_SERVICE_ROLE_KEY` を `C:\Users\irodo\.codex\.sandbox-secrets\global.env` から一時読み込みし、Supabase REST API への接続を確認。
