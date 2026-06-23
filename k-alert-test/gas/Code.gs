@@ -36,6 +36,13 @@ const REPORT_LINK_TITLE = '通報する';
 const REPORT_LINK_BODY = '生命・身体・財産に対して急を要する場合は110番・119番してください';
 const REPORT_LINK_BUTTON = '報告画面を開く';
 const REPORT_LINK_URL_MISSING_MESSAGE = '報告画面URLが未設定です。管理者へ確認してください。';
+const EMERGENCY_RECOMMENDATION_MESSAGE = [
+  '緊急の可能性があります。',
+  '',
+  '生命・身体・財産に危険がある場合は、このチャットより先に110番または119番へ連絡してください。',
+  '',
+  '吐き気が止まらない、意識がぼんやりする、強い痛みがある場合は119番に相談してください。'
+].join('\n');
 const INVESTIGATOR_REQUEST_DISPLAY_TEXT = '調査官への依頼\n※調査官が改めてチャットしますので、連絡をお待ちください';
 const INVESTIGATOR_REQUEST_LOG_MESSAGE = '調査官への依頼を受け付けました。調査官からの連絡待ち。';
 const LIFF_REPORT_SHEET_ID = 1527545544;
@@ -307,6 +314,7 @@ function handleInitialReport(event, userId, text, session) {
 }
 
 function analyzeAndReply(event, userId, sheet, rowNumber, initialComment, followUpText, current, session) {
+  const emergencyNotice = buildEmergencyRecommendation([initialComment, followUpText || ''].join('\n'));
   let analysis;
   try {
     analysis = analyzeComment(initialComment, followUpText, current);
@@ -314,8 +322,9 @@ function analyzeAndReply(event, userId, sheet, rowNumber, initialComment, follow
     console.error(err);
     sheet.getRange(rowNumber, 11).setValue('AI解析エラー: ' + summarizeError(err.message));
     clearSession(userId);
-    recordBotReply(sheet, rowNumber, AI_ERROR_MESSAGE);
-    replyLine(event.replyToken, AI_ERROR_MESSAGE);
+    const errorReply = prependEmergencyNotice(emergencyNotice, AI_ERROR_MESSAGE);
+    recordBotReply(sheet, rowNumber, errorReply);
+    replyLine(event.replyToken, errorReply);
     return;
   }
 
@@ -324,7 +333,7 @@ function analyzeAndReply(event, userId, sheet, rowNumber, initialComment, follow
   const turnCount = session && session.turnCount ? Number(session.turnCount) + 1 : 1;
 
   if (turnCount < 2) {
-    const empathyReply = buildEmpathyReply(turnCount);
+    const empathyReply = prependEmergencyNotice(emergencyNotice, buildEmpathyReply(turnCount));
     saveSession(userId, {
       status: 'collecting',
       rowNumber: rowNumber,
@@ -340,7 +349,7 @@ function analyzeAndReply(event, userId, sheet, rowNumber, initialComment, follow
   if (missingFields.length > 0) {
     sheet.getRange(rowNumber, 11).setValue('AI解析中。不足項目: ' + missingFields.join(','));
 
-    const decisionText = buildReportDecisionText();
+    const decisionText = prependEmergencyNotice(emergencyNotice, buildReportDecisionText());
     saveSession(userId, {
       status: 'awaiting_decision',
       rowNumber: rowNumber,
@@ -353,7 +362,7 @@ function analyzeAndReply(event, userId, sheet, rowNumber, initialComment, follow
   }
 
   sheet.getRange(rowNumber, 11).setValue('AI解析完了。報告または調査官相談の選択待ち。');
-  const decisionText = buildReportDecisionText();
+  const decisionText = prependEmergencyNotice(emergencyNotice, buildReportDecisionText());
   saveSession(userId, {
     status: 'awaiting_decision',
     rowNumber: rowNumber,
@@ -606,19 +615,46 @@ function buildEmpathyReply(turnCount) {
   return 'ここまで教えてくださりありがとうございます。\n\n無理のない範囲で大丈夫です。もう少しだけ状況を確認させてください。';
 }
 
+function buildEmergencyRecommendation(text) {
+  const compact = normalizeField(text).replace(/[\s\u3000]/g, '');
+  if (!compact) return '';
+
+  const emergencyPatterns = [
+    /110番|119番|救急|消防|警察|通報/,
+    /吐き気|吐きけ|嘔吐|吐く|出血|意識|倒れ|失神|息苦し|呼吸|胸痛|激痛|けいれん|痙攣|発作|中毒/,
+    /暴力|殴|蹴|脅迫|刃物|火事|事故|危険|命|生命|身体|財産|緊急|今すぐ|至急/,
+    /死にたい|自殺|殺され|助けて/
+  ];
+  return emergencyPatterns.some(function(pattern) {
+    return pattern.test(compact);
+  }) ? EMERGENCY_RECOMMENDATION_MESSAGE : '';
+}
+
+function prependEmergencyNotice(emergencyNotice, message) {
+  if (!emergencyNotice) return message;
+  return emergencyNotice + '\n\n' + message;
+}
+
 function classifyDecision(text) {
   const normalized = normalizeField(text);
   const compact = normalized.replace(/[\s\u3000]/g, '');
   if (!compact) return { decision: '', notes: 'empty' };
 
   if (
+    /会社/.test(compact) &&
+    /言いたくない|伝えたくない|知らせたくない|報告したくない|通報したくない|知られたくない|伏せたい|匿名がいい|匿名にしたい/.test(compact)
+  ) {
+    return { decision: DECISION_CONSULT, notes: 'rule_company_negative_consult' };
+  }
+
+  if (
     /相談/.test(compact) &&
-    (/報告しない|通報しない|会社に報告しない|会社には報告しない|報告せず|通報せず/.test(compact) || !/報告|通報/.test(compact))
+    (/報告しない|通報しない|会社に報告しない|会社には報告しない|会社には言いたくない|会社に言いたくない|報告せず|通報せず/.test(compact) || !/報告|通報/.test(compact))
   ) {
     return { decision: DECISION_CONSULT, notes: 'rule_consult' };
   }
 
-  if (/報告|通報|会社/.test(compact) && !/報告しない|通報しない|やめ|キャンセル|不要|終了/.test(compact)) {
+  if (/報告|通報|会社/.test(compact) && !/報告しない|通報しない|言いたくない|伝えたくない|知らせたくない|知られたくない|やめ|キャンセル|不要|終了/.test(compact)) {
     return { decision: DECISION_REPORT, notes: 'rule_report' };
   }
 
@@ -653,6 +689,7 @@ function classifyDecisionWithAi(text) {
     '- report: 匿名で会社に報告する',
     '- consult: 報告せずに相談する',
     '- cancel: やはりやめた',
+    '「会社には言いたくない」「会社に知られたくない」「報告したくないが相談したい」は consult にしてください。',
     '判断できない場合は decision を空文字にしてください。',
     '',
     '返答:',
