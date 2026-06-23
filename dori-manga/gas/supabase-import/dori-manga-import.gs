@@ -27,6 +27,10 @@ function onOpen() {
     .createMenu('🩺 どり漫画DB')
     .addItem('▶ DBにインポート実行', 'importToDatabase')
     .addSeparator()
+    .addItem('🔁 Supabase更新を今すぐ実行', 'runSupabaseKeepaliveFromMenu')
+    .addItem('⏱️ 3日ごとのSupabase更新を設定', 'installSupabaseKeepaliveTrigger')
+    .addItem('🛑 Supabase定期更新を停止', 'deleteSupabaseKeepaliveTriggers')
+    .addSeparator()
     .addItem('⚙️ 初期設定の確認', 'showSetupInstructions')
     .addToUi();
 }
@@ -379,6 +383,140 @@ function insertToSupabase(tableName, row) {
   }
 
   return JSON.parse(body);
+}
+
+// ------------------------------------------------------------
+// Supabase休眠防止:3日に1回、既存マスタ行へ軽いUPDATEを送る
+// ------------------------------------------------------------
+const KEEPALIVE_TRIGGER_FUNCTION = 'runSupabaseKeepalive';
+
+function installSupabaseKeepaliveTrigger() {
+  deleteSupabaseKeepaliveTriggers(false);
+
+  ScriptApp.newTrigger(KEEPALIVE_TRIGGER_FUNCTION)
+    .timeBased()
+    .everyDays(3)
+    .atHour(9)
+    .create();
+
+  SpreadsheetApp.getUi().alert(
+    '⏱️ 設定完了',
+    'Supabase休眠防止のため、3日に1回の更新トリガーを設定しました。\n\n' +
+    '実行内容: prompt_templates または characters の既存1行へ is_active の軽いUPDATEを送信します。',
+    SpreadsheetApp.getUi().ButtonSet.OK
+  );
+}
+
+function deleteSupabaseKeepaliveTriggers(showAlert) {
+  const triggers = ScriptApp.getProjectTriggers();
+  let deleted = 0;
+
+  triggers.forEach(trigger => {
+    if (trigger.getHandlerFunction() === KEEPALIVE_TRIGGER_FUNCTION) {
+      ScriptApp.deleteTrigger(trigger);
+      deleted++;
+    }
+  });
+
+  if (showAlert !== false) {
+    SpreadsheetApp.getUi().alert(
+      '🛑 停止完了',
+      `Supabase定期更新トリガーを ${deleted} 件削除しました。`,
+      SpreadsheetApp.getUi().ButtonSet.OK
+    );
+  }
+}
+
+function runSupabaseKeepaliveFromMenu() {
+  try {
+    const touched = touchSupabaseKeepalive_();
+    SpreadsheetApp.getUi().alert(
+      '✅ Supabase更新完了',
+      `${touched.table} の既存行に軽いUPDATEを送信しました。\n\n対象ID: ${touched.id}`,
+      SpreadsheetApp.getUi().ButtonSet.OK
+    );
+  } catch (e) {
+    SpreadsheetApp.getUi().alert(
+      '❌ Supabase更新エラー',
+      'Supabase更新中にエラーが発生しました。\n\n' + e.message,
+      SpreadsheetApp.getUi().ButtonSet.OK
+    );
+  }
+}
+
+function runSupabaseKeepalive() {
+  const touched = touchSupabaseKeepalive_();
+  Logger.log(`Supabase keepalive updated ${touched.table}: ${touched.id}`);
+}
+
+function touchSupabaseKeepalive_() {
+  const targets = [
+    { table: 'prompt_templates', select: 'id,is_active' },
+    { table: 'characters', select: 'id,is_active' }
+  ];
+
+  for (const target of targets) {
+    const rows = requestSupabase_(
+      'get',
+      `${target.table}?select=${encodeURIComponent(target.select)}&order=created_at.asc.nullslast&limit=1`
+    );
+
+    if (Array.isArray(rows) && rows.length > 0) {
+      const row = rows[0];
+      const activeValue = row.is_active !== false;
+
+      requestSupabase_(
+        'patch',
+        `${target.table}?id=eq.${encodeURIComponent(row.id)}`,
+        { is_active: activeValue },
+        'return=minimal'
+      );
+
+      return { table: target.table, id: row.id };
+    }
+  }
+
+  throw new Error('keepalive対象の既存行が見つかりません。prompt_templates または characters に1件以上登録してください。');
+}
+
+function requestSupabase_(method, path, payload, prefer) {
+  const props          = PropertiesService.getScriptProperties();
+  const supabaseUrl    = props.getProperty('SUPABASE_URL');
+  const serviceRoleKey = props.getProperty('SUPABASE_SERVICE_ROLE_KEY');
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error(
+      'スクリプトプロパティが未設定です。\n\n' +
+      'SUPABASE_URL と SUPABASE_SERVICE_ROLE_KEY を設定してください。'
+    );
+  }
+
+  const headers = {
+    'apikey':        serviceRoleKey,
+    'Authorization': 'Bearer ' + serviceRoleKey
+  };
+  if (prefer) headers['Prefer'] = prefer;
+
+  const options = {
+    method:             method,
+    headers:            headers,
+    muteHttpExceptions: true
+  };
+  if (payload !== undefined) {
+    options.contentType = 'application/json';
+    options.payload = JSON.stringify(payload);
+  }
+
+  const base = supabaseUrl.replace(/\/$/, '');
+  const resp = UrlFetchApp.fetch(`${base}/rest/v1/${path}`, options);
+  const statusCode = resp.getResponseCode();
+  const body = resp.getContentText();
+
+  if (statusCode < 200 || statusCode >= 300) {
+    throw new Error(`Supabase エラー (HTTP ${statusCode})\n\n${body}`);
+  }
+
+  return body ? JSON.parse(body) : null;
 }
 
 // ------------------------------------------------------------
