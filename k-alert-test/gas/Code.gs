@@ -36,7 +36,8 @@ const REPORT_LINK_TITLE = '通報する';
 const REPORT_LINK_BODY = '生命・身体・財産に対して急を要する場合は110番・119番してください';
 const REPORT_LINK_BUTTON = '報告画面を開く';
 const REPORT_LINK_URL_MISSING_MESSAGE = '報告画面URLが未設定です。管理者へ確認してください。';
-const INVESTIGATOR_WAIT_MESSAGE = '承知しました。\n\nそれでは調査官が改めてチャットしますので、お待ちください。';
+const INVESTIGATOR_REQUEST_DISPLAY_TEXT = '調査官への依頼\n※調査官が改めてチャットしますので、連絡をお待ちください';
+const INVESTIGATOR_REQUEST_LOG_MESSAGE = '調査官への依頼を受け付けました。調査官からの連絡待ち。';
 const LIFF_REPORT_SHEET_ID = 1527545544;
 const LIFF_REPORT_ALLOWED_CONSULTATION = ['希望する', '希望しない'];
 
@@ -162,11 +163,10 @@ function handlePostbackEvent(event, userId) {
     const session = getSession(userId);
     if (session && session.rowNumber) {
       const sheet = getAlertSheet();
-      recordBotReply(sheet, session.rowNumber, INVESTIGATOR_WAIT_MESSAGE);
+      recordBotReply(sheet, session.rowNumber, INVESTIGATOR_REQUEST_LOG_MESSAGE);
       sheet.getRange(session.rowNumber, 11).setValue('報告せず調査官チャット相談を希望');
     }
     clearSession(userId);
-    replyLine(event.replyToken, INVESTIGATOR_WAIT_MESSAGE);
     return jsonOutput({ handled: true, mode: 'investigator_consult' });
   }
 
@@ -896,9 +896,9 @@ function getDecisionButtonAction(decision, reportFormUrl) {
   if (decision === DECISION_CONSULT) {
     return {
       type: 'postback',
-      label: '調査官に相談する',
+      label: '調査官に依頼する',
       data: INVESTIGATOR_CONSULT_POSTBACK,
-      displayText: '報告せずに相談する'
+      displayText: INVESTIGATOR_REQUEST_DISPLAY_TEXT
     };
   }
   return {
