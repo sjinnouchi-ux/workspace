@@ -5,6 +5,9 @@ const CONSULT_START_POSTBACK = 'action=consult';
 const CONSULT_END_POSTBACK = 'action=end_consult';
 const INVESTIGATOR_CONSULT_POSTBACK = 'action=investigator_consult';
 const CONSULT_END_LABEL = '相談を終了する';
+const DECISION_REPORT = 'report';
+const DECISION_CONSULT = 'consult';
+const DECISION_CANCEL = 'cancel';
 const REPORT_LINK_TRIGGER_TEXTS = ['通報する'];
 const DEVELOPMENT_TRIGGER_TEXTS = ['大人の保健室'];
 const REQUIRED_FIELDS = ['when', 'where', 'who', 'toWhom', 'what', 'how'];
@@ -345,7 +348,7 @@ function analyzeAndReply(event, userId, sheet, rowNumber, initialComment, follow
       turnCount: turnCount
     });
     recordBotReply(sheet, rowNumber, decisionText);
-    replyReportDecision(event.replyToken);
+    replyLineWithConsultEnd(event.replyToken, decisionText);
     return;
   }
 
@@ -357,7 +360,7 @@ function analyzeAndReply(event, userId, sheet, rowNumber, initialComment, follow
     turnCount: turnCount
   });
   recordBotReply(sheet, rowNumber, decisionText);
-  replyReportDecision(event.replyToken);
+  replyLineWithConsultEnd(event.replyToken, decisionText);
 }
 
 function handleFollowUp(event, userId, session, text) {
@@ -365,9 +368,7 @@ function handleFollowUp(event, userId, session, text) {
   appendConversationLog(sheet, session.rowNumber, 'user', text);
 
   if (session.status === 'awaiting_decision') {
-    const decisionText = buildReportDecisionText();
-    recordBotReply(sheet, session.rowNumber, decisionText);
-    replyReportDecision(event.replyToken);
+    handleDecisionReply(event, userId, sheet, session, text);
     return;
   }
 
@@ -605,21 +606,99 @@ function buildEmpathyReply(turnCount) {
   return 'ここまで教えてくださりありがとうございます。\n\n無理のない範囲で大丈夫です。もう少しだけ状況を確認させてください。';
 }
 
+function classifyDecision(text) {
+  const normalized = normalizeField(text);
+  const compact = normalized.replace(/[\s\u3000]/g, '');
+  if (!compact) return { decision: '', notes: 'empty' };
+
+  if (
+    /相談/.test(compact) &&
+    (/報告しない|通報しない|会社に報告しない|会社には報告しない|報告せず|通報せず/.test(compact) || !/報告|通報/.test(compact))
+  ) {
+    return { decision: DECISION_CONSULT, notes: 'rule_consult' };
+  }
+
+  if (/報告|通報|会社/.test(compact) && !/報告しない|通報しない|やめ|キャンセル|不要|終了/.test(compact)) {
+    return { decision: DECISION_REPORT, notes: 'rule_report' };
+  }
+
+  if (/やめ|止め|キャンセル|終了|不要|大丈夫|結構|しない|やはり/.test(compact)) {
+    return { decision: DECISION_CANCEL, notes: 'rule_cancel' };
+  }
+
+  try {
+    return classifyDecisionWithAi(normalized);
+  } catch (err) {
+    console.error(err);
+    return { decision: '', notes: 'classification_error: ' + summarizeError(err.message) };
+  }
+}
+
+function classifyDecisionWithAi(text) {
+  const schema = {
+    type: 'object',
+    additionalProperties: false,
+    required: ['decision', 'notes'],
+    properties: {
+      decision: {
+        type: 'string',
+        enum: [DECISION_REPORT, DECISION_CONSULT, DECISION_CANCEL, ''],
+        description: '匿名で会社に報告するなら report。報告せずに担当調査官へ相談するなら consult。やはりやめた・終了・不要なら cancel。判断できない場合は空文字。'
+      },
+      notes: { type: 'string', description: '判断理由。なければ空文字。' }
+    }
+  };
+  const prompt = [
+    'ユーザーの返答を次の3分類のどれかに分類してください。',
+    '- report: 匿名で会社に報告する',
+    '- consult: 報告せずに相談する',
+    '- cancel: やはりやめた',
+    '判断できない場合は decision を空文字にしてください。',
+    '',
+    '返答:',
+    text
+  ].join('\n');
+
+  const provider = getAiProvider();
+  if (provider === 'anthropic') return analyzeCommentWithAnthropic(prompt, schema);
+  if (provider === 'openai') return analyzeCommentWithOpenAi(prompt, schema);
+  throw new Error('Unsupported AI_PROVIDER: ' + provider);
+}
+
+function handleDecisionReply(event, userId, sheet, session, text) {
+  const result = classifyDecision(text);
+  const decision = result.decision || '';
+  const reportFormUrl = getOptionalProperty('K_ALERT_LIFF_URL');
+
+  if (!decision) {
+    const retryText = 'すみません。どれに近いか、短く教えてください。\n\n「匿名で会社に報告する」\n「報告せずに相談する」\n「やはりやめた」';
+    recordBotReply(sheet, session.rowNumber, retryText);
+    replyLineWithConsultEnd(event.replyToken, retryText);
+    return;
+  }
+
+  if (decision === DECISION_REPORT && !reportFormUrl) {
+    recordBotReply(sheet, session.rowNumber, REPORT_LINK_URL_MISSING_MESSAGE);
+    replyLineWithConsultEnd(event.replyToken, REPORT_LINK_URL_MISSING_MESSAGE);
+    return;
+  }
+
+  sheet.getRange(session.rowNumber, 11).setValue('相談方針: ' + decision + ' / ' + (result.notes || ''));
+
+  if (decision === DECISION_CANCEL) {
+    clearSession(userId);
+  }
+
+  recordBotReply(sheet, session.rowNumber, getDecisionButtonTitle(decision));
+  replyLineMessages(event.replyToken, [buildDecisionActionFlexMessage(decision, reportFormUrl)]);
+}
+
 function buildReportDecisionText() {
   return [
     '今回のご相談を、匿名で会社に報告しますか？',
     '',
     '報告しない場合でも、担当の調査官にチャットで相談できます。'
   ].join('\n');
-}
-
-function replyReportDecision(replyToken) {
-  const reportFormUrl = getOptionalProperty('K_ALERT_LIFF_URL');
-  if (!reportFormUrl) {
-    replyLine(replyToken, REPORT_LINK_URL_MISSING_MESSAGE);
-    return;
-  }
-  replyLineMessages(replyToken, [buildReportDecisionFlexMessage(reportFormUrl)]);
 }
 
 function replyLine(replyToken, text) {
@@ -739,10 +818,19 @@ function buildReportLinkFlexMessage(reportFormUrl) {
   };
 }
 
-function buildReportDecisionFlexMessage(reportFormUrl) {
+function getDecisionButtonTitle(decision) {
+  if (decision === DECISION_REPORT) return '匿名で会社に報告する';
+  if (decision === DECISION_CONSULT) return '報告せずに相談する';
+  if (decision === DECISION_CANCEL) return 'やはりやめた';
+  return '相談内容の確認';
+}
+
+function buildDecisionActionFlexMessage(decision, reportFormUrl) {
+  const title = getDecisionButtonTitle(decision);
+  const action = getDecisionButtonAction(decision, reportFormUrl);
   return {
     type: 'flex',
-    altText: '相談内容の扱いを選択してください',
+    altText: title,
     contents: {
       type: 'bubble',
       size: 'kilo',
@@ -762,7 +850,7 @@ function buildReportDecisionFlexMessage(reportFormUrl) {
             contents: [
               {
                 type: 'text',
-                text: '相談内容の確認',
+                text: title,
                 color: '#ffd84a',
                 weight: 'bold',
                 size: 'sm'
@@ -777,7 +865,7 @@ function buildReportDecisionFlexMessage(reportFormUrl) {
             contents: [
               {
                 type: 'text',
-                text: buildReportDecisionText(),
+                text: REPORT_LINK_BODY,
                 color: '#4b5563',
                 size: 'xs',
                 wrap: true
@@ -787,28 +875,37 @@ function buildReportDecisionFlexMessage(reportFormUrl) {
                 style: 'primary',
                 height: 'sm',
                 color: '#5ecf5f',
-                action: {
-                  type: 'uri',
-                  label: '匿名で会社に報告する',
-                  uri: reportFormUrl
-                }
-              },
-              {
-                type: 'button',
-                style: 'secondary',
-                height: 'sm',
-                action: {
-                  type: 'postback',
-                  label: '報告せず相談する',
-                  data: INVESTIGATOR_CONSULT_POSTBACK,
-                  displayText: '報告せず相談する'
-                }
+                action: action
               }
             ]
           }
         ]
       }
     }
+  };
+}
+
+function getDecisionButtonAction(decision, reportFormUrl) {
+  if (decision === DECISION_REPORT) {
+    return {
+      type: 'uri',
+      label: '通報フォームを開く',
+      uri: reportFormUrl || 'https://line.me/'
+    };
+  }
+  if (decision === DECISION_CONSULT) {
+    return {
+      type: 'postback',
+      label: '調査官に相談する',
+      data: INVESTIGATOR_CONSULT_POSTBACK,
+      displayText: '報告せずに相談する'
+    };
+  }
+  return {
+    type: 'postback',
+    label: '相談を終了する',
+    data: CONSULT_END_POSTBACK,
+    displayText: 'やはりやめた'
   };
 }
 
