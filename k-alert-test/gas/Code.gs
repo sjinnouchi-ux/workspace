@@ -687,7 +687,7 @@ function classifyDecisionWithAi(text) {
   const prompt = [
     'ユーザーの返答を次の3分類のどれかに分類してください。',
     '- report: 匿名で会社に報告する',
-    '- consult: 報告せずに相談する',
+    '- consult: 報告せずに調査官に依頼する',
     '- cancel: やはりやめた',
     '「会社には言いたくない」「会社に知られたくない」「報告したくないが相談したい」は consult にしてください。',
     '判断できない場合は decision を空文字にしてください。',
@@ -708,7 +708,7 @@ function handleDecisionReply(event, userId, sheet, session, text) {
   const reportFormUrl = getOptionalProperty('K_ALERT_LIFF_URL');
 
   if (!decision) {
-    const retryText = 'すみません。どれに近いか、短く教えてください。\n\n「匿名で会社に報告する」\n「報告せずに相談する」\n「やはりやめた」';
+    const retryText = 'すみません。どれに近いか、短く教えてください。\n\n「匿名で会社に報告する」\n「報告せずに調査官に依頼する」\n「やはりやめた」';
     recordBotReply(sheet, session.rowNumber, retryText);
     replyLineWithConsultEnd(event.replyToken, retryText);
     return;
@@ -857,7 +857,7 @@ function buildReportLinkFlexMessage(reportFormUrl) {
 
 function getDecisionButtonTitle(decision) {
   if (decision === DECISION_REPORT) return '匿名で会社に報告する';
-  if (decision === DECISION_CONSULT) return '報告せずに相談する';
+  if (decision === DECISION_CONSULT) return '報告せずに調査官に依頼する';
   if (decision === DECISION_CANCEL) return 'やはりやめた';
   return '相談内容の確認';
 }
