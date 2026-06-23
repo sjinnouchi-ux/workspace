@@ -3,27 +3,37 @@ const TRIGGER_WORD = 'Kアラート';
 const START_TRIGGER_TEXTS = ['相談する'];
 const CONSULT_START_POSTBACK = 'action=consult';
 const CONSULT_END_POSTBACK = 'action=end_consult';
+const INVESTIGATOR_CONSULT_POSTBACK = 'action=investigator_consult';
 const CONSULT_END_LABEL = '相談を終了する';
 const REPORT_LINK_TRIGGER_TEXTS = ['通報する'];
 const DEVELOPMENT_TRIGGER_TEXTS = ['大人の保健室'];
 const REQUIRED_FIELDS = ['when', 'where', 'who', 'toWhom', 'what', 'how'];
 const FIELD_LABELS = {
-  when: 'When（いつ）',
-  where: 'Where（どこで）',
-  who: 'Who（だれが）',
-  toWhom: 'Whom（だれに）',
-  what: 'What（なにを）',
-  how: 'How（どのように）'
+  when: 'いつの事ですか？',
+  where: 'どこで起きましたか？',
+  who: 'だれが起こした人ですか？',
+  toWhom: 'だれに対してのことですか？',
+  whatHow: 'なにをどのようにしていましたか'
 };
-const INTRO_MESSAGE = 'こんにちは。このLINEのチャット内容は匿名報告として取り扱われますのでご安心ください。必要に応じて皆様に危害が及ばないように担当者より対応させていただきます。今回はどのような事象がありましたか？';
+const INTRO_MESSAGE = [
+  'こんにちは。Kアラートです🛡️',
+  '',
+  'このLINEのチャット内容は、匿名相談として取り扱います。',
+  '安心して、話せる範囲で大丈夫です。',
+  '',
+  '必要に応じて、皆さまに危害が及ばないよう担当者より対応します。',
+  '',
+  '今回はどのような事象がありましたか？'
+].join('\n');
 const CONSULT_END_MESSAGE = '相談を終了しました。必要なときは、また「相談する」から開始してください。';
 const COMPLETE_MESSAGE = '報告ありがとうございます。';
 const AI_ERROR_MESSAGE = '記録しました。確認後に対応します。';
 const DEVELOPMENT_MESSAGE = '開発中です。';
 const REPORT_LINK_TITLE = '通報する';
-const REPORT_LINK_BODY = '匿名での報告となりますので、安心して報告してください';
+const REPORT_LINK_BODY = '生命・身体・財産に対して急を要する場合は110番・119番してください';
 const REPORT_LINK_BUTTON = '報告画面を開く';
 const REPORT_LINK_URL_MISSING_MESSAGE = '報告画面URLが未設定です。管理者へ確認してください。';
+const INVESTIGATOR_WAIT_MESSAGE = '承知しました。\n\nそれでは調査官が改めてチャットしますので、お待ちください。';
 const LIFF_REPORT_SHEET_ID = 1527545544;
 const LIFF_REPORT_ALLOWED_CONSULTATION = ['希望する', '希望しない'];
 
@@ -118,8 +128,7 @@ function handleLiffReportSubmission(payload) {
     report.where,
     report.who,
     report.toWhom,
-    report.what,
-    report.how,
+    report.whatHow,
     report.freeText,
     report.consultationRequest
   ]);
@@ -146,6 +155,18 @@ function handlePostbackEvent(event, userId) {
     return jsonOutput({ handled: true, mode: 'consult_end' });
   }
 
+  if (data === INVESTIGATOR_CONSULT_POSTBACK) {
+    const session = getSession(userId);
+    if (session && session.rowNumber) {
+      const sheet = getAlertSheet();
+      recordBotReply(sheet, session.rowNumber, INVESTIGATOR_WAIT_MESSAGE);
+      sheet.getRange(session.rowNumber, 11).setValue('報告せず調査官チャット相談を希望');
+    }
+    clearSession(userId);
+    replyLine(event.replyToken, INVESTIGATOR_WAIT_MESSAGE);
+    return jsonOutput({ handled: true, mode: 'investigator_consult' });
+  }
+
   return jsonOutput({ handled: false, reason: 'unknown_postback' });
 }
 
@@ -158,13 +179,12 @@ function normalizeLiffReportPayload(payload) {
     where: normalizeField(report.where),
     who: normalizeField(report.who),
     toWhom: normalizeField(report.toWhom),
-    what: normalizeField(report.what),
-    how: normalizeField(report.how),
+    whatHow: normalizeField(report.whatHow || joinWhatHow(report.what, report.how)),
     freeText: normalizeField(report.freeText),
     consultationRequest: normalizeField(report.consultationRequest)
   };
 
-  const requiredFields = ['companyName', 'when', 'where', 'who', 'toWhom', 'what', 'how', 'consultationRequest'];
+  const requiredFields = ['companyName', 'when', 'where', 'who', 'toWhom', 'whatHow', 'consultationRequest'];
   const missing = requiredFields.filter(function(field) {
     return !normalized[field];
   });
@@ -181,6 +201,12 @@ function normalizeLiffReportPayload(payload) {
 
 function normalizeField(value) {
   return value === null || value === undefined ? '' : value.toString().trim();
+}
+
+function joinWhatHow(what, how) {
+  return [normalizeField(what), normalizeField(how)].filter(function(value) {
+    return value;
+  }).join(' / ');
 }
 
 function getLiffReportSheet() {
@@ -201,8 +227,7 @@ function ensureLiffReportHeader(sheet) {
     FIELD_LABELS.where,
     FIELD_LABELS.who,
     FIELD_LABELS.toWhom,
-    FIELD_LABELS.what,
-    FIELD_LABELS.how,
+    FIELD_LABELS.whatHow,
     'その他（自由記載）',
     '相談受付希望'
   ];
@@ -213,8 +238,17 @@ function ensureLiffReportHeader(sheet) {
     current[5] === '入力３' &&
     current[6] === 'その他（自由記載）' &&
     current[7] === '相談受付希望';
+  const hasSplitWhatHowHeader = current[3] === 'When（いつ）' &&
+    current[4] === 'Where（どこで）' &&
+    current[5] === 'Who（だれが）' &&
+    current[6] === 'Whom（だれに）' &&
+    current[7] === 'What（なにを）' &&
+    current[8] === 'How（どのように）';
   if (hasOldLiffHeader) {
     sheet.insertColumnsAfter(6, 3);
+  } else if (hasSplitWhatHowHeader) {
+    mergeColumns(sheet, 8, 9);
+    sheet.deleteColumn(9);
   }
   if (current.join('') === '') {
     sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
@@ -222,6 +256,16 @@ function ensureLiffReportHeader(sheet) {
   } else {
     sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
   }
+}
+
+function mergeColumns(sheet, leftColumn, rightColumn) {
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return;
+  const values = sheet.getRange(2, leftColumn, lastRow - 1, 2).getValues();
+  const merged = values.map(function(row) {
+    return [joinWhatHow(row[0], row[1])];
+  });
+  sheet.getRange(2, leftColumn, merged.length, 1).setValues(merged);
 }
 
 function getNextLiffReportNo(sheet) {
@@ -259,13 +303,13 @@ function handleInitialReport(event, userId, text, session) {
   analyzeAndReply(event, userId, sheet, rowNumber, initialComment, '', null);
 }
 
-function analyzeAndReply(event, userId, sheet, rowNumber, initialComment, followUpText, current) {
+function analyzeAndReply(event, userId, sheet, rowNumber, initialComment, followUpText, current, session) {
   let analysis;
   try {
     analysis = analyzeComment(initialComment, followUpText, current);
   } catch (err) {
     console.error(err);
-    sheet.getRange(rowNumber, 12).setValue('AI解析エラー: ' + summarizeError(err.message));
+    sheet.getRange(rowNumber, 11).setValue('AI解析エラー: ' + summarizeError(err.message));
     clearSession(userId);
     recordBotReply(sheet, rowNumber, AI_ERROR_MESSAGE);
     replyLine(event.replyToken, AI_ERROR_MESSAGE);
@@ -274,41 +318,69 @@ function analyzeAndReply(event, userId, sheet, rowNumber, initialComment, follow
 
   updateAnalysisToRow(sheet, rowNumber, analysis);
   const missingFields = getMissingFields(analysis);
+  const turnCount = session && session.turnCount ? Number(session.turnCount) + 1 : 1;
 
-  if (missingFields.length > 0) {
-    sheet.getRange(rowNumber, 12).setValue('AI解析中。不足項目: ' + missingFields.join(','));
-    const question = buildMissingQuestion(missingFields, analysis);
+  if (turnCount < 2) {
+    const empathyReply = buildEmpathyReply(turnCount);
     saveSession(userId, {
       status: 'collecting',
       rowNumber: rowNumber,
-      missingFields: missingFields
+      missingFields: missingFields,
+      turnCount: turnCount
     });
-    recordBotReply(sheet, rowNumber, question);
-    replyLineWithConsultEnd(event.replyToken, question);
+    sheet.getRange(rowNumber, 11).setValue('AI解析中。相談内容を聞き取り中。');
+    recordBotReply(sheet, rowNumber, empathyReply);
+    replyLineWithConsultEnd(event.replyToken, empathyReply);
     return;
   }
 
-  clearSession(userId);
-  sheet.getRange(rowNumber, 12).setValue('AI解析完了。必要項目は充足。');
-  recordBotReply(sheet, rowNumber, COMPLETE_MESSAGE);
-  replyLine(event.replyToken, COMPLETE_MESSAGE);
+  if (missingFields.length > 0) {
+    sheet.getRange(rowNumber, 11).setValue('AI解析中。不足項目: ' + missingFields.join(','));
+
+    const decisionText = buildReportDecisionText();
+    saveSession(userId, {
+      status: 'awaiting_decision',
+      rowNumber: rowNumber,
+      missingFields: missingFields,
+      turnCount: turnCount
+    });
+    recordBotReply(sheet, rowNumber, decisionText);
+    replyReportDecision(event.replyToken);
+    return;
+  }
+
+  sheet.getRange(rowNumber, 11).setValue('AI解析完了。報告または調査官相談の選択待ち。');
+  const decisionText = buildReportDecisionText();
+  saveSession(userId, {
+    status: 'awaiting_decision',
+    rowNumber: rowNumber,
+    turnCount: turnCount
+  });
+  recordBotReply(sheet, rowNumber, decisionText);
+  replyReportDecision(event.replyToken);
 }
 
 function handleFollowUp(event, userId, session, text) {
   const sheet = getAlertSheet();
   appendConversationLog(sheet, session.rowNumber, 'user', text);
 
+  if (session.status === 'awaiting_decision') {
+    const decisionText = buildReportDecisionText();
+    recordBotReply(sheet, session.rowNumber, decisionText);
+    replyReportDecision(event.replyToken);
+    return;
+  }
+
   const current = readRowAsAnalysis(sheet, session.rowNumber);
-  analyzeAndReply(event, userId, sheet, session.rowNumber, current.initialComment, text, current);
+  analyzeAndReply(event, userId, sheet, session.rowNumber, current.initialComment, text, current, session);
 }
 
 function appendInitialRow(sheet, initialComment) {
   const nextNo = Math.max(1, sheet.getLastRow());
   const row = sheet.getLastRow() + 1;
-  sheet.getRange(row, 1, 1, 12).setValues([[
+  sheet.getRange(row, 1, 1, 11).setValues([[
     nextNo,
     initialComment,
-    '',
     '',
     '',
     '',
@@ -323,22 +395,21 @@ function appendInitialRow(sheet, initialComment) {
 }
 
 function updateAnalysisToRow(sheet, rowNumber, analysis) {
-  sheet.getRange(rowNumber, 3, 1, 7).setValues([[
+  sheet.getRange(rowNumber, 3, 1, 6).setValues([[
     analysis.when || '',
     analysis.where || '',
     analysis.who || '',
     analysis.toWhom || '',
-    analysis.what || '',
-    analysis.how || '',
+    joinWhatHow(analysis.what, analysis.how),
     analysis.urgency || ''
   ]]);
   if (analysis.notes) {
-    sheet.getRange(rowNumber, 12).setValue(analysis.notes);
+    sheet.getRange(rowNumber, 11).setValue(analysis.notes);
   }
 }
 
 function appendConversationLog(sheet, rowNumber, speaker, text) {
-  const cell = sheet.getRange(rowNumber, 11);
+  const cell = sheet.getRange(rowNumber, 10);
   const current = cell.getValue();
   const timestamp = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy/MM/dd HH:mm:ss');
   const line = '[' + timestamp + '] ' + speaker + ': ' + text;
@@ -346,12 +417,12 @@ function appendConversationLog(sheet, rowNumber, speaker, text) {
 }
 
 function recordBotReply(sheet, rowNumber, text) {
-  sheet.getRange(rowNumber, 10).setValue(text);
+  sheet.getRange(rowNumber, 9).setValue(text);
   appendConversationLog(sheet, rowNumber, 'bot', text);
 }
 
 function readRowAsAnalysis(sheet, rowNumber) {
-  const values = sheet.getRange(rowNumber, 1, 1, 12).getValues()[0];
+  const values = sheet.getRange(rowNumber, 1, 1, 11).getValues()[0];
   return {
     initialComment: values[1] || '',
     when: values[2] || '',
@@ -359,9 +430,9 @@ function readRowAsAnalysis(sheet, rowNumber) {
     who: values[4] || '',
     toWhom: values[5] || '',
     what: values[6] || '',
-    how: values[7] || '',
-    urgency: values[8] || '',
-    notes: values[11] || ''
+    how: '',
+    urgency: values[7] || '',
+    notes: values[10] || ''
   };
 }
 
@@ -392,12 +463,12 @@ function buildAnalysisSchema() {
     additionalProperties: false,
     required: ['when', 'where', 'who', 'toWhom', 'what', 'how', 'urgency', 'notes'],
     properties: {
-      when: { type: 'string', description: 'When（いつ）。日時、日付、時期、期限。分からない場合は空文字。' },
-      where: { type: 'string', description: 'Where（どこで）。場所、施設、部屋、状況の発生箇所。分からない場合は空文字。' },
-      who: { type: 'string', description: 'Who（だれが）。行為者、報告者、発信者、起点になった人。分からない場合は空文字。' },
-      toWhom: { type: 'string', description: 'Whom（だれに）。対象者、被害者、依頼先、影響を受けた人。分からない場合は空文字。' },
-      what: { type: 'string', description: 'What（なにを）。起きたこと、依頼内容、問題、行為の内容。分からない場合は空文字。' },
-      how: { type: 'string', description: 'How（どのように）。状態、方法、経過、程度。分からない場合は空文字。' },
+      when: { type: 'string', description: 'いつの事ですか？ 日時、日付、時期、期限。分からない場合は空文字。' },
+      where: { type: 'string', description: 'どこで起きましたか？ 場所、施設、部屋、状況の発生箇所。分からない場合は空文字。' },
+      who: { type: 'string', description: 'だれが起こした人ですか？ 行為者、報告者、発信者、起点になった人。分からない場合は空文字。' },
+      toWhom: { type: 'string', description: 'だれに対してのことですか？ 対象者、被害者、依頼先、影響を受けた人。分からない場合は空文字。' },
+      what: { type: 'string', description: 'なにをしていましたか？ 起きたこと、依頼内容、問題、行為の内容。分からない場合は空文字。' },
+      how: { type: 'string', description: 'どのようにしていましたか？ 状態、方法、経過、程度。分からない場合は空文字。' },
       urgency: { type: 'string', enum: ['高', '中', '低', ''], description: '緊急度。判断できない場合は空文字。' },
       notes: { type: 'string', description: '判断根拠や補足。なければ空文字。' }
     }
@@ -527,11 +598,28 @@ function getMissingFields(analysis) {
   });
 }
 
-function buildMissingQuestion(missingFields) {
-  const missingLabels = missingFields.map(function(field) {
-    return FIELD_LABELS[field];
-  });
-  return '確認です。' + missingLabels.join('、') + 'を教えてください。';
+function buildEmpathyReply(turnCount) {
+  if (turnCount <= 1) {
+    return '話してくださってありがとうございます。\n\nつらい状況だったと思います。続けて、覚えている範囲で教えてください。';
+  }
+  return 'ここまで教えてくださりありがとうございます。\n\n無理のない範囲で大丈夫です。もう少しだけ状況を確認させてください。';
+}
+
+function buildReportDecisionText() {
+  return [
+    '今回のご相談を、匿名で会社に報告しますか？',
+    '',
+    '報告しない場合でも、担当の調査官にチャットで相談できます。'
+  ].join('\n');
+}
+
+function replyReportDecision(replyToken) {
+  const reportFormUrl = getOptionalProperty('K_ALERT_LIFF_URL');
+  if (!reportFormUrl) {
+    replyLine(replyToken, REPORT_LINK_URL_MISSING_MESSAGE);
+    return;
+  }
+  replyLineMessages(replyToken, [buildReportDecisionFlexMessage(reportFormUrl)]);
 }
 
 function replyLine(replyToken, text) {
@@ -651,6 +739,79 @@ function buildReportLinkFlexMessage(reportFormUrl) {
   };
 }
 
+function buildReportDecisionFlexMessage(reportFormUrl) {
+  return {
+    type: 'flex',
+    altText: '相談内容の扱いを選択してください',
+    contents: {
+      type: 'bubble',
+      size: 'kilo',
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        paddingAll: '0px',
+        contents: [
+          {
+            type: 'box',
+            layout: 'vertical',
+            backgroundColor: '#142d52',
+            paddingTop: '8px',
+            paddingBottom: '8px',
+            paddingStart: '12px',
+            paddingEnd: '12px',
+            contents: [
+              {
+                type: 'text',
+                text: '相談内容の確認',
+                color: '#ffd84a',
+                weight: 'bold',
+                size: 'sm'
+              }
+            ]
+          },
+          {
+            type: 'box',
+            layout: 'vertical',
+            paddingAll: '12px',
+            spacing: '9px',
+            contents: [
+              {
+                type: 'text',
+                text: buildReportDecisionText(),
+                color: '#4b5563',
+                size: 'xs',
+                wrap: true
+              },
+              {
+                type: 'button',
+                style: 'primary',
+                height: 'sm',
+                color: '#5ecf5f',
+                action: {
+                  type: 'uri',
+                  label: '匿名で会社に報告する',
+                  uri: reportFormUrl
+                }
+              },
+              {
+                type: 'button',
+                style: 'secondary',
+                height: 'sm',
+                action: {
+                  type: 'postback',
+                  label: '報告せず相談する',
+                  data: INVESTIGATOR_CONSULT_POSTBACK,
+                  displayText: '報告せず相談する'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  };
+}
+
 function getAlertSheet() {
   const ss = SpreadsheetApp.openById(getRequiredProperty('SPREADSHEET_ID'));
   const sheet = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
@@ -666,14 +827,24 @@ function ensureHeader(sheet) {
     FIELD_LABELS.where,
     FIELD_LABELS.who,
     FIELD_LABELS.toWhom,
-    FIELD_LABELS.what,
-    FIELD_LABELS.how,
+    FIELD_LABELS.whatHow,
     '緊急度',
     '対応コメント',
     'やり取り全文記録',
     '備考'
   ];
-  const current = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
+  const currentWidth = Math.max(sheet.getLastColumn(), headers.length);
+  const current = sheet.getRange(1, 1, 1, currentWidth).getValues()[0];
+  const hasSplitWhatHowHeader = current[2] === 'When（いつ）' &&
+    current[3] === 'Where（どこで）' &&
+    current[4] === 'Who（だれが）' &&
+    current[5] === 'Whom（だれに）' &&
+    current[6] === 'What（なにを）' &&
+    current[7] === 'How（どのように）';
+  if (hasSplitWhatHowHeader) {
+    mergeColumns(sheet, 7, 8);
+    sheet.deleteColumn(8);
+  }
   sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
   sheet.setFrozenRows(1);
 }
@@ -696,9 +867,9 @@ function setupSpreadsheetFormatting() {
 
 function formatAlertSheet(sheet) {
   const maxRows = Math.max(sheet.getMaxRows(), 100);
-  const headerRange = sheet.getRange(1, 1, 1, 12);
-  const bodyRange = sheet.getRange(2, 1, maxRows - 1, 12);
-  const tableRange = sheet.getRange(1, 1, maxRows, 12);
+  const headerRange = sheet.getRange(1, 1, 1, 11);
+  const bodyRange = sheet.getRange(2, 1, maxRows - 1, 11);
+  const tableRange = sheet.getRange(1, 1, maxRows, 11);
 
   headerRange
     .setBackground('#0F766E')
@@ -724,18 +895,17 @@ function formatAlertSheet(sheet) {
   sheet.setColumnWidth(4, 150);
   sheet.setColumnWidth(5, 150);
   sheet.setColumnWidth(6, 150);
-  sheet.setColumnWidth(7, 220);
-  sheet.setColumnWidth(8, 240);
-  sheet.setColumnWidth(9, 90);
-  sheet.setColumnWidth(10, 260);
-  sheet.setColumnWidth(11, 360);
-  sheet.setColumnWidth(12, 220);
+  sheet.setColumnWidth(7, 300);
+  sheet.setColumnWidth(8, 90);
+  sheet.setColumnWidth(9, 260);
+  sheet.setColumnWidth(10, 360);
+  sheet.setColumnWidth(11, 220);
 
   sheet.getRange('A:A').setHorizontalAlignment('center');
-  sheet.getRange('I:I').setHorizontalAlignment('center');
+  sheet.getRange('H:H').setHorizontalAlignment('center');
   sheet.getRange(2, 1, maxRows - 1, 1).setBackground('#F8FAFC');
-  sheet.getRange(2, 9, maxRows - 1, 1).setBackground('#FEF3C7');
-  sheet.getRange(2, 11, maxRows - 1, 1).setBackground('#F8FAFC');
+  sheet.getRange(2, 8, maxRows - 1, 1).setBackground('#FEF3C7');
+  sheet.getRange(2, 10, maxRows - 1, 1).setBackground('#F8FAFC');
 }
 
 function ensureSettingsSheet(sheet) {
@@ -746,7 +916,7 @@ function ensureSettingsSheet(sheet) {
     ['キー', '値', '備考'],
     ['trigger_word', 'Kアラート', '公式LINEで開始する文言'],
     ['urgency_options', '高,中,低', '緊急度候補'],
-    ['required_fields', 'When（いつ）,Where（どこで）,Who（だれが）,Whom（だれに）,What（なにを）,How（どのように）', '完了判定に使う項目']
+    ['required_fields', 'いつの事ですか？,どこで起きましたか？,だれが起こした人ですか？,だれに対してのことですか？,なにをどのようにしていましたか', '完了判定に使う項目']
   ]);
 }
 
