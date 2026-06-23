@@ -1403,3 +1403,9 @@ dori-manga/
 - Cloudflare Version ID: `a26042b7-2892-4012-9155-b65ea7fe5f58`
 - ライブURL `https://k-alert-test.s-jinnouchi.workers.dev/report` がHTTP 200で応答し、新5W1H項目が表示されることを確認。
 - 次回: ユーザー側でApps Scriptへ最新版 `gas/Code.gs` を差し替え、LIFF実送信で対象シートA〜K列への記録を確認する。
+
+### 2026-06-23 追記
+
+- ユーザーよりApps Scriptへの最新版 `gas/Code.gs` 差し替え・デプロイ完了の報告あり。
+- GAS WebアプリURLがHTTP 200で `KアラートGAS is running.` を返すことを確認。
+- 次回: LIFFから5W1Hフォームを実送信し、対象シートA〜K列への記録を確認する。

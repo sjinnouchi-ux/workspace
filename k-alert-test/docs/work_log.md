@@ -692,3 +692,12 @@
 
 - ユーザー側でApps Scriptへ最新版 `gas/Code.gs` を差し替え、Webアプリを再デプロイする。
 - GAS差し替え後、LIFFから実送信し、対象シートA〜K列へ記録されることを確認する。
+
+### 2026-06-23 追記
+
+- ユーザーよりApps Scriptへの最新版 `gas/Code.gs` 差し替え・デプロイ完了の報告あり。
+- GAS WebアプリURLへGET確認し、HTTP 200で `{"ok":true,"service":"k-alert-test","message":"KアラートGAS is running."}` が返ることを確認。
+
+### 次回確認
+
+- LIFFから5W1Hフォームを実送信し、対象シートA〜K列へ記録されることを確認する。
