@@ -1467,3 +1467,14 @@ dori-manga/
 - 差し替え画像: `G:\マイドライブ\Codex保存\画像\k-alert-richmenu-share-final_2500x1686.jpg`
 - バックアップ画像: `G:\マイドライブ\Codex保存\画像\k-alert-richmenu-backup-before-share-20260623.jpg`
 - 次回: LINE実機で上段 `シェアする` の送信先選択、下段 `相談する` / `通報する` の従来動作を確認する。
+
+### 2026-06-23 追記
+
+- ユーザー作成の新レイアウト画像をLINE規定サイズ `2500x1686` へ調整。
+- 新レイアウトに合わせて、上段左 `相談する`、上段右 `通報する`、下段 `シェアする` のタップ領域へ再設定。
+- LINE Messaging APIで新リッチメニューを作成し、画像をアップロードしてデフォルトへ設定。
+- 旧デフォルトリッチメニューID: `richmenu-31d8b65eacb32b08001eb9bcf96c5783`
+- 新デフォルトリッチメニューID: `richmenu-6357c4f92df07d8801645928a6a53af4`
+- 差し替え画像: `G:\マイドライブ\Codex保存\画像\k-alert-richmenu-share-layout-v2_2500x1686.jpg`
+- バックアップ画像: `G:\マイドライブ\Codex保存\画像\k-alert-richmenu-backup-before-layout-v2-20260623.jpg`
+- 次回: LINE実機で上段左 `相談する`、上段右 `通報する`、下段 `シェアする` のタップ位置と動作を確認する。
