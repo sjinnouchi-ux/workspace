@@ -1421,3 +1421,9 @@ dori-manga/
 - ユーザー側でApps Scriptへの最新版 `gas/Code.gs` 差し替え・デプロイ完了。
 - GAS WebアプリURLがHTTP 200で `KアラートGAS is running.` を返すことを確認。
 - 次回: LINE実機で相談フロー、調査官相談ボタン、LIFF送信と対象シートA〜J列への記録を確認する。
+
+### 2026-06-23 追記
+
+- ユーザーより、コミット固定URLの最新版 `gas/Code.gs` をApps Scriptへ差し替え・デプロイ完了の報告あり。
+- GAS WebアプリURLがHTTP 200で `KアラートGAS is running.` を返すことを確認。
+- 次回: LINE実機で相談フロー、調査官相談ボタン、LIFF送信と対象シートA〜J列への記録を確認する。
