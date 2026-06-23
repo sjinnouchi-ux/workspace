@@ -7,6 +7,14 @@ const CONSULT_END_LABEL = '相談を終了する';
 const REPORT_LINK_TRIGGER_TEXTS = ['通報する'];
 const DEVELOPMENT_TRIGGER_TEXTS = ['大人の保健室'];
 const REQUIRED_FIELDS = ['when', 'where', 'who', 'toWhom', 'what', 'how'];
+const FIELD_LABELS = {
+  when: 'When（いつ）',
+  where: 'Where（どこで）',
+  who: 'Who（だれが）',
+  toWhom: 'Whom（だれに）',
+  what: 'What（なにを）',
+  how: 'How（どのように）'
+};
 const INTRO_MESSAGE = 'こんにちは。このLINEのチャット内容は匿名報告として取り扱われますのでご安心ください。必要に応じて皆様に危害が及ばないように担当者より対応させていただきます。今回はどのような事象がありましたか？';
 const CONSULT_END_MESSAGE = '相談を終了しました。必要なときは、また「相談する」から開始してください。';
 const COMPLETE_MESSAGE = '報告ありがとうございます。';
@@ -106,9 +114,12 @@ function handleLiffReportSubmission(payload) {
     nextNo,
     report.companyName,
     report.reporterName,
-    report.input1,
-    report.input2,
-    report.input3,
+    report.when,
+    report.where,
+    report.who,
+    report.toWhom,
+    report.what,
+    report.how,
     report.freeText,
     report.consultationRequest
   ]);
@@ -143,14 +154,17 @@ function normalizeLiffReportPayload(payload) {
   const normalized = {
     companyName: normalizeField(report.companyName),
     reporterName: normalizeField(report.reporterName),
-    input1: normalizeField(report.input1),
-    input2: normalizeField(report.input2),
-    input3: normalizeField(report.input3),
+    when: normalizeField(report.when),
+    where: normalizeField(report.where),
+    who: normalizeField(report.who),
+    toWhom: normalizeField(report.toWhom),
+    what: normalizeField(report.what),
+    how: normalizeField(report.how),
     freeText: normalizeField(report.freeText),
     consultationRequest: normalizeField(report.consultationRequest)
   };
 
-  const requiredFields = ['companyName', 'input1', 'input2', 'input3', 'consultationRequest'];
+  const requiredFields = ['companyName', 'when', 'where', 'who', 'toWhom', 'what', 'how', 'consultationRequest'];
   const missing = requiredFields.filter(function(field) {
     return !normalized[field];
   });
@@ -183,16 +197,30 @@ function ensureLiffReportHeader(sheet) {
     'No',
     '企業名',
     '名前（任意）',
-    '入力１',
-    '入力２',
-    '入力３',
+    FIELD_LABELS.when,
+    FIELD_LABELS.where,
+    FIELD_LABELS.who,
+    FIELD_LABELS.toWhom,
+    FIELD_LABELS.what,
+    FIELD_LABELS.how,
     'その他（自由記載）',
     '相談受付希望'
   ];
-  const current = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
+  const currentWidth = Math.max(sheet.getLastColumn(), headers.length);
+  const current = sheet.getRange(1, 1, 1, currentWidth).getValues()[0];
+  const hasOldLiffHeader = current[3] === '入力１' &&
+    current[4] === '入力２' &&
+    current[5] === '入力３' &&
+    current[6] === 'その他（自由記載）' &&
+    current[7] === '相談受付希望';
+  if (hasOldLiffHeader) {
+    sheet.insertColumnsAfter(6, 3);
+  }
   if (current.join('') === '') {
     sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
     sheet.setFrozenRows(1);
+  } else {
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
   }
 }
 
@@ -364,12 +392,12 @@ function buildAnalysisSchema() {
     additionalProperties: false,
     required: ['when', 'where', 'who', 'toWhom', 'what', 'how', 'urgency', 'notes'],
     properties: {
-      when: { type: 'string', description: 'いつ。日時、日付、時期、期限。分からない場合は空文字。' },
-      where: { type: 'string', description: 'どこで。場所、施設、部屋、状況の発生箇所。分からない場合は空文字。' },
-      who: { type: 'string', description: 'だれが。行為者、報告者、発信者、起点になった人。分からない場合は空文字。' },
-      toWhom: { type: 'string', description: 'だれに。対象者、被害者、依頼先、影響を受けた人。分からない場合は空文字。' },
-      what: { type: 'string', description: 'なにを。起きたこと、依頼内容、問題、行為の内容。分からない場合は空文字。' },
-      how: { type: 'string', description: 'どのように。状態、方法、経過、程度。分からない場合は空文字。' },
+      when: { type: 'string', description: 'When（いつ）。日時、日付、時期、期限。分からない場合は空文字。' },
+      where: { type: 'string', description: 'Where（どこで）。場所、施設、部屋、状況の発生箇所。分からない場合は空文字。' },
+      who: { type: 'string', description: 'Who（だれが）。行為者、報告者、発信者、起点になった人。分からない場合は空文字。' },
+      toWhom: { type: 'string', description: 'Whom（だれに）。対象者、被害者、依頼先、影響を受けた人。分からない場合は空文字。' },
+      what: { type: 'string', description: 'What（なにを）。起きたこと、依頼内容、問題、行為の内容。分からない場合は空文字。' },
+      how: { type: 'string', description: 'How（どのように）。状態、方法、経過、程度。分からない場合は空文字。' },
       urgency: { type: 'string', enum: ['高', '中', '低', ''], description: '緊急度。判断できない場合は空文字。' },
       notes: { type: 'string', description: '判断根拠や補足。なければ空文字。' }
     }
@@ -500,16 +528,8 @@ function getMissingFields(analysis) {
 }
 
 function buildMissingQuestion(missingFields) {
-  const labels = {
-    when: 'いつ',
-    where: 'どこで',
-    who: 'だれが',
-    toWhom: 'だれに',
-    what: '何が起きたか',
-    how: 'どのような状況か'
-  };
   const missingLabels = missingFields.map(function(field) {
-    return labels[field];
+    return FIELD_LABELS[field];
   });
   return '確認です。' + missingLabels.join('、') + 'を教えてください。';
 }
@@ -642,22 +662,20 @@ function ensureHeader(sheet) {
   const headers = [
     'No',
     '初回コメント内容',
-    'いつ',
-    'どこで',
-    'だれが',
-    'だれに',
-    'なにを',
-    'どのように',
+    FIELD_LABELS.when,
+    FIELD_LABELS.where,
+    FIELD_LABELS.who,
+    FIELD_LABELS.toWhom,
+    FIELD_LABELS.what,
+    FIELD_LABELS.how,
     '緊急度',
     '対応コメント',
     'やり取り全文記録',
     '備考'
   ];
   const current = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
-  if (current.join('') === '') {
-    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
-    sheet.setFrozenRows(1);
-  }
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  sheet.setFrozenRows(1);
 }
 
 function setupSpreadsheetFormatting() {
@@ -728,7 +746,7 @@ function ensureSettingsSheet(sheet) {
     ['キー', '値', '備考'],
     ['trigger_word', 'Kアラート', '公式LINEで開始する文言'],
     ['urgency_options', '高,中,低', '緊急度候補'],
-    ['required_fields', 'いつ,どこで,だれが,だれに,なにを,どのように', '完了判定に使う項目']
+    ['required_fields', 'When（いつ）,Where（どこで）,Who（だれが）,Whom（だれに）,What（なにを）,How（どのように）', '完了判定に使う項目']
   ]);
 }
 

@@ -1392,3 +1392,14 @@ dori-manga/
 - 相談中の返信に `相談を終了する` が表示されることを確認する
 - `相談を終了する` 押下後、相談セッションが終了することを確認する
 - `通報する` からLIFF報告フォームを開き、空欄任意項目とスプレッドシート記録を実機で確認する
+
+---
+
+## 2026-06-23｜KアラートLIFF報告フォームの5W1H化
+
+- `k-alert-test/gas/Code.gs` のLIFF報告payloadとシートヘッダーを `When（いつ）`, `Where（どこで）`, `Who（だれが）`, `Whom（だれに）`, `What（なにを）`, `How（どのように）` に変更。
+- 旧 `入力１` / `入力２` / `入力３` ヘッダーを検知した場合、GAS側で3列追加して `その他（自由記載）` と `相談受付希望` の位置を保つ処理を追加。
+- `k-alert-test/worker/k_alert_dedicated_worker.js` を5W1Hフォームへ変更し、Cloudflare Worker `k-alert-test` へデプロイ。
+- Cloudflare Version ID: `a26042b7-2892-4012-9155-b65ea7fe5f58`
+- ライブURL `https://k-alert-test.s-jinnouchi.workers.dev/report` がHTTP 200で応答し、新5W1H項目が表示されることを確認。
+- 次回: ユーザー側でApps Scriptへ最新版 `gas/Code.gs` を差し替え、LIFF実送信で対象シートA〜K列への記録を確認する。

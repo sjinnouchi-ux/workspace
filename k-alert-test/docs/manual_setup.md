@@ -90,17 +90,20 @@ CodexのCLI認証ではGAS更新系操作に制約があるため、当面はCod
   - A: `No`
   - B: `企業名`
   - C: `名前（任意）`
-  - D: `入力１`
-  - E: `入力２`
-  - F: `入力３`
-  - G: `その他（自由記載）`
-  - H: `相談受付希望`
+  - D: `When（いつ）`
+  - E: `Where（どこで）`
+  - F: `Who（だれが）`
+  - G: `Whom（だれに）`
+  - H: `What（なにを）`
+  - I: `How（どのように）`
+  - J: `その他（自由記載）`
+  - K: `相談受付希望`
 
 ### 入力仕様
 
-- B列、D列、E列、F列は必須
-- C列、G列は任意
-- H列は `希望する` / `希望しない` の選択
+- B列、D列、E列、F列、G列、H列、I列は必須
+- C列、J列は任意
+- K列は `希望する` / `希望しない` の選択
 - A列のNoはGAS側で既存最大値+1を自動採番する
 - AI APIは使わない
 
@@ -111,5 +114,5 @@ CodexのCLI認証ではGAS更新系操作に制約があるため、当面はCod
 3. Cloudflare Workerへ `worker/k_alert_dedicated_worker.js` を反映する
 4. `https://k-alert-test.s-jinnouchi.workers.dev/report` がLIFFフォームとして表示されるか確認する
 5. LIFF URL `https://liff.line.me/2010343610-N2psO7GW` からフォームを開く
-6. テスト送信後、対象シートのA〜H列に自動記載されることを確認する
+6. テスト送信後、対象シートのA〜K列に自動記載されることを確認する
 7. GASのpostback対応を反映した後、LINE APIで `相談する` が `postback` + `inputOption: openKeyboard` のリッチメニューをデフォルトに設定する

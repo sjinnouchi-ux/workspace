@@ -662,3 +662,33 @@
 - 相談中の返信に `相談を終了する` が表示されることを確認する
 - `相談を終了する` 押下後、相談セッションが終了することを確認する
 - `通報する` からLIFF報告フォームを開き、空欄任意項目とスプレッドシート記録を実機で確認する
+
+---
+
+## 2026-06-23｜LIFF報告フォームの5W1H聞き取り方式化
+
+### 背景
+
+- `通報する` から開くLIFF報告フォームの `入力１` / `入力２` / `入力３` を、5W1H式の聞き取り項目へ変更する。
+- GASコードはユーザー側でApps Scriptへ差し替え、Codex側ではCloudflare Workerを反映する運用とする。
+
+### 対応内容
+
+- `gas/Code.gs` のLIFF報告payloadを `when`, `where`, `who`, `toWhom`, `what`, `how` に変更。
+- LIFF報告フォーム用シートのヘッダーを A〜K列の `No`, `企業名`, `名前（任意）`, `When（いつ）`, `Where（どこで）`, `Who（だれが）`, `Whom（だれに）`, `What（なにを）`, `How（どのように）`, `その他（自由記載）`, `相談受付希望` に変更。
+- 旧ヘッダー `入力１` / `入力２` / `入力３` を検知した場合、GAS側で3列を追加して `その他（自由記載）` と `相談受付希望` の列位置を保つ処理を追加。
+- 相談AI側の不足質問と `アラート` シートヘッダーも `When（いつ）` / `Where（どこで）` / `Who（だれが）` / `Whom（だれに）` / `What（なにを）` / `How（どのように）` 表記へ変更。
+- `worker/k_alert_dedicated_worker.js` のLIFFフォームを5W1H式入力欄へ変更し、Cloudflare Worker `k-alert-test` へデプロイ。
+
+### 確認
+
+- `gas/Code.gs` のJavaScript構文チェック成功。
+- `worker/k_alert_dedicated_worker.js` のJavaScript構文チェック成功。
+- Cloudflare Worker Version ID: `a26042b7-2892-4012-9155-b65ea7fe5f58`
+- `https://k-alert-test.s-jinnouchi.workers.dev/report` がHTTP 200で応答。
+- ライブHTMLに `When（いつ）`, `Where（どこで）`, `Who（だれが）`, `Whom（だれに）`, `What（なにを）`, `How（どのように）` が含まれ、旧 `入力１` が含まれないことを確認。
+
+### 残課題
+
+- ユーザー側でApps Scriptへ最新版 `gas/Code.gs` を差し替え、Webアプリを再デプロイする。
+- GAS差し替え後、LIFFから実送信し、対象シートA〜K列へ記録されることを確認する。

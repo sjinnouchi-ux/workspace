@@ -217,16 +217,28 @@ button:disabled {
       <input id="reporterName" name="reporterName" autocomplete="name">
     </section>
     <section class="panel">
-      <label for="input1">入力１</label>
-      <textarea id="input1" name="input1" required></textarea>
+      <label for="when">When（いつ）</label>
+      <textarea id="when" name="when" required></textarea>
     </section>
     <section class="panel">
-      <label for="input2">入力２</label>
-      <textarea id="input2" name="input2" required></textarea>
+      <label for="where">Where（どこで）</label>
+      <textarea id="where" name="where" required></textarea>
     </section>
     <section class="panel">
-      <label for="input3">入力３</label>
-      <textarea id="input3" name="input3" required></textarea>
+      <label for="who">Who（だれが）</label>
+      <textarea id="who" name="who" required></textarea>
+    </section>
+    <section class="panel">
+      <label for="toWhom">Whom（だれに）</label>
+      <textarea id="toWhom" name="toWhom" required></textarea>
+    </section>
+    <section class="panel">
+      <label for="what">What（なにを）</label>
+      <textarea id="what" name="what" required></textarea>
+    </section>
+    <section class="panel">
+      <label for="how">How（どのように）</label>
+      <textarea id="how" name="how" required></textarea>
     </section>
     <section class="panel">
       <label for="freeText">その他（自由記載） <span class="optional">任意</span></label>
@@ -265,9 +277,12 @@ document.getElementById('reportForm').addEventListener('submit', async (event) =
     report: {
       companyName: getValue(data, 'companyName'),
       reporterName: getValue(data, 'reporterName'),
-      input1: getValue(data, 'input1'),
-      input2: getValue(data, 'input2'),
-      input3: getValue(data, 'input3'),
+      when: getValue(data, 'when'),
+      where: getValue(data, 'where'),
+      who: getValue(data, 'who'),
+      toWhom: getValue(data, 'toWhom'),
+      what: getValue(data, 'what'),
+      how: getValue(data, 'how'),
       freeText: getValue(data, 'freeText'),
       consultationRequest: getValue(data, 'consultationRequest')
     }
