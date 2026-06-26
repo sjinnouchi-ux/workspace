@@ -1,0 +1,11 @@
+name = "k-alert-production-webhook"
+main = "src/index.ts"
+compatibility_date = "2026-06-25"
+workers_dev = true
+
+[vars]
+FORWARD_PATH = "/webhooks/line"
+ACK_WHEN_ORIGIN_MISSING = "true"
+
+# Set as Cloudflare Worker secrets, not plain vars:
+# FASTAPI_ORIGIN_URL

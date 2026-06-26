@@ -1,0 +1,15 @@
+{
+  "name": "k-alert-production-webhook-worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260625.0",
+    "typescript": "^5.8.3",
+    "wrangler": "^4.22.0"
+  }
+}
