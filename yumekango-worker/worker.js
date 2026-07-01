@@ -62,12 +62,19 @@ function extractAppsScriptUserHtml(html) {
 
   const jsonEscaped = match[1].replace(/\\x([0-9A-Fa-f]{2})/g, (_, hex) => `\\u00${hex}`);
   try {
-    return JSON.parse(`"${jsonEscaped.replace(/"/g, '\\"')}"`)
+    const decoded = JSON.parse(`"${jsonEscaped.replace(/"/g, '\\"')}"`)
       .replace(/\\n/g, "\n")
       .replace(/\\"/g, '"')
       .replace(/\\\//g, "/");
+    return decodeUnicodeEscapes(decoded);
   } catch (err) {
     console.log("Failed to extract Apps Script userHtml:", err);
     return html;
   }
+}
+
+function decodeUnicodeEscapes(text) {
+  return text.replace(/\\u([0-9A-Fa-f]{4})/g, (_, hex) =>
+    String.fromCharCode(parseInt(hex, 16))
+  );
 }
