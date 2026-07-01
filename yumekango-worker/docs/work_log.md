@@ -223,3 +223,20 @@
 ### 最終状態
 - 家計簿アプリは完了。
 - 今後は通常運用・月次レビュー時に、家計簿入力、リッチメニュー2/3/4、LIFF表示を確認する。
+
+## 2026-06-10｜家計簿LIFF月移動ボタンのUnicodeエスケープ修正
+
+### 背景
+- 家計簿LIFFの月移動ボタンで、左右矢印が `\u2039` / `\u203a` の文字列として表示されていた。
+- GAS側のHTML生成では `‹` / `›` が正しく書かれており、Cloudflare Worker側のApps Script HTML抽出後にUnicodeエスケープが残っていた。
+
+### 対応内容
+- `yumekango-worker/worker.js` のApps Script HTML抽出処理に、残存する `\uXXXX` 形式のUnicodeエスケープを実文字へ戻す処理を追加。
+- `global.env` から `CLOUDFLARE_API_TOKEN` を一時的に読み込み、Cloudflare Worker `yumekango` を本番デプロイ。
+
+### 確認
+- Worker通常GET: `200 OK`
+- WorkerカテゴリJSON: `200 OK`
+- Worker通常GETの月移動ボタンが `‹` / `›` として返ることを確認。
+- Worker通常GETに `\u2039` / `\u203a` が残っていないことを確認。
+- Cloudflare Worker Version ID: `5883a261-4b4f-48d8-99c3-7fc6fc4938b7`
