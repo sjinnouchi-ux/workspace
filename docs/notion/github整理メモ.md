@@ -3,7 +3,7 @@
 ## 2026-06-06 時点の整理方針
 
 - `market-pilot` は単体リポジトリ `sjinnouchi-ux/market-pilot` を正本にする。
-- `workspace/market-pilot` は削除済み。`workspace/INDEX.json` から単体リポジトリへリンクする。
+- `workspace/market-pilot` は削除済み。現行のルーター正本は `workspace/PROJECTS.md`。
 - `dori-manga` は `workspace/dori-manga` を正本にする。
 - `supabase-db-templates/dori-manga` は削除済み。DB設計・ChatGPT指示・Supabase連携GASは `workspace/dori-manga` に集約する。
 - Notionは詳細ログの置き場ではなく、プロジェクト一覧・ステータス・優先度・次アクションの上層管理に使う。
@@ -42,7 +42,7 @@
 
 ## AI初期会話ルール
 
-- 最初の会話では `INDEX.json` と `docs/notion/projects.csv` だけで全体像を把握する。
+- 最初の会話では `PROJECTS.md` で全体像を把握する。
 - ユーザーが特定プロジェクト名を出すまで、詳細な `work_log.md` や設計書は読みに行かない。
 - ユーザーが「market-pilotを進めたい」「dori-mangaを確認したい」のように指定した時だけ、`Primary Docs` に記載されたファイルから読む。
-- Notionは進捗とURLの司令塔、GitHubは詳細ログと制作物の正本として扱う。
+- 現行方針ではGitHub/Markdownを正本とし、`PROJECTS.md` を全体管理の入口にする。
