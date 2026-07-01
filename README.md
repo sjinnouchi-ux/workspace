@@ -16,7 +16,7 @@
 
 - 全体管理Gitはルーターに徹する。
 - Notionは通常の進捗管理には使わない。
-- `INDEX.json` と `docs/notion/` は旧運用の資産として残すが、新方式の正本は `PROJECTS.md` と各プロジェクトGitのMarkdownとする。
+- 旧JSONインデックスは廃止済み。新方式の正本は `PROJECTS.md` と各プロジェクトGitのMarkdownとする。
 - Shogunが自動生成するルート `CLAUDE.md` / `AGENTS.md` は、この全体管理Gitでは手書き正本にしない。
 - 各プロジェクトGit側の `CLAUDE.md` / `AGENTS.md` は、プロジェクト固有ルールとして手書きしてよい。
 - 秘密情報はGitHub、Markdown、チャットに保存しない。

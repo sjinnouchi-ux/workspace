@@ -1,6 +1,8 @@
-# Notion Project Management Prep
+# Legacy Notion Project Management Prep
 
-This folder prepares the GitHub workspace for high-level Notion project management.
+This folder is a legacy record from the previous Notion-centered project management workflow.
+
+Current project routing is managed by root `PROJECTS.md`; Notion is not the normal progress-management source.
 
 ## Purpose
 
@@ -75,13 +77,15 @@ Use these values consistently:
 | Medium | Useful, but not the main lane |
 | Low | Keep visible, but do not actively push |
 
-## AI Startup Rule
+## Legacy AI Startup Rule
 
-At the start of a new chat, Codex / Claude should read only lightweight project indexes:
+This rule is deprecated. Current startup should use root `PROJECTS.md`.
 
-1. `INDEX.json`
-2. `docs/notion/projects.csv`
-3. `docs/notion/README.md` only when the management rules are needed
+Formerly, at the start of a new chat, Codex / Claude read lightweight project indexes:
+
+1. root `PROJECTS.md`
+2. the target project Git listed in `PROJECTS.md`
+3. project-level `PROJECT_BRIEF.md`, `DESIGN_LOG.md`, and `IMPLEMENTATION_LOG.md`
 
 Do not read detailed project Markdown during the first broad conversation. Read project-specific docs only after the user names the project they want to work on.
 
