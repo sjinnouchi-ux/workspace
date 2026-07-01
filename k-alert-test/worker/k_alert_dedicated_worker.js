@@ -74,7 +74,7 @@ function buildReportFormHtml() {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Kアラート報告</title>
+<title>Kアラート通報</title>
 <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></` + `script>
 <style>
 :root {
@@ -111,6 +111,18 @@ main {
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
   margin-bottom: 14px;
   padding: 16px;
+}
+.intro {
+  color: #374151;
+  font-size: 14px;
+  line-height: 1.75;
+}
+.notice {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #9a3412;
+  font-size: 13px;
+  line-height: 1.7;
 }
 label {
   color: var(--muted);
@@ -205,9 +217,13 @@ button:disabled {
 </style>
 </head>
 <body>
-<div class="header">Kアラート報告</div>
+<div class="header">Kアラート通報</div>
 <main>
   <form id="reportForm">
+    <section class="panel intro">
+      通報の内容については、所属している勤務先に対して報告書を提出します。<br>
+      匿名希望の場合は名前入力は不要です。
+    </section>
     <section class="panel">
       <label for="companyName">企業名</label>
       <input id="companyName" name="companyName" autocomplete="organization" required>
@@ -217,16 +233,29 @@ button:disabled {
       <input id="reporterName" name="reporterName" autocomplete="name">
     </section>
     <section class="panel">
-      <label for="input1">入力１</label>
-      <textarea id="input1" name="input1" required></textarea>
+      <label for="when">いつの事ですか？</label>
+      <div class="optional">例：2026年6月23日</div>
+      <textarea id="when" name="when" required></textarea>
     </section>
     <section class="panel">
-      <label for="input2">入力２</label>
-      <textarea id="input2" name="input2" required></textarea>
+      <label for="where">どこで起きましたか？</label>
+      <div class="optional">例：職場の事務所で</div>
+      <textarea id="where" name="where" required></textarea>
     </section>
     <section class="panel">
-      <label for="input3">入力３</label>
-      <textarea id="input3" name="input3" required></textarea>
+      <label for="who">だれが起こした人ですか？</label>
+      <div class="optional">例：職場の先輩の田中さん</div>
+      <textarea id="who" name="who" required></textarea>
+    </section>
+    <section class="panel">
+      <label for="toWhom">だれに対してのことですか？</label>
+      <div class="optional">例：後輩の山田君に</div>
+      <textarea id="toWhom" name="toWhom" required></textarea>
+    </section>
+    <section class="panel">
+      <label for="whatHow">なにをどのようにしていましたか</label>
+      <div class="optional">例：お金を貸してくれと強く迫っていました</div>
+      <textarea id="whatHow" name="whatHow" required></textarea>
     </section>
     <section class="panel">
       <label for="freeText">その他（自由記載） <span class="optional">任意</span></label>
@@ -238,6 +267,9 @@ button:disabled {
         <label class="choice"><input type="radio" name="consultationRequest" value="希望する" required>希望する</label>
         <label class="choice"><input type="radio" name="consultationRequest" value="希望しない" required>希望しない</label>
       </div>
+    </section>
+    <section class="panel notice">
+      証拠保全のため、写真・スクリーンショット・録音などがあれば削除せず保管しておいてください。
     </section>
     <div id="status" class="status" role="status" aria-live="polite"></div>
   </form>
@@ -265,9 +297,11 @@ document.getElementById('reportForm').addEventListener('submit', async (event) =
     report: {
       companyName: getValue(data, 'companyName'),
       reporterName: getValue(data, 'reporterName'),
-      input1: getValue(data, 'input1'),
-      input2: getValue(data, 'input2'),
-      input3: getValue(data, 'input3'),
+      when: getValue(data, 'when'),
+      where: getValue(data, 'where'),
+      who: getValue(data, 'who'),
+      toWhom: getValue(data, 'toWhom'),
+      whatHow: getValue(data, 'whatHow'),
       freeText: getValue(data, 'freeText'),
       consultationRequest: getValue(data, 'consultationRequest')
     }
