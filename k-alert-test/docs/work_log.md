@@ -838,3 +838,66 @@
 ### 次回確認
 
 - LINE実機で上段左 `相談する`、上段右 `通報する`、下段 `シェアする` のタップ位置と動作を確認する。
+
+---
+
+## 2026-06-24｜KアラートLIFFテスト版の再公開
+
+### 背景
+
+- 他端末でKアラートLIFFが使えないとの報告があったため、公開中のLIFF URLとCloudflare Workerを確認し、テスト版を再公開する。
+
+### 対応内容
+
+- `worker/k_alert_dedicated_worker.js` のJavaScript構文チェックを実施。
+- Cloudflare Worker `k-alert-test` へ最新版LIFF報告フォームを再デプロイ。
+- デプロイ時に `--compatibility-date 2024-01-01` を明示。
+
+### 確認
+
+- Cloudflare Worker Version ID: `f90b2a41-05ef-44b3-824a-bd3f13d15489`
+- `https://k-alert-test.s-jinnouchi.workers.dev/report` がHTTP 200で応答することを確認。
+- ライブHTMLに `Kアラート通報`, `いつの事ですか？`, `だれに対してのことですか？`, `なにをどのようにしていましたか`, `LIFF ID: 2010343610-N2psO7GW` 相当の初期化コードが含まれることを確認。
+- `https://liff.line.me/2010343610-N2psO7GW` が `https://k-alert-test.s-jinnouchi.workers.dev/report` へリダイレクトする設定であることを確認。
+- GAS WebアプリURLへGET確認し、HTTP 200で `{"ok":true,"service":"k-alert-test","message":"KアラートGAS is running."}` が返ることを確認。
+
+### 未実施
+
+- スプレッドシートにテスト行が残るため、LIFFフォームからの実送信テストは未実施。
+
+### 次回確認
+
+- 他端末のLINEアプリから `https://liff.line.me/2010343610-N2psO7GW` を開き、フォーム表示と送信完了を確認する。
+- `通報する` からLIFFを開き、A〜J列へ記録されることを確認する。
+
+### 2026-06-24 追記
+
+- 友達側で `Bad認証` になるとの報告を受け、LINE Developers ConsoleでLINEログインチャネル `KアラートLIFF` を確認。
+- チャネルステータスが `開発中` だったため、`公開済み` へ変更。
+- 対象チャネルID: `2010343610`
+- 対象LIFF ID: `2010343610-N2psO7GW`
+- LINE Developers Console上で `KアラートLIFF` が `公開済み` と表示されることを確認。
+
+### 次回確認
+
+- 友達側のLINEアプリからLIFF URLを開き、`Bad認証` が解消されていることを確認する。
+- LIFFフォームから送信し、対象シートA〜J列へ記録されることを確認する。
+
+---
+
+## 2026-06-26｜本番実装向け最新ハンドオフMD作成
+
+### 背景
+
+- 別チャットで本番実装中だが、最新のLIFF、GAS、スプレッドシート、リッチメニュー、公開設定が把握されていないとの報告があった。
+
+### 対応内容
+
+- 現在の正本ブランチ、公開URL、LIFF画面仕様、GASコード正本、スプレッドシート列、LINE API上の現在のデフォルトリッチメニューを整理。
+- LINE APIでデフォルトリッチメニュー `richmenu-6357c4f92df07d8801645928a6a53af4` を読み戻し、画像サイズ `2500 x 1686` と3エリア設定を確認。
+- `docs/reports/2026-06-26-k-alert-current-handoff.md` を作成。
+
+### 確認
+
+- ハンドオフMDに秘密値そのものが含まれていないことを確認。
+- Google Drive同期フォルダ `G:\マイドライブ\Codex保存\資料` へ同MDをコピー。
