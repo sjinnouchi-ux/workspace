@@ -61,6 +61,19 @@ GCP Consoleで `dori-manga-drive` の秘密鍵JSONを作成しようとしたと
 
 このため、通常ブラウザで同じアカウントを使っても解除できる見込みは低く、GCP組織ポリシー管理者ロールを持つアカウントまたは管理者による対応が必要です。
 
+## QQQプロジェクト確認
+
+ユーザー確認依頼により、既存の `QQQ-Trading-System` も確認しました。
+
+- Project ID: `qqq-trading-system-496304`
+- `iam.disableServiceAccountKeyCreation`: 親のポリシーを継承し、適用済み
+- `ポリシーを管理`: 無効表示
+- 既存サービスアカウント: `qqq-trading-bot@qqq-trading-system-496304.iam.gserviceaccount.com`
+- キー状態: キーがありません
+
+したがって、QQQプロジェクトでも新規キーJSON作成は同じ制約で止まる見込みです。
+また、画面上は既存のサービスアカウントキーJSONも残っていないため、QQQから既存JSONを流用する経路は現時点では確認できていません。
+
 ## 判断が必要な点
 
 1. 組織ポリシー管理者が、一時的または対象プロジェクト限定でサービスアカウントキー作成を許可する。
