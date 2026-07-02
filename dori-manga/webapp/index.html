@@ -93,10 +93,22 @@
       <div class="section">
         <h2>制作</h2>
         <div class="toolbar">
-          <button id="new-episode-btn">新しい漫画を作る</button>
-          <button class="secondary" id="csv-import-open-btn">CSVインポート</button>
-          <button class="secondary" id="csv-export-btn">CSVエクスポート</button>
-          <button class="ghost" id="reload-btn">再読込</button>
+          <button id="new-episode-btn" onclick="openNewEpisodeForm()">新しい漫画を作る</button>
+          <button class="secondary" id="csv-import-open-btn" onclick="openCsvImport()">CSVインポート</button>
+          <button class="secondary" id="csv-export-btn" onclick="exportCsv()">CSVエクスポート</button>
+          <button class="ghost" id="reload-btn" onclick="loadAll()">再読込</button>
+        </div>
+        <div class="hidden" id="new-episode-section">
+          <div class="grid-2">
+            <div>
+              <label for="new-episode-title">新しい漫画のタイトル</label>
+              <input id="new-episode-title">
+            </div>
+            <div class="toolbar" style="align-items:end;">
+              <button id="new-episode-create-btn" onclick="createEpisodeFromForm()">作成</button>
+              <button class="ghost" id="new-episode-cancel-btn" onclick="closeNewEpisodeForm()">閉じる</button>
+            </div>
+          </div>
         </div>
         <div class="toolbar" id="status-filters"></div>
         <div id="production-msg"></div>
@@ -118,8 +130,8 @@
         <h2>CSVインポート</h2>
         <input type="file" id="csv-file" accept=".csv,text/csv">
         <div class="toolbar">
-          <button id="csv-import-btn">取込を実行</button>
-          <button class="ghost" id="csv-import-close-btn">閉じる</button>
+          <button id="csv-import-btn" onclick="importCsv()">取込を実行</button>
+          <button class="ghost" id="csv-import-close-btn" onclick="closeCsvImport()">閉じる</button>
         </div>
         <div id="csv-msg"></div>
       </div>
@@ -129,9 +141,9 @@
       <div class="section">
         <h2>評価プロンプト</h2>
         <div class="toolbar">
-          <button class="secondary prompt-copy" data-status="OK">OKをコピー</button>
-          <button class="secondary prompt-copy" data-status="NG">NGをコピー</button>
-          <button class="secondary prompt-copy" data-status="CLOSE">CLOSEをコピー</button>
+          <button class="secondary" id="copy-prompt-OK" onclick="copyPrompt('OK')">OKをコピー</button>
+          <button class="secondary" id="copy-prompt-NG" onclick="copyPrompt('NG')">NGをコピー</button>
+          <button class="secondary" id="copy-prompt-CLOSE" onclick="copyPrompt('CLOSE')">CLOSEをコピー</button>
         </div>
         <div id="prompt-copy-msg"></div>
       </div>
@@ -161,7 +173,7 @@
         <input type="file" id="import-file" accept="image/*">
         <label for="import-json">ChatGPT JSON</label>
         <textarea id="import-json" placeholder='{"attempt_number":1,"final_generation_prompt":"...","evaluation_summary":"...","evaluation_json":{"result":"OK"}}'></textarea>
-        <button id="image-import-btn">画像をDriveへアップロードしてDB登録</button>
+        <button id="image-import-btn" onclick="importImage()">画像をDriveへアップロードしてDB登録</button>
         <div id="image-import-msg"></div>
       </div>
 
@@ -191,7 +203,7 @@
             <input id="drive-root-id" placeholder="フォルダID">
           </div>
         </div>
-        <button id="save-drive-root-btn">Drive親フォルダ設定を保存</button>
+        <button id="save-drive-root-btn" onclick="saveDriveRoot()">Drive親フォルダ設定を保存</button>
         <div id="drive-root-msg"></div>
       </div>
 
@@ -202,13 +214,13 @@
           <div><label for="prompt-NG">NG</label><textarea id="prompt-NG"></textarea></div>
           <div><label for="prompt-CLOSE">CLOSE</label><textarea id="prompt-CLOSE"></textarea></div>
         </div>
-        <button id="save-prompts-btn">評価プロンプトを保存</button>
+        <button id="save-prompts-btn" onclick="savePrompts()">評価プロンプトを保存</button>
         <div id="prompt-save-msg"></div>
       </div>
 
       <div class="section">
         <h2>CSV</h2>
-        <button class="secondary" id="csv-template-btn">CSVテンプレートをダウンロード</button>
+        <button class="secondary" id="csv-template-btn" onclick="downloadTemplate()">CSVテンプレートをダウンロード</button>
       </div>
     </section>
   </div>
@@ -230,6 +242,7 @@ const TABS = [
   { id:"admin", label:"管理" },
 ];
 const state = { session:null, episodes:[], prompts:{}, settings:{}, filter:"すべて", activeTab:"production" };
+const saveTimers = new Map();
 const $ = id => document.getElementById(id);
 const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 const msg = (id, type, text) => { $(id).innerHTML = text ? `<div class="alert ${type}">${esc(text)}</div>` : ""; };
@@ -243,7 +256,7 @@ async function init() {
 }
 
 function renderTabs() {
-  $("tabs").innerHTML = TABS.map(tab => `<button class="tab-btn" data-tab="${tab.id}">${tab.label}</button>`).join("");
+  $("tabs").innerHTML = TABS.map(tab => `<button class="tab-btn" data-tab="${tab.id}" onclick="setTab('${tab.id}')">${tab.label}</button>`).join("");
   document.querySelectorAll(".tab-btn").forEach(btn => btn.onclick = () => setTab(btn.dataset.tab));
 }
 
@@ -253,22 +266,50 @@ function setTab(tabId) {
   document.querySelectorAll(".panel").forEach(panel => panel.classList.toggle("active", panel.id === `tab-${tabId}`));
   if (tabId === "import") renderImportEpisodeOptions();
 }
+window.setTab = setTab;
+
+function openNewEpisodeForm() {
+  $("new-episode-section").classList.remove("hidden");
+  $("new-episode-title").focus();
+}
+window.openNewEpisodeForm = openNewEpisodeForm;
+
+function closeNewEpisodeForm() {
+  $("new-episode-section").classList.add("hidden");
+}
+window.closeNewEpisodeForm = closeNewEpisodeForm;
+
+function openCsvImport() {
+  $("csv-import-section").classList.remove("hidden");
+}
+window.openCsvImport = openCsvImport;
+
+function closeCsvImport() {
+  $("csv-import-section").classList.add("hidden");
+}
+window.closeCsvImport = closeCsvImport;
 
 function bindEvents() {
   $("login-btn").onclick = login;
   $("password").addEventListener("keydown", e => { if (e.key === "Enter") login(); });
   $("logout-btn").onclick = async () => { await sb.auth.signOut(); location.reload(); };
   $("reload-btn").onclick = loadAll;
-  $("new-episode-btn").onclick = createEpisodeFromPrompt;
-  $("csv-import-open-btn").onclick = () => $("csv-import-section").classList.remove("hidden");
-  $("csv-import-close-btn").onclick = () => $("csv-import-section").classList.add("hidden");
+  $("new-episode-btn").onclick = openNewEpisodeForm;
+  $("new-episode-cancel-btn").onclick = closeNewEpisodeForm;
+  $("new-episode-create-btn").onclick = createEpisodeFromForm;
+  $("new-episode-title").addEventListener("keydown", e => { if (e.key === "Enter") createEpisodeFromForm(); });
+  bindProductionDelegates();
+  $("csv-import-open-btn").onclick = openCsvImport;
+  $("csv-import-close-btn").onclick = closeCsvImport;
   $("csv-export-btn").onclick = exportCsv;
   $("csv-template-btn").onclick = downloadTemplate;
   $("csv-import-btn").onclick = importCsv;
   $("image-import-btn").onclick = importImage;
   $("save-drive-root-btn").onclick = saveDriveRoot;
   $("save-prompts-btn").onclick = savePrompts;
-  document.querySelectorAll(".prompt-copy").forEach(btn => btn.onclick = () => copyPrompt(btn.dataset.status));
+  $("copy-prompt-OK").onclick = () => copyPrompt("OK");
+  $("copy-prompt-NG").onclick = () => copyPrompt("NG");
+  $("copy-prompt-CLOSE").onclick = () => copyPrompt("CLOSE");
 }
 
 function showLogin() {
@@ -300,6 +341,7 @@ async function loadAll() {
   renderImportEpisodeOptions();
   renderAdmin();
 }
+window.loadAll = loadAll;
 
 async function loadEpisodes() {
   const { data, error } = await sb.from("manga_episodes")
@@ -351,7 +393,7 @@ async function loadStats() {
 
 async function loadHistory() {
   const { data, error } = await sb.from("generation_attempts")
-    .select("created_at,attempt_number,result_status,evaluation_summary,file_name,web_view_link:image_url,manga_panels(panel_number,manga_episodes(title))")
+    .select("created_at,attempt_number,result_status,evaluation_summary,file_name,image_url,manga_panels!generation_attempts_panel_id_fkey(panel_number,manga_episodes(title))")
     .order("created_at", { ascending:false }).limit(12);
   if (error) { $("history").textContent = "読み込みエラー"; return; }
   $("history").innerHTML = `<div class="table-wrap"><table><tr><th>日付</th><th>作品</th><th>コマ</th><th>回</th><th>判定</th><th>評価</th></tr>` +
@@ -364,12 +406,12 @@ function renderProduction() {
   const episodes = state.filter === "すべて" ? state.episodes : state.episodes.filter(ep => ep.status === state.filter);
   $("episode-rows").innerHTML = episodes.map(ep => `
     <tr data-episode-id="${ep.id}">
-      <td><input type="checkbox" ${ep.is_working ? "checked" : ""} onchange="setWorking('${ep.id}', this.checked)"></td>
-      <td class="title-cell">${esc(ep.title)}${ep.drive_folder_url ? `<a class="folder-link" href="${esc(ep.drive_folder_url)}" target="_blank">Driveフォルダ</a>` : `<button class="small secondary" onclick="createFolderForEpisodeId('${ep.id}')">フォルダ作成</button>`}<div class="save-state" id="save-${ep.id}-title"></div></td>
-      <td><select onchange="saveEpisodeField('${ep.id}', 'status', this.value)">${STATUSES.map(s => `<option value="${s}" ${ep.status === s ? "selected" : ""}>${s}</option>`).join("")}</select></td>
-      ${ep.panels.map(panel => `<td><textarea onblur="savePanelScene('${ep.id}', ${panel.panel_number}, this.value)">${esc(panel.scene_text || "")}</textarea></td>`).join("")}
-      <td><textarea onblur="saveEpisodeField('${ep.id}', 'post_text', this.value)">${esc(ep.post_text || "")}</textarea></td>
-      <td><input value="${esc(ep.pdf_url || "")}" onblur="saveEpisodeField('${ep.id}', 'pdf_url', this.value)"></td>
+      <td><input type="checkbox" data-action="working" ${ep.is_working ? "checked" : ""}></td>
+      <td class="title-cell">${esc(ep.title)}${ep.drive_folder_url ? `<a class="folder-link" href="${esc(ep.drive_folder_url)}" target="_blank">Driveフォルダ</a>` : `<button class="small secondary" data-action="create-folder">フォルダ作成</button>`}<div class="save-state" id="save-${ep.id}-title"></div></td>
+      <td><select data-episode-field="status">${STATUSES.map(s => `<option value="${s}" ${ep.status === s ? "selected" : ""}>${s}</option>`).join("")}</select></td>
+      ${ep.panels.map(panel => `<td><textarea data-panel-number="${panel.panel_number}">${esc(panel.scene_text || "")}</textarea></td>`).join("")}
+      <td><textarea data-episode-field="post_text">${esc(ep.post_text || "")}</textarea></td>
+      <td><input data-episode-field="pdf_url" value="${esc(ep.pdf_url || "")}"></td>
     </tr>`).join("") || `<tr><td colspan="9">該当する作品がありません。</td></tr>`;
 }
 
@@ -377,11 +419,75 @@ function renderFilters() {
   const items = ["すべて", ...STATUSES];
   $("status-filters").innerHTML = items.map(status => {
     const count = status === "すべて" ? state.episodes.length : state.episodes.filter(ep => ep.status === status).length;
-    return `<button class="${state.filter === status ? "" : "secondary"} small" onclick="setFilter('${status}')">${status} (${count})</button>`;
+    return `<button class="${state.filter === status ? "" : "secondary"} small" data-filter="${status}">${status} (${count})</button>`;
   }).join("");
+  $("status-filters").querySelectorAll("[data-filter]").forEach(button => {
+    button.addEventListener("click", () => {
+      state.filter = button.dataset.filter;
+      renderProduction();
+    });
+  });
 }
 
-window.setFilter = status => { state.filter = status; renderProduction(); };
+function bindProductionDelegates() {
+  const body = $("episode-rows");
+  body.addEventListener("click", event => {
+    const row = event.target.closest("tr[data-episode-id]");
+    if (!row) return;
+    if (event.target.closest('[data-action="create-folder"]')) {
+      window.createFolderForEpisodeId(row.dataset.episodeId);
+    }
+  });
+  body.addEventListener("change", event => {
+    const row = event.target.closest("tr[data-episode-id]");
+    if (!row) return;
+    if (event.target.matches('[data-action="working"]')) {
+      setWorking(row.dataset.episodeId, event.target.checked);
+      return;
+    }
+    if (event.target.matches('select[data-episode-field="status"]')) {
+      saveEpisodeField(row.dataset.episodeId, "status", event.target.value);
+    }
+  });
+  body.addEventListener("focusout", event => {
+    const row = event.target.closest("tr[data-episode-id]");
+    if (!row) return;
+    if (event.target.matches("[data-episode-field]")) {
+      saveEpisodeField(row.dataset.episodeId, event.target.dataset.episodeField, event.target.value);
+      return;
+    }
+    if (event.target.matches("[data-panel-number]")) {
+      savePanelScene(row.dataset.episodeId, Number(event.target.dataset.panelNumber), event.target.value);
+    }
+  });
+  body.addEventListener("input", event => {
+    const row = event.target.closest("tr[data-episode-id]");
+    if (!row) return;
+    if (event.target.matches("[data-episode-field]")) {
+      scheduleEpisodeSave(row.dataset.episodeId, event.target.dataset.episodeField, event.target.value);
+      return;
+    }
+    if (event.target.matches("[data-panel-number]")) {
+      schedulePanelSave(row.dataset.episodeId, Number(event.target.dataset.panelNumber), event.target.value);
+    }
+  });
+}
+
+function scheduleSave(key, action) {
+  clearTimeout(saveTimers.get(key));
+  saveTimers.set(key, setTimeout(async () => {
+    saveTimers.delete(key);
+    await action();
+  }, 700));
+}
+
+function scheduleEpisodeSave(id, field, value) {
+  scheduleSave(`episode:${id}:${field}`, () => saveEpisodeField(id, field, value));
+}
+
+function schedulePanelSave(episodeId, panelNumber, value) {
+  scheduleSave(`panel:${episodeId}:${panelNumber}`, () => savePanelScene(episodeId, panelNumber, value));
+}
 
 async function saveEpisodeField(id, field, value) {
   const patch = { [field]: value || null };
@@ -392,6 +498,7 @@ async function saveEpisodeField(id, field, value) {
   msg("production-msg", "ok", "保存しました。");
   renderFilters();
 }
+window.saveEpisodeField = saveEpisodeField;
 
 async function savePanelScene(episodeId, panelNumber, value) {
   const ep = state.episodes.find(e => e.id === episodeId);
@@ -402,6 +509,7 @@ async function savePanelScene(episodeId, panelNumber, value) {
   panel.scene_text = value || null;
   msg("production-msg", "ok", "保存しました。");
 }
+window.savePanelScene = savePanelScene;
 
 async function setWorking(id, checked) {
   if (!checked) {
@@ -417,24 +525,28 @@ async function setWorking(id, checked) {
   renderProduction();
   renderImportEpisodeOptions();
 }
+window.setWorking = setWorking;
 
-async function createEpisodeFromPrompt() {
-  const title = prompt("新しい漫画のタイトルを入力してください。");
+async function createEpisodeFromForm() {
+  const title = $("new-episode-title").value;
   if (!title?.trim()) return;
   const existing = state.episodes.find(ep => ep.title === title.trim());
   if (existing) return msg("production-msg", "warn", "同じタイトルが既にあります。二重登録防止のため作成しません。");
-  $("new-episode-btn").disabled = true;
+  $("new-episode-create-btn").disabled = true;
   try {
     const ep = await createEpisodeWithPanels(title.trim());
     await createFolderForEpisode(ep);
+    $("new-episode-title").value = "";
+    $("new-episode-section").classList.add("hidden");
     await loadAll();
     msg("production-msg", "ok", "作品とDriveフォルダを作成しました。");
   } catch (error) {
     msg("production-msg", "err", error.message);
   } finally {
-    $("new-episode-btn").disabled = false;
+    $("new-episode-create-btn").disabled = false;
   }
 }
+window.createEpisodeFromForm = createEpisodeFromForm;
 
 async function createEpisodeWithPanels(title) {
   const { data, error } = await sb.rpc("create_episode_with_panels", { p_title:title });
@@ -493,11 +605,35 @@ function renderImportEpisodeOptions() {
 }
 
 async function copyPrompt(status) {
-  await loadPrompts();
-  const text = state.prompts[status]?.template_text;
-  if (!text) return msg("prompt-copy-msg", "err", `${status}の評価プロンプトが見つかりません。`);
-  await navigator.clipboard.writeText(text);
-  msg("prompt-copy-msg", "ok", `${status}の評価プロンプトをコピーしました。`);
+  try {
+    msg("prompt-copy-msg", "info", "コピー準備中...");
+    await loadPrompts();
+    const text = state.prompts[status]?.template_text;
+    if (!text) return msg("prompt-copy-msg", "err", `${status}の評価プロンプトが見つかりません。`);
+    await copyText(text);
+    msg("prompt-copy-msg", "ok", `${status}の評価プロンプトをコピーしました。`);
+  } catch (error) {
+    msg("prompt-copy-msg", "err", `コピーに失敗しました。\n${error.message}`);
+  }
+}
+window.copyPrompt = copyPrompt;
+
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return;
+  } catch {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.left = "-9999px";
+    document.body.appendChild(textarea);
+    textarea.select();
+    const ok = document.execCommand("copy");
+    textarea.remove();
+    if (!ok) throw new Error("ブラウザがクリップボード書き込みを許可しませんでした。");
+  }
 }
 
 async function importImage() {
@@ -507,12 +643,13 @@ async function importImage() {
   if (!ep) return msg("image-import-msg", "err", "作品を選択してください。");
   if (!file) return msg("image-import-msg", "err", "画像ファイルを選択してください。");
   if (file.size > 10 * 1024 * 1024) return msg("image-import-msg", "err", "画像サイズが10MBを超えています。画像を圧縮してください。");
-  let parsed;
-  try { parsed = JSON.parse($("import-json").value.trim()); }
-  catch (error) { return msg("image-import-msg", "err", "ChatGPT JSONを読み取れません。\n" + error.message); }
   const resultStatus = $("import-status").value;
-  const jsonResult = String(parsed.evaluation_json?.result || parsed.result_status || "").toUpperCase();
-  if (jsonResult && jsonResult !== resultStatus && !confirm(`画面の判定は「${resultStatus}」、JSONは「${jsonResult}」です。「${resultStatus}」で登録しますか？`)) return;
+  const jsonText = $("import-json").value.trim();
+  const parsedInfo = parseImportJson(jsonText, resultStatus);
+  if (parsedInfo.ok) {
+    const jsonResult = String(parsedInfo.payload.evaluation_json?.result || parsedInfo.payload.result_status || "").toUpperCase();
+    if (jsonResult && jsonResult !== resultStatus && !confirm(`画面の判定は「${resultStatus}」、JSONの評価は「${jsonResult}」です。「${resultStatus}」で登録しますか？`)) return;
+  }
 
   $("image-import-btn").disabled = true;
   try {
@@ -533,8 +670,14 @@ async function importImage() {
       }
       throw error;
     }
+    const attemptNumber = await resolveAttemptNumber(
+      parsedInfo.payload.attempt_number,
+      episodeId,
+      Number($("import-panel").value),
+    );
     const payload = {
-      ...parsed,
+      ...parsedInfo.payload,
+      attempt_number:attemptNumber,
       result_status:resultStatus,
       panel_number:Number($("import-panel").value),
       episode_title:ep.title,
@@ -547,7 +690,8 @@ async function importImage() {
     if (data?.status === "duplicate") {
       msg("image-import-msg", "warn", `同じコマ・試行回数は登録済みです。画像はDriveに残っています。\n${data.message || ""}`);
     } else {
-      msg("image-import-msg", "ok", "画像アップロードとDB登録が完了しました。");
+      const jsonNote = parsedInfo.ok ? "JSON読取: OK" : "JSON読取: NG（DBに原文とエラーを保存）";
+      msg("image-import-msg", "ok", `画像アップロードとDB登録が完了しました。\n${jsonNote}`);
       $("import-json").value = "";
       $("import-file").value = "";
     }
@@ -558,12 +702,87 @@ async function importImage() {
     $("image-import-btn").disabled = false;
   }
 }
+window.importImage = importImage;
 
-function renderFolderRecovery(targetId, text, episodeId) {
-  $(targetId).innerHTML = `<div class="alert warn">${esc(text)}\n\nフォルダ作成を実行しますか？</div><button class="secondary" onclick="recoverFolder('${targetId}','${episodeId}')">フォルダ作成を実行</button>`;
+function parseImportJson(text, resultStatus) {
+  if (!text) {
+    return buildFallbackJsonPayload("", "JSON入力が空です。", resultStatus);
+  }
+  try {
+    const parsed = JSON.parse(text);
+    const evaluationJson = typeof parsed.evaluation_json === "object" && parsed.evaluation_json !== null
+      ? parsed.evaluation_json
+      : {};
+    return {
+      ok:true,
+      payload:{
+        ...parsed,
+        final_generation_prompt: parsed.final_generation_prompt || "[JSON_READ_OK_BUT_PROMPT_EMPTY]",
+        evaluation_summary: parsed.evaluation_summary || "[JSON_READ_OK_BUT_SUMMARY_EMPTY]",
+        evaluation_json:{
+          ...evaluationJson,
+          result: evaluationJson.result || parsed.result_status || resultStatus,
+          json_parse_status:"ok",
+        },
+        prompt_lesson_candidates: Array.isArray(parsed.prompt_lesson_candidates)
+          ? parsed.prompt_lesson_candidates
+          : [],
+      },
+    };
+  } catch (error) {
+    return buildFallbackJsonPayload(text, error.message, resultStatus);
+  }
 }
 
-window.recoverFolder = async (targetId, episodeId) => {
+function buildFallbackJsonPayload(rawText, errorMessage, resultStatus) {
+  const clippedRaw = rawText.slice(0, 12000);
+  return {
+    ok:false,
+    payload:{
+      final_generation_prompt:`[JSON_PARSE_INVALID]\n${clippedRaw || "(empty)"}`,
+      evaluation_summary:`[JSON_PARSE_INVALID] ${errorMessage}`,
+      evaluation_json:{
+        result:resultStatus,
+        json_parse_status:"invalid",
+        json_parse_error:errorMessage,
+        raw_text:clippedRaw,
+        repair_needed:true,
+      },
+      prompt_lesson_candidates:[],
+    },
+  };
+}
+
+async function resolveAttemptNumber(value, episodeId, panelNumber) {
+  const parsed = Number(value);
+  if (Number.isInteger(parsed) && parsed > 0 && parsed < 2147483647) return parsed;
+  const ep = state.episodes.find(item => item.id === episodeId);
+  let panelId = ep?.panels?.find(panel => panel.panel_number === panelNumber)?.id;
+  if (!panelId) {
+    const { data, error } = await sb.from("manga_panels")
+      .select("id")
+      .eq("episode_id", episodeId)
+      .eq("panel_number", panelNumber)
+      .limit(1)
+      .single();
+    if (error) throw new Error(error.message);
+    panelId = data.id;
+  }
+  const { data, error } = await sb.from("generation_attempts")
+    .select("attempt_number")
+    .eq("panel_id", panelId)
+    .order("attempt_number", { ascending:false })
+    .limit(1);
+  if (error) throw new Error(error.message);
+  return Math.max(1, Number(data?.[0]?.attempt_number || 0) + 1);
+}
+
+function renderFolderRecovery(targetId, text, episodeId) {
+  $(targetId).innerHTML = `<div class="alert warn">${esc(text)}\n\nフォルダ作成を実行しますか？</div><button class="secondary" data-recover-folder>フォルダ作成を実行</button>`;
+  $(targetId).querySelector("[data-recover-folder]").addEventListener("click", () => recoverFolder(targetId, episodeId));
+}
+
+async function recoverFolder(targetId, episodeId) {
   try {
     const ep = await fetchEpisodeById(episodeId);
     const res = await createFolderForEpisode(ep);
@@ -572,7 +791,7 @@ window.recoverFolder = async (targetId, episodeId) => {
   } catch (error) {
     msg(targetId, "err", error.message);
   }
-};
+}
 
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
@@ -606,6 +825,7 @@ async function saveDriveRoot() {
   renderAdmin();
   msg("drive-root-msg", "ok", "Drive親フォルダ設定を保存しました。");
 }
+window.saveDriveRoot = saveDriveRoot;
 
 async function savePrompts() {
   for (const status of EVAL_STATUSES) {
@@ -619,6 +839,7 @@ async function savePrompts() {
   await loadPrompts();
   msg("prompt-save-msg", "ok", "評価プロンプトを保存しました。");
 }
+window.savePrompts = savePrompts;
 
 function extractDriveFolderId(url) {
   return (url.match(/\/folders\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/) || [])[1] || "";
@@ -647,6 +868,7 @@ function exportCsv() {
   }
   csvDownload("dori-manga-export.csv", rows);
 }
+window.exportCsv = exportCsv;
 
 function downloadTemplate() {
   csvDownload("dori-manga-template.csv", [
@@ -654,6 +876,7 @@ function downloadTemplate() {
     ["記入例：酸素マスクの使い方","新規作成","導入の場面","説明の場面","実践の場面","まとめの場面","投稿文をここに記入",""],
   ]);
 }
+window.downloadTemplate = downloadTemplate;
 
 function parseCsv(text) {
   const rows = []; let row = [], field = "", inQuotes = false;
@@ -721,6 +944,7 @@ async function importCsv() {
     $("csv-import-btn").disabled = false;
   }
 }
+window.importCsv = importCsv;
 
 async function updateEpisodeAndPanels(episodeId, episodePatch, scenes) {
   const epRes = await sb.from("manga_episodes").update(episodePatch).eq("id", episodeId);

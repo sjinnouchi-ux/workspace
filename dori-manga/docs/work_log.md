@@ -1,5 +1,38 @@
 # 作業ログ
 
+## 2026-07-02（Phase 4）
+- Phase 3がClaude承認済みとなったため、Phase 4（Cloudflare Pagesデプロイ・検収）を実施。
+- Wrangler `4.106.0` で Cloudflare Pages project `dori-manga-admin` を作成し、`dori-manga/webapp/index.html` をデプロイ。
+  - 本番URL: `https://dori-manga-admin.pages.dev/`
+  - 最終デプロイ確認URL: `https://8e6d5340.dori-manga-admin.pages.dev`
+- Pages本番URLでログイン後、3タブ（制作／インポート／管理）表示を確認。
+- 本番検収中に以下を修正し、都度Pagesへ再デプロイ。
+  - 新規作成をブラウザprompt依存から画面内入力フォームへ変更。
+  - 動的行の保存イベントを安定化し、フォーカスアウト保存に加えて入力中の遅延保存を追加。
+  - CSVインポート等の主要ボタンにインラインフォールバックを追加し、クリック反応を安定化。
+  - 履歴表示で `generation_attempts` と `manga_panels` の複数リレーションが曖昧になるため、`generation_attempts_panel_id_fkey` を明示。
+  - プロンプトコピーに `document.execCommand("copy")` フォールバックと失敗表示を追加。
+- Pages本番URLからの検収:
+  - 新規作品作成 → `create-episode-folder` 呼び出し → Driveフォルダ自動生成を確認。ブラウザコンソールにCORSエラーなし。
+  - コマ案・投稿案・PDF URL保存をDB上で確認。
+  - 状態変更、フィルター、作業中チェック、インポートタブ初期選択連動を確認。
+  - プロンプトコピーは、陣内さんの手動クリックで「OKの評価プロンプトをコピーしました。」表示を確認。
+  - CSVインポートで `新規作成` 行から作品作成、4コマ案/投稿案/PDF URL保存、Driveフォルダ自動生成、`OK` / `NG` / `CLOSE` / `完成` サブフォルダ作成を確認。
+  - 管理タブでSupabase疎通、集計、Drive親フォルダ表示、評価プロンプト編集欄、CSVテンプレート導線を確認。
+- 陣内さん指示により、JSON不正時の画像登録仕様を変更（Claude確認不要）。
+  - ChatGPT JSONが空/不正でも画像アップロードを止めない。
+  - DB登録時に `evaluation_json.json_parse_status = "invalid"`、`json_parse_error`、`raw_text`、`repair_needed = true` を保存する。
+  - JSONが正常な場合は `evaluation_json.json_parse_status = "ok"` を保存する。
+  - `attempt_number` がJSONから取得できない場合は、対象コマの既存最大値+1を自動採番する。
+- 不正JSON相当の実疎通テストを実施。
+  - テストepisode `__codex_phase4_invalid_json_test_20260702_214058` を一時作成。
+  - `upload-image` は `status=ok`、`import_generation_attempt` は `status=ok`。
+  - DBで `json_parse_status=invalid` / `repair_needed=true` を確認。
+  - テストDB資材とDriveフォルダ `1HtYjjpEf0aeNvJcE_z0GaFsVpNfRhOnW` は削除済み。
+- Phase 4で作成したその他テスト資材も削除済み。
+  - DB: `__codex_phase4_%` episode残数0、`phase4-%` attempt残数0。
+  - Drive: テストフォルダ `19_J3af05c60Z9yXXOO00Tpo_SOWPOehP` / `1sFdJc_aWeSgMA2NMG-Ef0o9V7z90syHp` / `1HtYjjpEf0aeNvJcE_z0GaFsVpNfRhOnW` は削除API status `204`。
+
 ## 2026-07-02（Phase 3）
 - Claude承認により、Phase 3（webapp v3実装）を開始。
 - `dori-manga/webapp/index.html` を単一HTML構成のまま全面改訂し、3タブ（制作／インポート／管理）構成に変更。
