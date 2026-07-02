@@ -1,5 +1,28 @@
 # 作業ログ
 
+## 2026-07-02
+- Claudeからの橋渡しDriveフォルダ `https://drive.google.com/drive/folders/1GBnVR2eorz0KAjDFrUcKGhLGeHUDVyCd` を確認し、v3全面改訂用の同梱ファイルをリポジトリへ配置。
+  - `dori-manga/docs/handoff/codex-handoff-v3.md`
+  - `dori-manga/docs/supabase/db-import-redesign-v2.md`
+  - `dori-manga/docs/supabase/webapp-setup.md`
+  - `dori-manga/docs/supabase/import_generation_attempt_v1.sql`
+  - `dori-manga/webapp/index.html`
+  - `.github/workflows/supabase-keepalive.yml`
+- v3設計書では、Supabaseプロジェクト `vdntqwtywxyjxelycavx` に以下のmigrationがClaude側で適用・検証済みとされている。Codex側では再実行しない。
+  - `drop_folder_status_column`
+  - `rls_policies_authenticated_read`
+  - `import_generation_attempt_rpc_v2`
+  - `v3_episodes_production_columns`
+  - `v3_rls_write_policies_and_rpc`
+  - `v3_seed_evaluation_prompts`
+- 旧GAS資産を履歴保持のため `dori-manga/gas/_retired/` へ移動。
+  - `create_manga_folders.gs`
+  - `clasp-project/`
+  - `supabase-import/`
+- Phase 0のClaude確認依頼として、`docs/reports/2026-07-02-dori-manga-v3-phase0-review.md` を作成。
+- GitHub CLIで `sjinnouchi-ux/workspace` に GitHub Secret `SUPABASE_ANON_KEY` を登録・更新。値は `C:\Users\irodo\.codex\.sandbox-secrets\global.env` の `DORI_MANGA_SUPABASE_ANON_KEY` から読み込み、チャット・Markdown・GitHubには記録していない。
+- 未完了: Actions `Supabase keepalive` の手動実行・緑確認。
+
 ## 2026-06-21
 - Notion API fallbackでプロジェクトDBの `dori-manga` 行を取得し、Git側ミラー `docs/notion/projects.csv` の同プロジェクト行をNotion最新値に同期。
 - Supabase休眠防止用に `gas/supabase-import/dori-manga-import.gs` を更新。

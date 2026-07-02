@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🩺 どり漫画DB 管理画面</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+  :root { --pink:#f38fb1; --pink-dark:#d9648f; --bg:#fdf6f8; --card:#fff; --text:#3a3a3a; --muted:#8a8a8a; --ok:#2e9e6b; --ng:#d9534f; --close:#e8a33d; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:"Hiragino Sans","Yu Gothic",sans-serif; background:var(--bg); color:var(--text); }
+  header { background:var(--pink); color:#fff; padding:14px 20px; display:flex; justify-content:space-between; align-items:center; }
+  header h1 { font-size:18px; margin:0; }
+  main { max-width:760px; margin:0 auto; padding:16px; }
+  .card { background:var(--card); border-radius:12px; padding:18px; margin-bottom:16px; box-shadow:0 1px 4px rgba(0,0,0,.08); }
+  .card h2 { font-size:15px; margin:0 0 12px; color:var(--pink-dark); }
+  label { display:block; font-size:13px; margin:10px 0 4px; font-weight:600; }
+  .optional { color:var(--muted); font-weight:400; font-size:11px; }
+  input, select, textarea { width:100%; padding:9px; border:1px solid #ddd; border-radius:8px; font-size:14px; font-family:inherit; }
+  textarea { min-height:110px; font-family:monospace; font-size:12px; }
+  button { background:var(--pink-dark); color:#fff; border:none; border-radius:8px; padding:11px 18px; font-size:15px; cursor:pointer; width:100%; margin-top:14px; }
+  button:disabled { opacity:.5; }
+  button.small { width:auto; padding:6px 12px; font-size:12px; margin:0; background:#aaa; }
+  .status-badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; color:#fff; }
+  .OK{background:var(--ok);} .NG{background:var(--ng);} .CLOSE{background:var(--close);} .PENDING{background:#999;}
+  .alert { padding:10px 12px; border-radius:8px; font-size:13px; margin-top:10px; white-space:pre-wrap; }
+  .alert.err { background:#fdecea; color:#b3261e; }
+  .alert.ok  { background:#e6f4ea; color:#1e7e46; }
+  .alert.warn{ background:#fff4e0; color:#9a6b00; }
+  table { width:100%; border-collapse:collapse; font-size:12px; }
+  th, td { padding:6px 8px; border-bottom:1px solid #eee; text-align:left; vertical-align:top; }
+  th { color:var(--muted); font-weight:600; }
+  .stat-row { display:flex; gap:12px; flex-wrap:wrap; }
+  .stat { flex:1; min-width:110px; background:var(--bg); border-radius:10px; padding:10px; text-align:center; }
+  .stat .num { font-size:22px; font-weight:700; color:var(--pink-dark); }
+  .stat .lbl { font-size:11px; color:var(--muted); }
+  #login-view { max-width:360px; margin:70px auto; }
+  .hidden { display:none; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🩺 どり漫画DB 管理画面</h1>
+  <button class="small hidden" id="logout-btn">ログアウト</button>
+</header>
+
+<main>
+  <!-- ══════════ ログイン ══════════ -->
+  <div id="login-view" class="card">
+    <h2>ログイン</h2>
+    <label>パスワード</label>
+    <input type="password" id="password" placeholder="パスワードを入力" autocomplete="current-password">
+    <button id="login-btn">ログイン</button>
+    <div id="login-msg"></div>
+  </div>
+
+  <!-- ══════════ メイン ══════════ -->
+  <div id="app-view" class="hidden">
+
+    <div class="card">
+      <h2>📊 データベースの状態</h2>
+      <div id="db-status">確認中...</div>
+      <div class="stat-row" id="stats" style="margin-top:10px;"></div>
+    </div>
+
+    <div class="card">
+      <h2>📥 画像評価をインポート</h2>
+
+      <label>① ChatGPTが出力したJSON</label>
+      <textarea id="f-json" placeholder='{"attempt_number": 3, "result_status": "NG", ...}'></textarea>
+
+      <label>② 画像のGoogle Drive URL</label>
+      <input id="f-image-url" placeholder="https://drive.google.com/file/d/...">
+
+      <label>③ コマ番号</label>
+      <select id="f-panel">
+        <option value="1">1コマ目</option><option value="2">2コマ目</option>
+        <option value="3">3コマ目</option><option value="4">4コマ目</option>
+      </select>
+
+      <label>④ 判定</label>
+      <select id="f-status">
+        <option value="OK">OK（採用）</option>
+        <option value="NG">NG（没）</option>
+        <option value="CLOSE">CLOSE（惜しい）</option>
+      </select>
+
+      <label>エピソードタイトル <span class="optional">任意（例: 痙攣対応）</span></label>
+      <input id="f-episode" placeholder="未入力の場合は「(未設定)」になります">
+
+      <label>テーマ <span class="optional">任意（例: 採血, 夜勤）</span></label>
+      <input id="f-theme">
+
+      <label>コマの内容メモ <span class="optional">任意（このコマで描きたい場面など）</span></label>
+      <input id="f-scene">
+
+      <button id="import-btn">DBに登録する</button>
+      <div id="import-msg"></div>
+    </div>
+
+    <div class="card">
+      <h2>📚 最近の登録履歴</h2>
+      <div id="history">読み込み中...</div>
+    </div>
+
+    <div class="card">
+      <h2>💡 プロンプト改善ルール（最新10件）</h2>
+      <div id="lessons">読み込み中...</div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+// ══════════════ 設定（デプロイ時にLOGIN_EMAILだけ変更） ══════════════
+const SUPABASE_URL  = "https://vdntqwtywxyjxelycavx.supabase.co";
+const SUPABASE_ANON = "sb_publishable_b8a4K90d5R6S5RZReLa-HA_G6nNwKKW";
+const LOGIN_EMAIL   = "s.jinnouchi@yumekango.com";  // Supabase Authで作成済みのユーザー（2026-07-02設定済み）
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+const $ = id => document.getElementById(id);
+const msg = (el, cls, text) => { $(el).innerHTML = `<div class="alert ${cls}">${text}</div>`; };
+
+// ══════════════ ログイン ══════════════
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  session ? showApp() : showLogin();
+}
+function showLogin() { $("login-view").classList.remove("hidden"); $("app-view").classList.add("hidden"); $("logout-btn").classList.add("hidden"); }
+async function showApp() {
+  $("login-view").classList.add("hidden"); $("app-view").classList.remove("hidden"); $("logout-btn").classList.remove("hidden");
+  await Promise.all([loadStatus(), loadHistory(), loadLessons()]);
+}
+$("login-btn").onclick = async () => {
+  $("login-btn").disabled = true;
+  const { error } = await sb.auth.signInWithPassword({ email: LOGIN_EMAIL, password: $("password").value });
+  $("login-btn").disabled = false;
+  if (error) { msg("login-msg", "err", "ログインできませんでした。パスワードを確認してください。"); return; }
+  showApp();
+};
+$("password").addEventListener("keydown", e => { if (e.key === "Enter") $("login-btn").click(); });
+$("logout-btn").onclick = async () => { await sb.auth.signOut(); location.reload(); };
+
+// ══════════════ ダッシュボード（表示＝keepalive を兼ねる） ══════════════
+async function loadStatus() {
+  const { data, error } = await sb.from("generation_attempts")
+    .select("created_at").order("created_at", { ascending: false }).limit(1);
+  if (error) { msg("db-status", "err", "⚠️ データベースに接続できません。休止中の可能性があります。\n聡さんに連絡してください。"); return; }
+
+  const last = data[0] ? new Date(data[0].created_at) : null;
+  const days = last ? Math.floor((Date.now() - last.getTime()) / 86400000) : null;
+  let html = `<div class="alert ok">✅ データベースは稼働中です（このページを開いたことで休止防止のアクセスが記録されました）</div>`;
+  if (last) html += `<div style="font-size:13px;margin-top:8px;">最終登録: ${last.toLocaleString("ja-JP")}（${days}日前）</div>`;
+  $("db-status").innerHTML = html;
+
+  const [a, e, l] = await Promise.all([
+    sb.from("generation_attempts").select("id", { count: "exact", head: true }),
+    sb.from("manga_episodes").select("id", { count: "exact", head: true }),
+    sb.from("prompt_lessons").select("id", { count: "exact", head: true }),
+  ]);
+  $("stats").innerHTML = `
+    <div class="stat"><div class="num">${a.count ?? "-"}</div><div class="lbl">画像評価</div></div>
+    <div class="stat"><div class="num">${e.count ?? "-"}</div><div class="lbl">エピソード</div></div>
+    <div class="stat"><div class="num">${l.count ?? "-"}</div><div class="lbl">改善ルール</div></div>`;
+}
+
+// ══════════════ インポート ══════════════
+function extractFileId(url) {
+  for (const p of [/\/file\/d\/([\w-]{10,})/, /\/d\/([\w-]{10,})/, /[?&]id=([\w-]{10,})/]) {
+    const m = url.match(p); if (m) return m[1];
+  }
+  return null;
+}
+$("import-btn").onclick = async () => {
+  const jsonText = $("f-json").value.trim();
+  const imageUrl = $("f-image-url").value.trim();
+  if (!jsonText) return msg("import-msg", "err", "① ChatGPTのJSONを貼り付けてください。");
+  if (!imageUrl) return msg("import-msg", "err", "② 画像のDrive URLを入力してください。");
+
+  let data;
+  try { data = JSON.parse(jsonText); }
+  catch (e) { return msg("import-msg", "err", "JSONが読み取れません。ChatGPTの出力をそのままコピーしてください。\n" + e.message); }
+
+  const status = $("f-status").value;
+  const ejResult = (data.evaluation_json?.result || "").toUpperCase();
+  if (ejResult && ejResult !== status) {
+    if (!confirm(`画面の判定は「${status}」ですが、JSONの評価は「${ejResult}」です。\n「${status}」で登録しますか？`)) return;
+  }
+
+  const payload = {
+    ...data,
+    result_status:  status,
+    panel_number:   Number($("f-panel").value),
+    image_url:      imageUrl,
+    drive_file_id:  extractFileId(imageUrl),
+    episode_title:  $("f-episode").value.trim() || data.episode_title || null,
+    theme:          $("f-theme").value.trim() || null,
+    scene_text:     $("f-scene").value.trim() || null,
+  };
+
+  $("import-btn").disabled = true;
+  const { data: result, error } = await sb.rpc("import_generation_attempt", { payload });
+  $("import-btn").disabled = false;
+
+  if (error) return msg("import-msg", "err", "❌ 登録に失敗しました。\n" + error.message);
+  if (result.status === "duplicate") return msg("import-msg", "warn", "⚠️ " + result.message);
+
+  msg("import-msg", "ok",
+    `🎉 登録が完了しました！\n・画像評価を1件登録\n・改善ルールを${result.lessons_inserted}件登録\n\n（画像のフォルダ移動はいつも通りDriveで行ってください）`);
+  $("f-json").value = ""; $("f-image-url").value = "";
+  await Promise.all([loadStatus(), loadHistory(), loadLessons()]);
+};
+
+// ══════════════ 履歴・改善ルール ══════════════
+async function loadHistory() {
+  const { data, error } = await sb.from("generation_attempts")
+    .select("created_at, attempt_number, result_status, evaluation_summary, manga_panels(panel_number, manga_episodes(title))")
+    .order("created_at", { ascending: false }).limit(10);
+  if (error || !data) { $("history").textContent = "読み込みエラー"; return; }
+  $("history").innerHTML = `<table><tr><th>日付</th><th>エピソード</th><th>コマ</th><th>回</th><th>判定</th><th>評価</th></tr>` +
+    data.map(r => `<tr>
+      <td>${new Date(r.created_at).toLocaleDateString("ja-JP")}</td>
+      <td>${r.manga_panels?.manga_episodes?.title ?? "-"}</td>
+      <td>${r.manga_panels?.panel_number ?? "-"}</td>
+      <td>${r.attempt_number}</td>
+      <td><span class="status-badge ${r.result_status}">${r.result_status}</span></td>
+      <td>${(r.evaluation_summary || "").slice(0, 30)}</td></tr>`).join("") + "</table>";
+}
+async function loadLessons() {
+  const { data, error } = await sb.from("prompt_lessons")
+    .select("lesson_text, created_at").eq("is_active", true)
+    .order("created_at", { ascending: false }).limit(10);
+  if (error || !data) { $("lessons").textContent = "読み込みエラー"; return; }
+  $("lessons").innerHTML = "<ul style='margin:0;padding-left:18px;font-size:12px;'>" +
+    data.map(l => `<li style="margin-bottom:6px;">${l.lesson_text}</li>`).join("") + "</ul>";
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+# ============================================================
+# Supabase休眠防止 + 失敗通知（GitHub Actions）
+# 配置先: .github/workflows/supabase-keepalive.yml
+#
+# 【事前設定】リポジトリの Settings → Secrets and variables
+#   → Actions → New repository secret:
+#     SUPABASE_ANON_KEY = sb_publishable_...（anonキー）
+#
+# 【失敗通知】ワークフローが失敗すると、GitHubが自動で
+#   登録メールアドレスへ通知します（追加設定不要）。
+#   → 休止を検知したら Supabaseダッシュボードから Restore する
+# ============================================================
+name: Supabase keepalive
+
+on:
+  schedule:
+    # 2日おき 21:00 UTC（JST 翌6:00）。無料プランは7日無活動で休止のため余裕を持たせる
+    - cron: '0 21 */2 * *'
+  workflow_dispatch: {}   # 手動実行も可能
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping dori-manga (REST select)
+        run: |
+          set -e
+          STATUS=$(curl -s -o /tmp/body.txt -w "%{http_code}" \
+            "https://vdntqwtywxyjxelycavx.supabase.co/rest/v1/characters?select=id&limit=1" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}")
+          echo "HTTP $STATUS"
+          cat /tmp/body.txt
+          if [ "$STATUS" -lt 200 ] || [ "$STATUS" -ge 300 ]; then
+            echo "::error::Supabase dori-manga への疎通に失敗（HTTP $STATUS）。休止中の可能性があります。ダッシュボードから Restore してください。"
+            exit 1
+          fi
+
+      # market-pilot も維持したい場合は同様のステップを追加
+      # - name: Ping market-pilot
+      #   run: ...
