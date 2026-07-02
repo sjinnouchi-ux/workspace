@@ -69,6 +69,7 @@
 - Drive親フォルダ `11UK7BKd-pcWW7eQSDghbkJxjxJa34Dbz`（`どり看護師_漫画格納フォルダ（改定）`）に、同サービスアカウントを編集者として共有。
 - 共有後、一般アクセスが「リンクを知っている全員」だったため、指示どおり「制限付き」に戻したことをDrive共有ダイアログで確認。
 - サービスアカウントキーJSON作成は、GCP組織ポリシー `iam.disableServiceAccountKeyCreation` によりブロック。`GOOGLE_SERVICE_ACCOUNT_JSON` をSupabase secretsへ設定できないため、Edge Functions deploy とJWT付きcurl疎通テストは未実施。
+- 同日、プロジェクト限定で同ポリシーを上書き解除できるか確認したが、`orgpolicy.policies.create` / `orgpolicy.policies.delete` / `orgpolicy.policies.update` が不足しており、`s.jinnouchi@yumekango.com` では解除不可だった。
 - 次のアクション: 組織ポリシー管理者がサービスアカウントキー作成制限を解除する、またはキーJSON不要の別認証方式に設計変更するかを判断する。
 - 旧GASのApps Script側の後片付け（トリガー停止・スクリプトプロパティのservice_roleキー削除）は、Git外の人間タスクとして継続。
 
