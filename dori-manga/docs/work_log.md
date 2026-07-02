@@ -1,6 +1,28 @@
 # 作業ログ
 
 ## 2026-07-02
+- Phase 0がClaude承認済みとなったため、Phase 1（Edge Functions実装・コードのみ）を実施。デプロイは行っていない。
+- `dori-manga/supabase/functions/create-episode-folder/index.ts` を追加。
+  - 認証済みリクエストを前提に、作品IDとタイトルを受け取り、`app_settings` の `drive_root_folder_id` / `drive_root_folder_url` からDrive親フォルダを取得。
+  - 親フォルダ直下に作品フォルダを作成または再利用し、配下に `OK` / `NG` / `CLOSE` / `完成` フォルダを作成または再利用。
+  - `manga_episodes.drive_folder_id` / `drive_folder_url` を更新。
+- `dori-manga/supabase/functions/upload-image/index.ts` を追加。
+  - 作品フォルダ配下の判定フォルダ（`OK` / `NG` / `CLOSE`）を検索し、Base64画像をGoogle Driveへアップロード。
+  - 10MB超の画像、作品フォルダ未作成、判定フォルダ不存在を日本語エラーで返す。
+- 共通処理として `dori-manga/supabase/functions/_shared/` を追加。
+  - `cors.ts`: CORS/JSONレスポンス。
+  - `errors.ts`: 日本語エラー応答。
+  - `supabase.ts`: JWT付きSupabase RESTアクセス、`app_settings` からDrive親フォルダ取得。
+  - `google_drive.ts`: サービスアカウントJWT署名、OAuthトークン取得、Drive API呼び出し、Drive APIエラー分類。
+- `dori-manga/supabase/config.toml` を追加し、`create-episode-folder` / `upload-image` の `verify_jwt = true` を明示。
+- Phase 1のClaude確認依頼として、`docs/reports/2026-07-02-dori-manga-v3-phase1-review.md` を作成。
+- 検証:
+  - `git diff --check` 成功。
+  - `verify_jwt = false`、`console.`、秘密値らしき実値、親フォルダIDハードコードがないことを `rg` で確認。
+  - `deno` / `supabase` / `tsc` CLI はローカル未導入。`npx deno-bin` による一時Deno実行はタイムアウトしたため、Deno checkは未実行。
+- Git外の人間タスクとして、旧GASのApps Script側後片付け（トリガー停止・スクリプトプロパティの `service_role` キー削除）は残っている。陣内さん作業。
+
+## 2026-07-02（Phase 0）
 - Claudeからの橋渡しDriveフォルダ `https://drive.google.com/drive/folders/1GBnVR2eorz0KAjDFrUcKGhLGeHUDVyCd` を確認し、v3全面改訂用の同梱ファイルをリポジトリへ配置。
   - `dori-manga/docs/handoff/codex-handoff-v3.md`
   - `dori-manga/docs/supabase/db-import-redesign-v2.md`

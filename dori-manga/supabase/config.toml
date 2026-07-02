@@ -1,0 +1,7 @@
+project_id = "vdntqwtywxyjxelycavx"
+
+[functions.create-episode-folder]
+verify_jwt = true
+
+[functions.upload-image]
+verify_jwt = true
