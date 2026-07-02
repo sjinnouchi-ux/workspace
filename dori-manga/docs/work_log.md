@@ -94,6 +94,7 @@
 - JWT付きでデプロイ済み `create-episode-folder` を疎通確認。テストepisode `__codex_phase2_oauth_test_20260702_194958` からDriveフォルダ `1WS0ipgrQbZMDR4dQ7Nd5GQDmP8r-4jFK` を作成し、`OK` / `NG` / `CLOSE` / `完成` サブフォルダ作成とDB `drive_folder_id` 更新を確認。
 - テストepisode/panelsはSupabase上で削除し、同prefixのテストepisode残数0を確認。DriveテストフォルダはDrive APIで削除し、親フォルダ直下が空に戻ったことを確認。
 - 不使用になったサービスアカウント `dori-manga-drive@studied-brand-501210-i1.iam.gserviceaccount.com` は親Driveフォルダの共有から削除し、共有残存なしをDrive APIで確認。
+- Phase 2作業用に生成したSupabase access token `dori-manga-phase2-20260702-yumekango` は、作業完了後にSupabaseアカウント画面で削除し、一覧から消えたことを確認。
 - 旧GASの後片付け（トリガー停止・スクリプトプロパティのservice_roleキー削除）はGit外の人間タスクとして未完了。担当: 陣内さん。
 
 ## 2026-06-21
