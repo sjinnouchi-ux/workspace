@@ -1,6 +1,18 @@
 # 作業ログ
 
 ## 2026-07-02
+- Phase 2前提タスクとして、MiniPC/Windows環境にDenoとSupabase CLIを導入。
+  - Deno: winget `DenoLand.Deno`、確認バージョン `2.9.0`。
+  - Supabase CLI: npm global `supabase`、確認バージョン `2.109.0`。
+- `dori-manga/supabase/functions/` 配下の全 `.ts` に対して `deno check` を実行。
+  - 初回はmultipart bodyとHeadersInitの型で3件エラー。
+  - `google_drive.ts` と `supabase.ts` を修正し、再実行で成功。
+  - 修正コミット: `592f79c Fix dori manga edge function type checks`。
+- サブブラウザでGoogleアカウントが `s.jinnouchi@yumekango.com` であることを確認。
+- Supabase Access Tokensページをサブブラウザで開き、ログイン済みであることを確認。
+- GCP Consoleはパスワード再認証が必要な状態。GCPサービスアカウント作成、Drive API有効化、キーJSON取得、親フォルダ共有、Supabaseアクセストークン生成は人間タスクとして待機中。
+
+## 2026-07-02（Phase 1）
 - Phase 0がClaude承認済みとなったため、Phase 1（Edge Functions実装・コードのみ）を実施。デプロイは行っていない。
 - `dori-manga/supabase/functions/create-episode-folder/index.ts` を追加。
   - 認証済みリクエストを前提に、作品IDとタイトルを受け取り、`app_settings` の `drive_root_folder_id` / `drive_root_folder_url` からDrive親フォルダを取得。
