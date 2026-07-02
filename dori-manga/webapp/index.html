@@ -3,237 +3,746 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🩺 どり漫画DB 管理画面</title>
+<title>どり漫画DB 管理画面</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
-  :root { --pink:#f38fb1; --pink-dark:#d9648f; --bg:#fdf6f8; --card:#fff; --text:#3a3a3a; --muted:#8a8a8a; --ok:#2e9e6b; --ng:#d9534f; --close:#e8a33d; }
+  :root {
+    --pink:#d4537e; --pink-2:#f08caf; --pink-3:#fff1f6; --bg:#fbf7f9;
+    --line:#ead6de; --text:#2f2930; --muted:#786b72; --card:#fff;
+    --ok:#25855a; --ng:#c3403d; --close:#bf7a18; --warn:#9a6b00;
+  }
   * { box-sizing:border-box; }
-  body { margin:0; font-family:"Hiragino Sans","Yu Gothic",sans-serif; background:var(--bg); color:var(--text); }
-  header { background:var(--pink); color:#fff; padding:14px 20px; display:flex; justify-content:space-between; align-items:center; }
-  header h1 { font-size:18px; margin:0; }
-  main { max-width:760px; margin:0 auto; padding:16px; }
-  .card { background:var(--card); border-radius:12px; padding:18px; margin-bottom:16px; box-shadow:0 1px 4px rgba(0,0,0,.08); }
-  .card h2 { font-size:15px; margin:0 0 12px; color:var(--pink-dark); }
-  label { display:block; font-size:13px; margin:10px 0 4px; font-weight:600; }
-  .optional { color:var(--muted); font-weight:400; font-size:11px; }
-  input, select, textarea { width:100%; padding:9px; border:1px solid #ddd; border-radius:8px; font-size:14px; font-family:inherit; }
-  textarea { min-height:110px; font-family:monospace; font-size:12px; }
-  button { background:var(--pink-dark); color:#fff; border:none; border-radius:8px; padding:11px 18px; font-size:15px; cursor:pointer; width:100%; margin-top:14px; }
-  button:disabled { opacity:.5; }
-  button.small { width:auto; padding:6px 12px; font-size:12px; margin:0; background:#aaa; }
-  .status-badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; color:#fff; }
-  .OK{background:var(--ok);} .NG{background:var(--ng);} .CLOSE{background:var(--close);} .PENDING{background:#999;}
-  .alert { padding:10px 12px; border-radius:8px; font-size:13px; margin-top:10px; white-space:pre-wrap; }
+  body { margin:0; font-family:"Hiragino Sans","Yu Gothic",Meiryo,sans-serif; background:var(--bg); color:var(--text); }
+  header { background:var(--pink); color:#fff; padding:12px 18px; display:flex; justify-content:space-between; gap:12px; align-items:center; }
+  header h1 { font-size:18px; margin:0; letter-spacing:0; }
+  main { max-width:1180px; margin:0 auto; padding:16px; }
+  button, input, select, textarea { font:inherit; }
+  button { border:0; border-radius:7px; padding:9px 13px; background:var(--pink); color:#fff; cursor:pointer; font-weight:700; }
+  button:hover { background:#bd416b; }
+  button:disabled { opacity:.55; cursor:not-allowed; }
+  button.secondary { background:#fff; color:var(--pink); border:1px solid var(--pink-2); }
+  button.ghost { background:transparent; color:var(--pink); border:1px solid var(--line); }
+  button.danger { background:#b3261e; }
+  button.small { padding:6px 10px; font-size:12px; }
+  input, select, textarea { width:100%; border:1px solid var(--line); border-radius:7px; padding:8px; background:#fff; color:var(--text); }
+  textarea { min-height:88px; resize:vertical; }
+  label { display:block; font-size:12px; font-weight:700; color:var(--muted); margin:8px 0 4px; }
+  a { color:var(--pink); }
+  .hidden { display:none !important; }
+  .login { max-width:360px; margin:64px auto; background:#fff; border:1px solid var(--line); border-radius:8px; padding:20px; }
+  .tabs { display:flex; gap:8px; border-bottom:1px solid var(--line); margin-bottom:14px; overflow:auto; }
+  .tab-btn { border-radius:7px 7px 0 0; background:#fff; color:var(--muted); border:1px solid var(--line); border-bottom:0; min-width:110px; }
+  .tab-btn.active { background:var(--pink); color:#fff; border-color:var(--pink); }
+  .toolbar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:10px 0; }
+  .panel { display:none; }
+  .panel.active { display:block; }
+  .section { background:#fff; border:1px solid var(--line); border-radius:8px; padding:14px; margin-bottom:14px; }
+  .section h2 { margin:0 0 10px; font-size:16px; color:var(--pink); }
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .grid-3 { display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; }
+  .alert { padding:10px 12px; border-radius:7px; margin:9px 0; font-size:13px; white-space:pre-wrap; }
+  .alert.ok { background:#e6f4ea; color:#17633f; }
   .alert.err { background:#fdecea; color:#b3261e; }
-  .alert.ok  { background:#e6f4ea; color:#1e7e46; }
-  .alert.warn{ background:#fff4e0; color:#9a6b00; }
-  table { width:100%; border-collapse:collapse; font-size:12px; }
-  th, td { padding:6px 8px; border-bottom:1px solid #eee; text-align:left; vertical-align:top; }
-  th { color:var(--muted); font-weight:600; }
-  .stat-row { display:flex; gap:12px; flex-wrap:wrap; }
-  .stat { flex:1; min-width:110px; background:var(--bg); border-radius:10px; padding:10px; text-align:center; }
-  .stat .num { font-size:22px; font-weight:700; color:var(--pink-dark); }
-  .stat .lbl { font-size:11px; color:var(--muted); }
-  #login-view { max-width:360px; margin:70px auto; }
-  .hidden { display:none; }
+  .alert.warn { background:#fff4e0; color:var(--warn); }
+  .alert.info { background:#eef4ff; color:#25507a; }
+  .status-badge { display:inline-block; padding:2px 7px; border-radius:999px; font-size:11px; color:#fff; font-weight:700; }
+  .OK { background:var(--ok); } .NG { background:var(--ng); } .CLOSE { background:var(--close); }
+  .stat-row { display:grid; grid-template-columns:repeat(6, minmax(120px, 1fr)); gap:8px; }
+  .stat { border:1px solid var(--line); border-radius:8px; padding:10px; background:var(--pink-3); }
+  .stat .num { font-size:22px; font-weight:800; color:var(--pink); }
+  .stat .lbl { font-size:12px; color:var(--muted); }
+  .table-wrap { overflow:auto; border:1px solid var(--line); border-radius:8px; background:#fff; }
+  table { width:100%; border-collapse:collapse; min-width:1060px; font-size:13px; }
+  th, td { border-bottom:1px solid var(--line); padding:7px; vertical-align:top; }
+  th { background:var(--pink-3); color:#59434c; position:sticky; top:0; z-index:1; text-align:left; }
+  td textarea { min-height:54px; min-width:145px; font-size:12px; line-height:1.45; }
+  td input { min-width:150px; }
+  .title-cell { min-width:180px; font-weight:700; }
+  .folder-link { font-size:11px; display:block; margin-top:4px; }
+  .save-state { font-size:11px; color:var(--muted); min-height:16px; }
+  .prompt-box textarea { min-height:180px; font-size:12px; line-height:1.45; }
+  .history table { min-width:760px; }
+  .compact { font-size:12px; color:var(--muted); }
+  .file-line { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  @media (max-width:760px) {
+    main { padding:10px; }
+    .grid-2, .grid-3, .stat-row { grid-template-columns:1fr; }
+    header { align-items:flex-start; flex-direction:column; }
+  }
 </style>
 </head>
 <body>
-
 <header>
-  <h1>🩺 どり漫画DB 管理画面</h1>
+  <h1>どり漫画DB 管理画面</h1>
   <button class="small hidden" id="logout-btn">ログアウト</button>
 </header>
 
 <main>
-  <!-- ══════════ ログイン ══════════ -->
-  <div id="login-view" class="card">
+  <div id="login-view" class="login">
     <h2>ログイン</h2>
-    <label>パスワード</label>
-    <input type="password" id="password" placeholder="パスワードを入力" autocomplete="current-password">
-    <button id="login-btn">ログイン</button>
+    <label for="password">パスワード</label>
+    <input type="password" id="password" autocomplete="current-password">
+    <button id="login-btn" style="width:100%;margin-top:12px;">ログイン</button>
     <div id="login-msg"></div>
   </div>
 
-  <!-- ══════════ メイン ══════════ -->
   <div id="app-view" class="hidden">
+    <nav class="tabs" id="tabs"></nav>
 
-    <div class="card">
-      <h2>📊 データベースの状態</h2>
-      <div id="db-status">確認中...</div>
-      <div class="stat-row" id="stats" style="margin-top:10px;"></div>
-    </div>
+    <section id="tab-production" class="panel">
+      <div class="section">
+        <h2>制作</h2>
+        <div class="toolbar">
+          <button id="new-episode-btn">新しい漫画を作る</button>
+          <button class="secondary" id="csv-import-open-btn">CSVインポート</button>
+          <button class="secondary" id="csv-export-btn">CSVエクスポート</button>
+          <button class="ghost" id="reload-btn">再読込</button>
+        </div>
+        <div class="toolbar" id="status-filters"></div>
+        <div id="production-msg"></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>作業</th><th>タイトル</th><th>状態</th>
+                <th>1コマ案</th><th>2コマ案</th><th>3コマ案</th><th>4コマ案</th>
+                <th>投稿案</th><th>PDF URL</th>
+              </tr>
+            </thead>
+            <tbody id="episode-rows"></tbody>
+          </table>
+        </div>
+      </div>
 
-    <div class="card">
-      <h2>📥 画像評価をインポート</h2>
+      <div class="section hidden" id="csv-import-section">
+        <h2>CSVインポート</h2>
+        <input type="file" id="csv-file" accept=".csv,text/csv">
+        <div class="toolbar">
+          <button id="csv-import-btn">取込を実行</button>
+          <button class="ghost" id="csv-import-close-btn">閉じる</button>
+        </div>
+        <div id="csv-msg"></div>
+      </div>
+    </section>
 
-      <label>① ChatGPTが出力したJSON</label>
-      <textarea id="f-json" placeholder='{"attempt_number": 3, "result_status": "NG", ...}'></textarea>
+    <section id="tab-import" class="panel">
+      <div class="section">
+        <h2>評価プロンプト</h2>
+        <div class="toolbar">
+          <button class="secondary prompt-copy" data-status="OK">OKをコピー</button>
+          <button class="secondary prompt-copy" data-status="NG">NGをコピー</button>
+          <button class="secondary prompt-copy" data-status="CLOSE">CLOSEをコピー</button>
+        </div>
+        <div id="prompt-copy-msg"></div>
+      </div>
 
-      <label>② 画像のGoogle Drive URL</label>
-      <input id="f-image-url" placeholder="https://drive.google.com/file/d/...">
+      <div class="section">
+        <h2>画像評価を登録</h2>
+        <div class="grid-3">
+          <div>
+            <label for="import-episode">作品</label>
+            <select id="import-episode"></select>
+          </div>
+          <div>
+            <label for="import-panel">コマ番号</label>
+            <select id="import-panel">
+              <option value="1">1コマ目</option><option value="2">2コマ目</option>
+              <option value="3">3コマ目</option><option value="4">4コマ目</option>
+            </select>
+          </div>
+          <div>
+            <label for="import-status">判定</label>
+            <select id="import-status">
+              <option value="OK">OK</option><option value="NG">NG</option><option value="CLOSE">CLOSE</option>
+            </select>
+          </div>
+        </div>
+        <label for="import-file">画像ファイル</label>
+        <input type="file" id="import-file" accept="image/*">
+        <label for="import-json">ChatGPT JSON</label>
+        <textarea id="import-json" placeholder='{"attempt_number":1,"final_generation_prompt":"...","evaluation_summary":"...","evaluation_json":{"result":"OK"}}'></textarea>
+        <button id="image-import-btn">画像をDriveへアップロードしてDB登録</button>
+        <div id="image-import-msg"></div>
+      </div>
 
-      <label>③ コマ番号</label>
-      <select id="f-panel">
-        <option value="1">1コマ目</option><option value="2">2コマ目</option>
-        <option value="3">3コマ目</option><option value="4">4コマ目</option>
-      </select>
+      <div class="section history">
+        <h2>最近の登録履歴</h2>
+        <div id="history"></div>
+      </div>
+    </section>
 
-      <label>④ 判定</label>
-      <select id="f-status">
-        <option value="OK">OK（採用）</option>
-        <option value="NG">NG（没）</option>
-        <option value="CLOSE">CLOSE（惜しい）</option>
-      </select>
+    <section id="tab-admin" class="panel">
+      <div class="section">
+        <h2>システム状態</h2>
+        <div id="system-status"></div>
+        <div class="stat-row" id="stats"></div>
+      </div>
 
-      <label>エピソードタイトル <span class="optional">任意（例: 痙攣対応）</span></label>
-      <input id="f-episode" placeholder="未入力の場合は「(未設定)」になります">
+      <div class="section">
+        <h2>Drive親フォルダ</h2>
+        <div id="drive-root-link" class="compact"></div>
+        <div class="grid-2">
+          <div>
+            <label for="drive-root-url">親フォルダURL</label>
+            <input id="drive-root-url" placeholder="https://drive.google.com/drive/folders/...">
+          </div>
+          <div>
+            <label for="drive-root-id">親フォルダID</label>
+            <input id="drive-root-id" placeholder="フォルダID">
+          </div>
+        </div>
+        <button id="save-drive-root-btn">Drive親フォルダ設定を保存</button>
+        <div id="drive-root-msg"></div>
+      </div>
 
-      <label>テーマ <span class="optional">任意（例: 採血, 夜勤）</span></label>
-      <input id="f-theme">
+      <div class="section prompt-box">
+        <h2>評価プロンプト登録</h2>
+        <div class="grid-3">
+          <div><label for="prompt-OK">OK</label><textarea id="prompt-OK"></textarea></div>
+          <div><label for="prompt-NG">NG</label><textarea id="prompt-NG"></textarea></div>
+          <div><label for="prompt-CLOSE">CLOSE</label><textarea id="prompt-CLOSE"></textarea></div>
+        </div>
+        <button id="save-prompts-btn">評価プロンプトを保存</button>
+        <div id="prompt-save-msg"></div>
+      </div>
 
-      <label>コマの内容メモ <span class="optional">任意（このコマで描きたい場面など）</span></label>
-      <input id="f-scene">
-
-      <button id="import-btn">DBに登録する</button>
-      <div id="import-msg"></div>
-    </div>
-
-    <div class="card">
-      <h2>📚 最近の登録履歴</h2>
-      <div id="history">読み込み中...</div>
-    </div>
-
-    <div class="card">
-      <h2>💡 プロンプト改善ルール（最新10件）</h2>
-      <div id="lessons">読み込み中...</div>
-    </div>
-
+      <div class="section">
+        <h2>CSV</h2>
+        <button class="secondary" id="csv-template-btn">CSVテンプレートをダウンロード</button>
+      </div>
+    </section>
   </div>
 </main>
 
 <script>
-// ══════════════ 設定（デプロイ時にLOGIN_EMAILだけ変更） ══════════════
 const SUPABASE_URL  = "https://vdntqwtywxyjxelycavx.supabase.co";
 const SUPABASE_ANON = "sb_publishable_b8a4K90d5R6S5RZReLa-HA_G6nNwKKW";
-const LOGIN_EMAIL   = "s.jinnouchi@yumekango.com";  // Supabase Authで作成済みのユーザー（2026-07-02設定済み）
+const LOGIN_EMAIL   = "s.jinnouchi@yumekango.com";
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+const STATUSES = ["完成", "未完成", "不採用"];
+const CSV_STATUSES = ["新規作成", ...STATUSES];
+const EVAL_STATUSES = ["OK", "NG", "CLOSE"];
+const PROMPT_NAMES = { OK:"評価プロンプト_OK", NG:"評価プロンプト_NG", CLOSE:"評価プロンプト_CLOSE" };
+const TABS = [
+  { id:"production", label:"制作" },
+  { id:"import", label:"インポート" },
+  { id:"admin", label:"管理" },
+];
+const state = { session:null, episodes:[], prompts:{}, settings:{}, filter:"すべて", activeTab:"production" };
 const $ = id => document.getElementById(id);
-const msg = (el, cls, text) => { $(el).innerHTML = `<div class="alert ${cls}">${text}</div>`; };
+const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+const msg = (id, type, text) => { $(id).innerHTML = text ? `<div class="alert ${type}">${esc(text)}</div>` : ""; };
 
-// ══════════════ ログイン ══════════════
 async function init() {
-  const { data: { session } } = await sb.auth.getSession();
-  session ? showApp() : showLogin();
+  renderTabs();
+  bindEvents();
+  const { data:{ session } } = await sb.auth.getSession();
+  state.session = session;
+  session ? await showApp() : showLogin();
 }
-function showLogin() { $("login-view").classList.remove("hidden"); $("app-view").classList.add("hidden"); $("logout-btn").classList.add("hidden"); }
+
+function renderTabs() {
+  $("tabs").innerHTML = TABS.map(tab => `<button class="tab-btn" data-tab="${tab.id}">${tab.label}</button>`).join("");
+  document.querySelectorAll(".tab-btn").forEach(btn => btn.onclick = () => setTab(btn.dataset.tab));
+}
+
+function setTab(tabId) {
+  state.activeTab = tabId;
+  document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.tab === tabId));
+  document.querySelectorAll(".panel").forEach(panel => panel.classList.toggle("active", panel.id === `tab-${tabId}`));
+  if (tabId === "import") renderImportEpisodeOptions();
+}
+
+function bindEvents() {
+  $("login-btn").onclick = login;
+  $("password").addEventListener("keydown", e => { if (e.key === "Enter") login(); });
+  $("logout-btn").onclick = async () => { await sb.auth.signOut(); location.reload(); };
+  $("reload-btn").onclick = loadAll;
+  $("new-episode-btn").onclick = createEpisodeFromPrompt;
+  $("csv-import-open-btn").onclick = () => $("csv-import-section").classList.remove("hidden");
+  $("csv-import-close-btn").onclick = () => $("csv-import-section").classList.add("hidden");
+  $("csv-export-btn").onclick = exportCsv;
+  $("csv-template-btn").onclick = downloadTemplate;
+  $("csv-import-btn").onclick = importCsv;
+  $("image-import-btn").onclick = importImage;
+  $("save-drive-root-btn").onclick = saveDriveRoot;
+  $("save-prompts-btn").onclick = savePrompts;
+  document.querySelectorAll(".prompt-copy").forEach(btn => btn.onclick = () => copyPrompt(btn.dataset.status));
+}
+
+function showLogin() {
+  $("login-view").classList.remove("hidden");
+  $("app-view").classList.add("hidden");
+  $("logout-btn").classList.add("hidden");
+}
+
 async function showApp() {
-  $("login-view").classList.add("hidden"); $("app-view").classList.remove("hidden"); $("logout-btn").classList.remove("hidden");
-  await Promise.all([loadStatus(), loadHistory(), loadLessons()]);
+  $("login-view").classList.add("hidden");
+  $("app-view").classList.remove("hidden");
+  $("logout-btn").classList.remove("hidden");
+  setTab(state.activeTab);
+  await loadAll();
 }
-$("login-btn").onclick = async () => {
+
+async function login() {
   $("login-btn").disabled = true;
-  const { error } = await sb.auth.signInWithPassword({ email: LOGIN_EMAIL, password: $("password").value });
+  const { data, error } = await sb.auth.signInWithPassword({ email: LOGIN_EMAIL, password: $("password").value });
   $("login-btn").disabled = false;
-  if (error) { msg("login-msg", "err", "ログインできませんでした。パスワードを確認してください。"); return; }
-  showApp();
-};
-$("password").addEventListener("keydown", e => { if (e.key === "Enter") $("login-btn").click(); });
-$("logout-btn").onclick = async () => { await sb.auth.signOut(); location.reload(); };
+  if (error) return msg("login-msg", "err", "ログインできませんでした。パスワードを確認してください。");
+  state.session = data.session;
+  await showApp();
+}
 
-// ══════════════ ダッシュボード（表示＝keepalive を兼ねる） ══════════════
-async function loadStatus() {
-  const { data, error } = await sb.from("generation_attempts")
-    .select("created_at").order("created_at", { ascending: false }).limit(1);
-  if (error) { msg("db-status", "err", "⚠️ データベースに接続できません。休止中の可能性があります。\n聡さんに連絡してください。"); return; }
+async function loadAll() {
+  await Promise.all([loadEpisodes(), loadPrompts(), loadSettings(), loadHistory(), loadStats()]);
+  renderProduction();
+  renderImportEpisodeOptions();
+  renderAdmin();
+}
 
-  const last = data[0] ? new Date(data[0].created_at) : null;
-  const days = last ? Math.floor((Date.now() - last.getTime()) / 86400000) : null;
-  let html = `<div class="alert ok">✅ データベースは稼働中です（このページを開いたことで休止防止のアクセスが記録されました）</div>`;
-  if (last) html += `<div style="font-size:13px;margin-top:8px;">最終登録: ${last.toLocaleString("ja-JP")}（${days}日前）</div>`;
-  $("db-status").innerHTML = html;
+async function loadEpisodes() {
+  const { data, error } = await sb.from("manga_episodes")
+    .select("id,title,status,post_text,pdf_url,drive_folder_id,drive_folder_url,is_working,created_at,manga_panels(id,panel_number,scene_text,status)")
+    .order("created_at", { ascending:false });
+  if (error) throwUi("production-msg", error);
+  state.episodes = (data || []).map(ep => ({
+    ...ep,
+    panels: [1,2,3,4].map(n => (ep.manga_panels || []).find(p => p.panel_number === n) || { panel_number:n, scene_text:"" }),
+  }));
+}
 
-  const [a, e, l] = await Promise.all([
-    sb.from("generation_attempts").select("id", { count: "exact", head: true }),
-    sb.from("manga_episodes").select("id", { count: "exact", head: true }),
-    sb.from("prompt_lessons").select("id", { count: "exact", head: true }),
+async function loadPrompts() {
+  const { data, error } = await sb.from("prompt_templates")
+    .select("id,name,template_text,is_active,created_at")
+    .in("name", Object.values(PROMPT_NAMES))
+    .eq("is_active", true)
+    .order("created_at", { ascending:false });
+  if (error) throwUi("prompt-copy-msg", error);
+  state.prompts = {};
+  for (const status of EVAL_STATUSES) {
+    state.prompts[status] = (data || []).find(row => row.name === PROMPT_NAMES[status]) || null;
+  }
+}
+
+async function loadSettings() {
+  const { data, error } = await sb.from("app_settings").select("key,value");
+  if (error) throwUi("drive-root-msg", error);
+  state.settings = Object.fromEntries((data || []).map(row => [row.key, row.value || ""]));
+}
+
+async function loadStats() {
+  const latest = await sb.from("generation_attempts").select("created_at").order("created_at", { ascending:false }).limit(1);
+  const counts = await Promise.all([
+    sb.from("manga_episodes").select("id", { count:"exact", head:true }),
+    ...STATUSES.map(status => sb.from("manga_episodes").select("id", { count:"exact", head:true }).eq("status", status)),
+    sb.from("generation_attempts").select("id", { count:"exact", head:true }),
+    sb.from("prompt_lessons").select("id", { count:"exact", head:true }).eq("is_active", true),
   ]);
-  $("stats").innerHTML = `
-    <div class="stat"><div class="num">${a.count ?? "-"}</div><div class="lbl">画像評価</div></div>
-    <div class="stat"><div class="num">${e.count ?? "-"}</div><div class="lbl">エピソード</div></div>
-    <div class="stat"><div class="num">${l.count ?? "-"}</div><div class="lbl">改善ルール</div></div>`;
+  if (latest.error) return msg("system-status", "err", "Supabase疎通に失敗しました。\n" + latest.error.message);
+  const last = latest.data?.[0]?.created_at ? new Date(latest.data[0].created_at) : null;
+  $("system-status").innerHTML = `<div class="alert ok">Supabase疎通OK</div>` +
+    `<div class="compact">最終DB登録日時: ${last ? last.toLocaleString("ja-JP") : "未登録"} / keepaliveはGitHub Actionsで定期実行</div>`;
+  $("stats").innerHTML = [
+    ["作品数", counts[0].count], ["完成", counts[1].count], ["未完成", counts[2].count],
+    ["不採用", counts[3].count], ["画像評価数", counts[4].count], ["改善ルール数", counts[5].count],
+  ].map(([label, count]) => `<div class="stat"><div class="num">${count ?? "-"}</div><div class="lbl">${label}</div></div>`).join("");
 }
 
-// ══════════════ インポート ══════════════
-function extractFileId(url) {
-  for (const p of [/\/file\/d\/([\w-]{10,})/, /\/d\/([\w-]{10,})/, /[?&]id=([\w-]{10,})/]) {
-    const m = url.match(p); if (m) return m[1];
-  }
-  return null;
-}
-$("import-btn").onclick = async () => {
-  const jsonText = $("f-json").value.trim();
-  const imageUrl = $("f-image-url").value.trim();
-  if (!jsonText) return msg("import-msg", "err", "① ChatGPTのJSONを貼り付けてください。");
-  if (!imageUrl) return msg("import-msg", "err", "② 画像のDrive URLを入力してください。");
-
-  let data;
-  try { data = JSON.parse(jsonText); }
-  catch (e) { return msg("import-msg", "err", "JSONが読み取れません。ChatGPTの出力をそのままコピーしてください。\n" + e.message); }
-
-  const status = $("f-status").value;
-  const ejResult = (data.evaluation_json?.result || "").toUpperCase();
-  if (ejResult && ejResult !== status) {
-    if (!confirm(`画面の判定は「${status}」ですが、JSONの評価は「${ejResult}」です。\n「${status}」で登録しますか？`)) return;
-  }
-
-  const payload = {
-    ...data,
-    result_status:  status,
-    panel_number:   Number($("f-panel").value),
-    image_url:      imageUrl,
-    drive_file_id:  extractFileId(imageUrl),
-    episode_title:  $("f-episode").value.trim() || data.episode_title || null,
-    theme:          $("f-theme").value.trim() || null,
-    scene_text:     $("f-scene").value.trim() || null,
-  };
-
-  $("import-btn").disabled = true;
-  const { data: result, error } = await sb.rpc("import_generation_attempt", { payload });
-  $("import-btn").disabled = false;
-
-  if (error) return msg("import-msg", "err", "❌ 登録に失敗しました。\n" + error.message);
-  if (result.status === "duplicate") return msg("import-msg", "warn", "⚠️ " + result.message);
-
-  msg("import-msg", "ok",
-    `🎉 登録が完了しました！\n・画像評価を1件登録\n・改善ルールを${result.lessons_inserted}件登録\n\n（画像のフォルダ移動はいつも通りDriveで行ってください）`);
-  $("f-json").value = ""; $("f-image-url").value = "";
-  await Promise.all([loadStatus(), loadHistory(), loadLessons()]);
-};
-
-// ══════════════ 履歴・改善ルール ══════════════
 async function loadHistory() {
   const { data, error } = await sb.from("generation_attempts")
-    .select("created_at, attempt_number, result_status, evaluation_summary, manga_panels(panel_number, manga_episodes(title))")
-    .order("created_at", { ascending: false }).limit(10);
-  if (error || !data) { $("history").textContent = "読み込みエラー"; return; }
-  $("history").innerHTML = `<table><tr><th>日付</th><th>エピソード</th><th>コマ</th><th>回</th><th>判定</th><th>評価</th></tr>` +
-    data.map(r => `<tr>
-      <td>${new Date(r.created_at).toLocaleDateString("ja-JP")}</td>
-      <td>${r.manga_panels?.manga_episodes?.title ?? "-"}</td>
-      <td>${r.manga_panels?.panel_number ?? "-"}</td>
-      <td>${r.attempt_number}</td>
-      <td><span class="status-badge ${r.result_status}">${r.result_status}</span></td>
-      <td>${(r.evaluation_summary || "").slice(0, 30)}</td></tr>`).join("") + "</table>";
+    .select("created_at,attempt_number,result_status,evaluation_summary,file_name,web_view_link:image_url,manga_panels(panel_number,manga_episodes(title))")
+    .order("created_at", { ascending:false }).limit(12);
+  if (error) { $("history").textContent = "読み込みエラー"; return; }
+  $("history").innerHTML = `<div class="table-wrap"><table><tr><th>日付</th><th>作品</th><th>コマ</th><th>回</th><th>判定</th><th>評価</th></tr>` +
+    (data || []).map(r => `<tr><td>${new Date(r.created_at).toLocaleDateString("ja-JP")}</td><td>${esc(r.manga_panels?.manga_episodes?.title ?? "-")}</td><td>${r.manga_panels?.panel_number ?? "-"}</td><td>${r.attempt_number ?? "-"}</td><td><span class="status-badge ${esc(r.result_status)}">${esc(r.result_status)}</span></td><td>${esc(r.evaluation_summary || "").slice(0, 80)}</td></tr>`).join("") +
+    `</table></div>`;
 }
-async function loadLessons() {
-  const { data, error } = await sb.from("prompt_lessons")
-    .select("lesson_text, created_at").eq("is_active", true)
-    .order("created_at", { ascending: false }).limit(10);
-  if (error || !data) { $("lessons").textContent = "読み込みエラー"; return; }
-  $("lessons").innerHTML = "<ul style='margin:0;padding-left:18px;font-size:12px;'>" +
-    data.map(l => `<li style="margin-bottom:6px;">${l.lesson_text}</li>`).join("") + "</ul>";
+
+function renderProduction() {
+  renderFilters();
+  const episodes = state.filter === "すべて" ? state.episodes : state.episodes.filter(ep => ep.status === state.filter);
+  $("episode-rows").innerHTML = episodes.map(ep => `
+    <tr data-episode-id="${ep.id}">
+      <td><input type="checkbox" ${ep.is_working ? "checked" : ""} onchange="setWorking('${ep.id}', this.checked)"></td>
+      <td class="title-cell">${esc(ep.title)}${ep.drive_folder_url ? `<a class="folder-link" href="${esc(ep.drive_folder_url)}" target="_blank">Driveフォルダ</a>` : `<button class="small secondary" onclick="createFolderForEpisodeId('${ep.id}')">フォルダ作成</button>`}<div class="save-state" id="save-${ep.id}-title"></div></td>
+      <td><select onchange="saveEpisodeField('${ep.id}', 'status', this.value)">${STATUSES.map(s => `<option value="${s}" ${ep.status === s ? "selected" : ""}>${s}</option>`).join("")}</select></td>
+      ${ep.panels.map(panel => `<td><textarea onblur="savePanelScene('${ep.id}', ${panel.panel_number}, this.value)">${esc(panel.scene_text || "")}</textarea></td>`).join("")}
+      <td><textarea onblur="saveEpisodeField('${ep.id}', 'post_text', this.value)">${esc(ep.post_text || "")}</textarea></td>
+      <td><input value="${esc(ep.pdf_url || "")}" onblur="saveEpisodeField('${ep.id}', 'pdf_url', this.value)"></td>
+    </tr>`).join("") || `<tr><td colspan="9">該当する作品がありません。</td></tr>`;
+}
+
+function renderFilters() {
+  const items = ["すべて", ...STATUSES];
+  $("status-filters").innerHTML = items.map(status => {
+    const count = status === "すべて" ? state.episodes.length : state.episodes.filter(ep => ep.status === status).length;
+    return `<button class="${state.filter === status ? "" : "secondary"} small" onclick="setFilter('${status}')">${status} (${count})</button>`;
+  }).join("");
+}
+
+window.setFilter = status => { state.filter = status; renderProduction(); };
+
+async function saveEpisodeField(id, field, value) {
+  const patch = { [field]: value || null };
+  const { error } = await sb.from("manga_episodes").update(patch).eq("id", id);
+  if (error) return msg("production-msg", "err", error.message);
+  const ep = state.episodes.find(e => e.id === id);
+  if (ep) ep[field] = patch[field];
+  msg("production-msg", "ok", "保存しました。");
+  renderFilters();
+}
+
+async function savePanelScene(episodeId, panelNumber, value) {
+  const ep = state.episodes.find(e => e.id === episodeId);
+  const panel = ep?.panels.find(p => p.panel_number === panelNumber);
+  if (!panel?.id) return msg("production-msg", "err", "対象コマが見つかりません。再読込してください。");
+  const { error } = await sb.from("manga_panels").update({ scene_text:value || null }).eq("id", panel.id);
+  if (error) return msg("production-msg", "err", error.message);
+  panel.scene_text = value || null;
+  msg("production-msg", "ok", "保存しました。");
+}
+
+async function setWorking(id, checked) {
+  if (!checked) {
+    const { error } = await sb.from("manga_episodes").update({ is_working:false }).eq("id", id);
+    if (error) return msg("production-msg", "err", error.message);
+  } else {
+    const { error:errorAll } = await sb.from("manga_episodes").update({ is_working:false }).neq("id", id);
+    if (errorAll) return msg("production-msg", "err", errorAll.message);
+    const { error } = await sb.from("manga_episodes").update({ is_working:true }).eq("id", id);
+    if (error) return msg("production-msg", "err", error.message);
+  }
+  await loadEpisodes();
+  renderProduction();
+  renderImportEpisodeOptions();
+}
+
+async function createEpisodeFromPrompt() {
+  const title = prompt("新しい漫画のタイトルを入力してください。");
+  if (!title?.trim()) return;
+  const existing = state.episodes.find(ep => ep.title === title.trim());
+  if (existing) return msg("production-msg", "warn", "同じタイトルが既にあります。二重登録防止のため作成しません。");
+  $("new-episode-btn").disabled = true;
+  try {
+    const ep = await createEpisodeWithPanels(title.trim());
+    await createFolderForEpisode(ep);
+    await loadAll();
+    msg("production-msg", "ok", "作品とDriveフォルダを作成しました。");
+  } catch (error) {
+    msg("production-msg", "err", error.message);
+  } finally {
+    $("new-episode-btn").disabled = false;
+  }
+}
+
+async function createEpisodeWithPanels(title) {
+  const { data, error } = await sb.rpc("create_episode_with_panels", { p_title:title });
+  if (error) throw new Error(error.message);
+  const rows = await sb.from("manga_episodes").select("id,title,status,drive_folder_id,drive_folder_url").eq("title", title).limit(1);
+  if (rows.error || !rows.data?.[0]) throw new Error(rows.error?.message || "作成した作品を確認できませんでした。");
+  return rows.data[0];
+}
+
+window.createFolderForEpisodeId = async id => {
+  const ep = state.episodes.find(item => item.id === id);
+  if (!ep) return;
+  try {
+    await createFolderForEpisode(ep);
+    await loadEpisodes();
+    renderProduction();
+    renderImportEpisodeOptions();
+    msg("production-msg", "ok", "Driveフォルダを作成しました。");
+  } catch (error) {
+    msg("production-msg", "err", error.message);
+  }
+};
+
+async function createFolderForEpisode(ep) {
+  const dbEp = await fetchEpisodeById(ep.id);
+  const result = await callFunction("create-episode-folder", { episode_id:dbEp.id, title:dbEp.title });
+  return result;
+}
+
+async function fetchEpisodeById(id) {
+  const { data, error } = await sb.from("manga_episodes").select("id,title,status,drive_folder_id,drive_folder_url").eq("id", id).limit(1).single();
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+async function callFunction(name, payload) {
+  const { data:{ session } } = await sb.auth.getSession();
+  if (!session?.access_token) throw new Error("ログイン情報がありません。再ログインしてください。");
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/${name}`, {
+    method:"POST",
+    headers:{ "Content-Type":"application/json", "apikey":SUPABASE_ANON, "Authorization":`Bearer ${session.access_token}` },
+    body:JSON.stringify(payload),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const error = new Error(json.message || `${name} failed: HTTP ${res.status}`);
+    error.code = json.code;
+    throw error;
+  }
+  return json;
+}
+
+function renderImportEpisodeOptions() {
+  const sorted = [...state.episodes].sort((a, b) => Number(b.is_working) - Number(a.is_working) || a.title.localeCompare(b.title, "ja"));
+  $("import-episode").innerHTML = sorted.map(ep => `<option value="${ep.id}" ${ep.is_working ? "selected" : ""}>${esc(ep.title)}${ep.is_working ? "（作業中）" : ""}</option>`).join("");
+}
+
+async function copyPrompt(status) {
+  await loadPrompts();
+  const text = state.prompts[status]?.template_text;
+  if (!text) return msg("prompt-copy-msg", "err", `${status}の評価プロンプトが見つかりません。`);
+  await navigator.clipboard.writeText(text);
+  msg("prompt-copy-msg", "ok", `${status}の評価プロンプトをコピーしました。`);
+}
+
+async function importImage() {
+  const episodeId = $("import-episode").value;
+  const ep = state.episodes.find(item => item.id === episodeId);
+  const file = $("import-file").files[0];
+  if (!ep) return msg("image-import-msg", "err", "作品を選択してください。");
+  if (!file) return msg("image-import-msg", "err", "画像ファイルを選択してください。");
+  if (file.size > 10 * 1024 * 1024) return msg("image-import-msg", "err", "画像サイズが10MBを超えています。画像を圧縮してください。");
+  let parsed;
+  try { parsed = JSON.parse($("import-json").value.trim()); }
+  catch (error) { return msg("image-import-msg", "err", "ChatGPT JSONを読み取れません。\n" + error.message); }
+  const resultStatus = $("import-status").value;
+  const jsonResult = String(parsed.evaluation_json?.result || parsed.result_status || "").toUpperCase();
+  if (jsonResult && jsonResult !== resultStatus && !confirm(`画面の判定は「${resultStatus}」、JSONは「${jsonResult}」です。「${resultStatus}」で登録しますか？`)) return;
+
+  $("image-import-btn").disabled = true;
+  try {
+    const contentBase64 = await fileToBase64(file);
+    let uploaded;
+    try {
+      uploaded = await callFunction("upload-image", {
+        episode_id:episodeId,
+        result_status:resultStatus,
+        file_name:file.name,
+        content_type:file.type || "application/octet-stream",
+        content_base64:contentBase64,
+      });
+    } catch (error) {
+      if (error.code === "episode_folder_missing" || error.code === "status_folder_missing") {
+        renderFolderRecovery("image-import-msg", error.message, episodeId);
+        return;
+      }
+      throw error;
+    }
+    const payload = {
+      ...parsed,
+      result_status:resultStatus,
+      panel_number:Number($("import-panel").value),
+      episode_title:ep.title,
+      image_url:uploaded.web_view_link,
+      drive_file_id:uploaded.file_id,
+      file_name:file.name,
+    };
+    const { data, error } = await sb.rpc("import_generation_attempt", { payload });
+    if (error) throw new Error(error.message);
+    if (data?.status === "duplicate") {
+      msg("image-import-msg", "warn", `同じコマ・試行回数は登録済みです。画像はDriveに残っています。\n${data.message || ""}`);
+    } else {
+      msg("image-import-msg", "ok", "画像アップロードとDB登録が完了しました。");
+      $("import-json").value = "";
+      $("import-file").value = "";
+    }
+    await Promise.all([loadHistory(), loadStats()]);
+  } catch (error) {
+    msg("image-import-msg", "err", error.message);
+  } finally {
+    $("image-import-btn").disabled = false;
+  }
+}
+
+function renderFolderRecovery(targetId, text, episodeId) {
+  $(targetId).innerHTML = `<div class="alert warn">${esc(text)}\n\nフォルダ作成を実行しますか？</div><button class="secondary" onclick="recoverFolder('${targetId}','${episodeId}')">フォルダ作成を実行</button>`;
+}
+
+window.recoverFolder = async (targetId, episodeId) => {
+  try {
+    const ep = await fetchEpisodeById(episodeId);
+    const res = await createFolderForEpisode(ep);
+    await loadAll();
+    msg(targetId, "ok", `Driveフォルダを作成しました。reused=${Boolean(res.reused)}`);
+  } catch (error) {
+    msg(targetId, "err", error.message);
+  }
+};
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).split(",").pop() || "");
+    reader.onerror = () => reject(new Error("画像ファイルを読み取れませんでした。"));
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderAdmin() {
+  const rootUrl = state.settings.drive_root_folder_url || "";
+  const rootId = state.settings.drive_root_folder_id || extractDriveFolderId(rootUrl) || "";
+  $("drive-root-url").value = rootUrl;
+  $("drive-root-id").value = rootId;
+  $("drive-root-link").innerHTML = rootUrl ? `現在の親フォルダ: <a href="${esc(rootUrl)}" target="_blank">${esc(rootUrl)}</a>` : "Drive親フォルダURLは未設定です。";
+  for (const status of EVAL_STATUSES) $("prompt-" + status).value = state.prompts[status]?.template_text || "";
+}
+
+async function saveDriveRoot() {
+  const url = $("drive-root-url").value.trim();
+  const id = $("drive-root-id").value.trim() || extractDriveFolderId(url);
+  if (!url && !id) return msg("drive-root-msg", "err", "URLまたはIDを入力してください。");
+  const rows = [
+    { key:"drive_root_folder_url", value:url || `https://drive.google.com/drive/folders/${id}` },
+    { key:"drive_root_folder_id", value:id },
+  ];
+  const { error } = await sb.from("app_settings").upsert(rows, { onConflict:"key" });
+  if (error) return msg("drive-root-msg", "err", error.message);
+  await loadSettings();
+  renderAdmin();
+  msg("drive-root-msg", "ok", "Drive親フォルダ設定を保存しました。");
+}
+
+async function savePrompts() {
+  for (const status of EVAL_STATUSES) {
+    const existing = state.prompts[status];
+    const body = { name:PROMPT_NAMES[status], template_text:$("prompt-" + status).value, is_active:true };
+    const res = existing?.id
+      ? await sb.from("prompt_templates").update({ template_text:body.template_text, is_active:true }).eq("id", existing.id)
+      : await sb.from("prompt_templates").insert(body);
+    if (res.error) return msg("prompt-save-msg", "err", res.error.message);
+  }
+  await loadPrompts();
+  msg("prompt-save-msg", "ok", "評価プロンプトを保存しました。");
+}
+
+function extractDriveFolderId(url) {
+  return (url.match(/\/folders\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/) || [])[1] || "";
+}
+
+function csvEscape(value) {
+  return `"${String(value ?? "").replace(/"/g, '""')}"`;
+}
+
+function csvBuild(rows) {
+  return "\uFEFF" + rows.map(row => row.map(csvEscape).join(",")).join("\r\n") + "\r\n";
+}
+
+function csvDownload(name, rows) {
+  const blob = new Blob([csvBuild(rows)], { type:"text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = name; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportCsv() {
+  const rows = [["タイトル","状態","1コマ案","2コマ案","3コマ案","4コマ案","投稿案","PDF URL"]];
+  for (const ep of state.episodes) {
+    rows.push([ep.title, ep.status, ...ep.panels.map(p => p.scene_text || ""), ep.post_text || "", ep.pdf_url || ""]);
+  }
+  csvDownload("dori-manga-export.csv", rows);
+}
+
+function downloadTemplate() {
+  csvDownload("dori-manga-template.csv", [
+    ["タイトル","状態","1コマ案","2コマ案","3コマ案","4コマ案","投稿案","PDF URL"],
+    ["記入例：酸素マスクの使い方","新規作成","導入の場面","説明の場面","実践の場面","まとめの場面","投稿文をここに記入",""],
+  ]);
+}
+
+function parseCsv(text) {
+  const rows = []; let row = [], field = "", inQuotes = false;
+  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i], n = text[i + 1];
+    if (inQuotes) {
+      if (c === '"' && n === '"') { field += '"'; i++; }
+      else if (c === '"') inQuotes = false;
+      else field += c;
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ",") { row.push(field); field = ""; }
+      else if (c === "\r" && n === "\n") { row.push(field); rows.push(row); row = []; field = ""; i++; }
+      else if (c === "\n") { row.push(field); rows.push(row); row = []; field = ""; }
+      else field += c;
+    }
+  }
+  row.push(field);
+  if (row.some(v => v !== "") || rows.length === 0) rows.push(row);
+  return rows;
+}
+
+async function importCsv() {
+  const file = $("csv-file").files[0];
+  if (!file) return msg("csv-msg", "err", "CSVファイルを選択してください。");
+  const text = await file.text();
+  const rows = parseCsv(text);
+  const header = rows.shift()?.map(v => v.trim()) || [];
+  const expected = ["タイトル","状態","1コマ案","2コマ案","3コマ案","4コマ案","投稿案","PDF URL"];
+  if (expected.some((name, i) => header[i] !== name)) return msg("csv-msg", "err", "CSVヘッダーが仕様と一致しません。");
+  const summary = { created:0, updated:0, skipped:[] };
+  const seenNewTitles = new Set();
+  $("csv-import-btn").disabled = true;
+  try {
+    for (let i = 0; i < rows.length; i++) {
+      const line = i + 2;
+      const [titleRaw, statusRaw, p1, p2, p3, p4, postText, pdfUrl] = rows[i];
+      const title = (titleRaw || "").trim();
+      const status = (statusRaw || "").trim();
+      if (!title) { summary.skipped.push(`${line}行目: タイトル空欄`); continue; }
+      if (!CSV_STATUSES.includes(status)) { summary.skipped.push(`${line}行目: 状態が不正（${status || "空欄"}）`); continue; }
+      const existing = state.episodes.find(ep => ep.title === title);
+      if (status === "新規作成") {
+        if (seenNewTitles.has(title)) { summary.skipped.push(`${line}行目: CSV内で同じ新規タイトルが既出のためスキップ`); continue; }
+        if (existing) { summary.skipped.push(`${line}行目: 既存タイトルのため新規作成をスキップ`); continue; }
+        seenNewTitles.add(title);
+        msg("csv-msg", "info", `${line}行目: ${title} を作成中...`);
+        const ep = await createEpisodeWithPanels(title);
+        await updateEpisodeAndPanels(ep.id, { status:"未完成", post_text:postText || null, pdf_url:pdfUrl || null }, [p1,p2,p3,p4]);
+        const dbEp = await fetchEpisodeById(ep.id);
+        await createFolderForEpisode(dbEp);
+        summary.created++;
+      } else {
+        if (!existing) { summary.skipped.push(`${line}行目: 未知タイトルのため更新をスキップ`); continue; }
+        await updateEpisodeAndPanels(existing.id, { status, post_text:postText || null, pdf_url:pdfUrl || null }, [p1,p2,p3,p4]);
+        summary.updated++;
+      }
+    }
+    await loadAll();
+    msg("csv-msg", "ok", `取込完了\n新規作成 ${summary.created}件（フォルダ作成済み）\n更新 ${summary.updated}件\nスキップ ${summary.skipped.length}件${summary.skipped.length ? "\n" + summary.skipped.join("\n") : ""}`);
+  } catch (error) {
+    msg("csv-msg", "err", error.message);
+  } finally {
+    $("csv-import-btn").disabled = false;
+  }
+}
+
+async function updateEpisodeAndPanels(episodeId, episodePatch, scenes) {
+  const epRes = await sb.from("manga_episodes").update(episodePatch).eq("id", episodeId);
+  if (epRes.error) throw new Error(epRes.error.message);
+  const ep = state.episodes.find(item => item.id === episodeId) || { panels:[] };
+  let panels = ep.panels || [];
+  if (panels.length < 4) {
+    const { data, error } = await sb.from("manga_panels").select("id,panel_number").eq("episode_id", episodeId);
+    if (error) throw new Error(error.message);
+    panels = data || [];
+  }
+  for (let i = 0; i < 4; i++) {
+    const panel = panels.find(p => p.panel_number === i + 1);
+    if (!panel?.id) continue;
+    const res = await sb.from("manga_panels").update({ scene_text:scenes[i] || null }).eq("id", panel.id);
+    if (res.error) throw new Error(res.error.message);
+  }
+}
+
+function throwUi(target, error) {
+  msg(target, "err", error.message);
+  throw error;
 }
 
 init();

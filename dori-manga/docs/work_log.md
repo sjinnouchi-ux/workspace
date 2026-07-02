@@ -1,5 +1,29 @@
 # 作業ログ
 
+## 2026-07-02（Phase 3）
+- Claude承認により、Phase 3（webapp v3実装）を開始。
+- `dori-manga/webapp/index.html` を単一HTML構成のまま全面改訂し、3タブ（制作／インポート／管理）構成に変更。
+  - 制作タブ: 作品一覧、状態フィルター、作業中チェック、コマ案・投稿案・PDF URLのフォーカスアウト保存、状態即時保存、新規作品作成、CSVインポート/エクスポートを実装。
+  - インポートタブ: 評価プロンプト最新取得コピー、作品/コマ/判定/画像ファイル/ChatGPT JSONフォーム、`upload-image` → `import_generation_attempt` の順次登録を実装。
+  - 管理タブ: Supabase疎通、集計、Drive親フォルダURL/ID表示・保存、評価プロンプト編集保存、CSVテンプレートDLを実装。
+- CSVは `タイトル,状態,1コマ案,2コマ案,3コマ案,4コマ案,投稿案,PDF URL` に対応し、UTF-8 BOM付き・CRLF・全フィールド引用符で出力。インポートは自前RFC4180パーサーで引用符内カンマ/改行/`""` を扱う。
+- CSV状態4値 `新規作成` / `完成` / `未完成` / `不採用` を実装。`新規作成` は既存タイトルとCSV内重複タイトルをスキップし、既存更新は未知タイトルをスキップする二重登録防止を入れた。
+- Phase 1・2レビュー申し送りを反映。
+  - `create-episode-folder` 呼び出し直前にDBからepisodeを再取得し、必ずDB上のタイトルを送信。
+  - `episode_folder_missing` / `status_folder_missing` 受信時に、画面内へ「フォルダ作成を実行しますか？」導線を表示。
+  - フォルダ作成済みepisodeへの再実行で `reused=true` になることを実疎通で確認。
+  - `upload-image` の実画像疎通を1x1 PNGで実施。
+- Phase 3実疎通テスト:
+  - テストepisode `__codex_phase3_upload_test_20260702_201426` / episode id `ddf69776-9477-4965-bc66-eecdb93374d1` を一時作成。
+  - Driveフォルダ `1XQmH7N39vhJ8NXefY7AAJXsnh1zbyplU` を作成し、2回目の `create-episode-folder` で `reused=true` を確認。
+  - `upload-image` で `phase3-upload-test.png` をOKフォルダへアップロードし、file id `1IAwZ9_oN79M-xbFEaLNZrDI2rbQFCxVb` / `status=ok` を確認。
+  - `import_generation_attempt` RPCも `status=ok` を確認し、attempt id `45c2aea0-214c-4c58-869d-099468fa97af` を一時作成。
+  - テスト用 `generation_attempts` / `prompt_lessons` / `manga_panels` / `manga_episodes` は削除済み。DriveテストフォルダもDrive APIで削除し、親フォルダ直下が空に戻ったことを確認。
+- 検証:
+  - `index.html` 内のインラインJavaScriptをNode `new Function` で構文チェックし成功。
+  - ローカルHTTP `http://127.0.0.1:8787/index.html` でログイン画面を表示し、ブラウザコンソールエラー0件を確認。
+  - ログイン後UIはパスワードを記録していないため自動操作未実施。DB/Edge Function/Driveの実疎通はAPI経由で確認済み。
+
 ## 2026-07-02
 - Phase 2前提タスクとして、MiniPC/Windows環境にDenoとSupabase CLIを導入。
   - Deno: winget `DenoLand.Deno`、確認バージョン `2.9.0`。
