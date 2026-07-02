@@ -1,6 +1,12 @@
 # 作業ログ
 
 ## 2026-07-02（Phase 4）
+- 陣内さん指示により、管理画面の操作マニュアルを追加。
+  - Markdown正本: `dori-manga/docs/manuals/dori-manga-admin-user-manual.md`
+  - Web配布PDF: `dori-manga/webapp/dori-manga-admin-manual.pdf`
+  - 管理画面ヘッダーに「マニュアルPDF」ダウンロードリンクを追加。
+  - PDFはヘッダーに `どり漫画DB 管理画面 操作マニュアル` を表示し、Edgeヘッドレス印刷で日本語表示を確認。
+  - Claude最終確認用MDを橋渡しDriveへアップロード: https://drive.google.com/file/d/1QEjpgG8Jk8-brm8VoxtEGvJ_F3AvyLlV/view?usp=drivesdk
 - Phase 3がClaude承認済みとなったため、Phase 4（Cloudflare Pagesデプロイ・検収）を実施。
 - Wrangler `4.106.0` で Cloudflare Pages project `dori-manga-admin` を作成し、`dori-manga/webapp/index.html` をデプロイ。
   - 本番URL: `https://dori-manga-admin.pages.dev/`
