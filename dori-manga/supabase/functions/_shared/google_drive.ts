@@ -161,6 +161,10 @@ export async function uploadFile(
     parents: [parentId],
   };
   const body = buildMultipartBody(boundary, metadata, contentType, bytes);
+  const multipartBody = body.buffer.slice(
+    body.byteOffset,
+    body.byteOffset + body.byteLength,
+  ) as ArrayBuffer;
 
   return await driveRequest<DriveFile>(
     accessToken,
@@ -170,7 +174,7 @@ export async function uploadFile(
       headers: {
         "Content-Type": `multipart/related; boundary=${boundary}`,
       },
-      body,
+      body: multipartBody,
     },
   );
 }
@@ -267,5 +271,10 @@ function headersToRecord(headers: HeadersInit | undefined): Record<string, strin
   if (Array.isArray(headers)) {
     return Object.fromEntries(headers);
   }
-  return headers;
+  return Object.fromEntries(
+    Object.entries(headers as Record<string, string>).map(([key, value]) => [
+      key,
+      String(value),
+    ]),
+  );
 }

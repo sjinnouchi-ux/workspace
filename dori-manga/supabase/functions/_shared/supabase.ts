@@ -144,5 +144,10 @@ function headersToRecord(headers: HeadersInit | undefined): Record<string, strin
   if (Array.isArray(headers)) {
     return Object.fromEntries(headers);
   }
-  return headers;
+  return Object.fromEntries(
+    Object.entries(headers as Record<string, string>).map(([key, value]) => [
+      key,
+      String(value),
+    ]),
+  );
 }
