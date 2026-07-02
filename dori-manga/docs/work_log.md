@@ -83,6 +83,19 @@
   - Supabase access tokenを生成して `supabase secrets set` / `functions deploy` を試行したが、Supabase側で `Your account does not have the necessary privileges to access this endpoint` の403。現在ログイン中のSupabase組織は `K Alert Production` で、対象project ref `vdntqwtywxyjxelycavx` へアクセスできていないため、Supabase権限またはログインアカウントの切り替えが必要。
   - 権限不足だったSupabase access tokenは削除済み。
 
+## 2026-07-02
+- dori-manga v3 Phase 2（Drive連携の疎通）をOAuthユーザー認証（refresh token）方式で実施。
+- サービスアカウントJSON方式は、GCP組織ポリシー `iam.disableServiceAccountKeyCreation` とDrive保存容量0問題を避けるため採用しない方針に変更。
+- `supabase/functions/_shared/google_drive.ts` を更新し、`GOOGLE_SERVICE_ACCOUNT_JSON` 参照を削除。`GOOGLE_OAUTH_CLIENT_ID` / `GOOGLE_OAUTH_CLIENT_SECRET` / `GOOGLE_OAUTH_REFRESH_TOKEN` から `https://oauth2.googleapis.com/token` へ refresh token 交換する方式に変更。
+- Drive APIの403/404等の日本語エラー分類は維持し、`invalid_grant` はrefresh token失効として区別する日本語メッセージを追加。
+- GCP `studied-brand-501210-i1` でOAuth同意画面を Internal として構成し、デスクトップアプリ用OAuthクライアントを作成。`https://www.googleapis.com/auth/drive` scopeでrefresh tokenを取得。秘密値はログ・チャット・ファイルに保存していない。
+- Deno `2.9.0` で `dori-manga/supabase/functions` 配下の対象Edge Functionsを `deno check` し成功。
+- Supabase project ref `vdntqwtywxyjxelycavx` に `GOOGLE_OAUTH_CLIENT_ID` / `GOOGLE_OAUTH_CLIENT_SECRET` / `GOOGLE_OAUTH_REFRESH_TOKEN` を `supabase secrets set` で設定し、`create-episode-folder` / `upload-image` をデプロイ。実値は記録していない。
+- JWT付きでデプロイ済み `create-episode-folder` を疎通確認。テストepisode `__codex_phase2_oauth_test_20260702_194958` からDriveフォルダ `1WS0ipgrQbZMDR4dQ7Nd5GQDmP8r-4jFK` を作成し、`OK` / `NG` / `CLOSE` / `完成` サブフォルダ作成とDB `drive_folder_id` 更新を確認。
+- テストepisode/panelsはSupabase上で削除し、同prefixのテストepisode残数0を確認。DriveテストフォルダはDrive APIで削除し、親フォルダ直下が空に戻ったことを確認。
+- 不使用になったサービスアカウント `dori-manga-drive@studied-brand-501210-i1.iam.gserviceaccount.com` は親Driveフォルダの共有から削除し、共有残存なしをDrive APIで確認。
+- 旧GASの後片付け（トリガー停止・スクリプトプロパティのservice_roleキー削除）はGit外の人間タスクとして未完了。担当: 陣内さん。
+
 ## 2026-06-21
 - Notion API fallbackでプロジェクトDBの `dori-manga` 行を取得し、Git側ミラー `docs/notion/projects.csv` の同プロジェクト行をNotion最新値に同期。
 - Supabase休眠防止用に `gas/supabase-import/dori-manga-import.gs` を更新。
