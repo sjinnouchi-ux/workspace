@@ -95,7 +95,7 @@
 - テストepisode/panelsはSupabase上で削除し、同prefixのテストepisode残数0を確認。DriveテストフォルダはDrive APIで削除し、親フォルダ直下が空に戻ったことを確認。
 - 不使用になったサービスアカウント `dori-manga-drive@studied-brand-501210-i1.iam.gserviceaccount.com` は親Driveフォルダの共有から削除し、共有残存なしをDrive APIで確認。
 - Phase 2作業用に生成したSupabase access token `dori-manga-phase2-20260702-yumekango` は、作業完了後にSupabaseアカウント画面で削除し、一覧から消えたことを確認。
-- 旧GASの後片付け（トリガー停止・スクリプトプロパティのservice_roleキー削除）はGit外の人間タスクとして未完了。担当: 陣内さん。
+- 旧GASの後片付けとして、陣内さんがApps Script側のトリガー削除とスクリプトプロパティ `service_role` キー削除を実施したことを確認。
 
 ## 2026-06-21
 - Notion API fallbackでプロジェクトDBの `dori-manga` 行を取得し、Git側ミラー `docs/notion/projects.csv` の同プロジェクト行をNotion最新値に同期。
