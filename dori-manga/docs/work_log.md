@@ -61,6 +61,17 @@
   - Step: `Ping dori-manga (REST select)`
   - Status: success
 
+## 2026-07-02
+- Phase 2 Drive連携疎通の前提作業として、MiniPCに Deno `2.9.0` と Supabase CLI `2.109.0` を導入。
+- `dori-manga/supabase/functions` 配下の全 `.ts` に対して `deno check` を実行し、型チェック通過を確認。
+- GCP側で新規プロジェクト `dori-manga`（project ID: `studied-brand-501210-i1`）を作成。
+- サービスアカウント `dori-manga-drive@studied-brand-501210-i1.iam.gserviceaccount.com` を作成し、Google Drive API を有効化。
+- Drive親フォルダ `11UK7BKd-pcWW7eQSDghbkJxjxJa34Dbz`（`どり看護師_漫画格納フォルダ（改定）`）に、同サービスアカウントを編集者として共有。
+- 共有後、一般アクセスが「リンクを知っている全員」だったため、指示どおり「制限付き」に戻したことをDrive共有ダイアログで確認。
+- サービスアカウントキーJSON作成は、GCP組織ポリシー `iam.disableServiceAccountKeyCreation` によりブロック。`GOOGLE_SERVICE_ACCOUNT_JSON` をSupabase secretsへ設定できないため、Edge Functions deploy とJWT付きcurl疎通テストは未実施。
+- 次のアクション: 組織ポリシー管理者がサービスアカウントキー作成制限を解除する、またはキーJSON不要の別認証方式に設計変更するかを判断する。
+- 旧GASのApps Script側の後片付け（トリガー停止・スクリプトプロパティのservice_roleキー削除）は、Git外の人間タスクとして継続。
+
 ## 2026-06-21
 - Notion API fallbackでプロジェクトDBの `dori-manga` 行を取得し、Git側ミラー `docs/notion/projects.csv` の同プロジェクト行をNotion最新値に同期。
 - Supabase休眠防止用に `gas/supabase-import/dori-manga-import.gs` を更新。
