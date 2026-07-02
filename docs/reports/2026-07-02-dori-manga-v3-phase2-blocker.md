@@ -76,14 +76,36 @@ GCP Consoleで `dori-manga-drive` の秘密鍵JSONを作成しようとしたと
 
 ## 判断が必要な点
 
-1. 組織ポリシー管理者が、一時的または対象プロジェクト限定でサービスアカウントキー作成を許可する。
-2. 既存の利用可能なサービスアカウントキーJSONを使う。ただし、出所・権限・ローテーション責任を確認する必要があります。
-3. キーJSONを使わない認証方式へ設計変更する。Supabase Edge Functionsでの実装可否を別途検証する必要があります。
+2026-07-02追記:
+
+Claude承認により、組織ポリシーは解除せず、OAuthユーザー認証（refresh token）方式へ設計変更しました。
+
+実施済み:
+
+- `_shared/google_drive.ts` を refresh token 交換方式へ変更。
+- GCP `studied-brand-501210-i1` でOAuth同意画面を Internal として構成。
+- デスクトップアプリ用 OAuthクライアントを作成。
+- `https://www.googleapis.com/auth/drive` の初回同意フローで refresh token を取得。
+- 取得したrefresh tokenでDrive親フォルダ参照に成功。
+- 全Supabase Edge Functionsに対して `deno check` 成功。
+
+未完了:
+
+- `supabase secrets set`
+- `supabase functions deploy`
+- JWT付きcurl疎通テスト
+
+新しいブロック:
+
+- Supabase access tokenは生成できたが、CLI実行時に `Your account does not have the necessary privileges to access this endpoint` の403。
+- 現在のSupabaseログイン先は `K Alert Production` 組織で、対象project ref `vdntqwtywxyjxelycavx` のプロジェクトが見えていない。
+- 対象Supabaseプロジェクトへsecrets/deploy権限を持つアカウントでログインし直す、またはそのアカウントでaccess tokenを生成する必要があります。
+- 権限不足だったSupabase access tokenは削除済み。
 
 ## Phase 2 再開条件
 
-- `GOOGLE_SERVICE_ACCOUNT_JSON` として使えるサービスアカウントJSONを安全に用意できること。
-- または、キーJSON不要の代替設計がClaude/Codex双方で承認されること。
+- 対象Supabaseプロジェクト `vdntqwtywxyjxelycavx` に対してsecrets/deploy権限を持つaccess tokenを用意できること。
+- その後、`GOOGLE_OAUTH_CLIENT_ID` / `GOOGLE_OAUTH_CLIENT_SECRET` / `GOOGLE_OAUTH_REFRESH_TOKEN` をSupabase secretsへ設定し、Functions deployとJWT付きcurl疎通テストへ進む。
 
 ## 継続中の人間タスク
 

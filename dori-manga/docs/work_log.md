@@ -73,6 +73,15 @@
 - 既存の `QQQ-Trading-System`（project ID: `qqq-trading-system-496304`）も確認。`iam.disableServiceAccountKeyCreation` は同じく親ポリシー継承で適用済み、既存サービスアカウント `qqq-trading-bot@qqq-trading-system-496304.iam.gserviceaccount.com` は「キーがありません」表示だったため、QQQから既存JSONを流用する経路も現時点では確認できなかった。
 - 次のアクション: 組織ポリシー管理者がサービスアカウントキー作成制限を解除する、またはキーJSON不要の別認証方式に設計変更するかを判断する。
 - 旧GASのApps Script側の後片付け（トリガー停止・スクリプトプロパティのservice_roleキー削除）は、Git外の人間タスクとして継続。
+- Claude承認により、組織ポリシーは解除せず、Drive認証方式をサービスアカウントJSONからOAuthユーザー認証（refresh token）へ設計変更。
+  - GCP `studied-brand-501210-i1` で OAuth同意画面を Internal として作成。
+  - デスクトップアプリ用 OAuthクライアントを作成し、`https://www.googleapis.com/auth/drive` の初回同意フローで refresh token を取得。client secret / refresh token / Supabase access token はログ・チャット・ファイルへ保存していない。
+  - `_shared/google_drive.ts` の `getDriveAccessToken()` を `GOOGLE_OAUTH_CLIENT_ID` / `GOOGLE_OAUTH_CLIENT_SECRET` / `GOOGLE_OAUTH_REFRESH_TOKEN` による refresh token 交換方式へ変更。
+  - `invalid_grant` は refresh token 失効として日本語メッセージを区別。
+  - 変更後に `deno check` を全Functionsへ実行し成功。
+  - 取得したOAuth refresh tokenでDrive親フォルダ `どり看護師_漫画格納フォルダ（改定）` を参照できることをローカル確認。
+  - Supabase access tokenを生成して `supabase secrets set` / `functions deploy` を試行したが、Supabase側で `Your account does not have the necessary privileges to access this endpoint` の403。現在ログイン中のSupabase組織は `K Alert Production` で、対象project ref `vdntqwtywxyjxelycavx` へアクセスできていないため、Supabase権限またはログインアカウントの切り替えが必要。
+  - 権限不足だったSupabase access tokenは削除済み。
 
 ## 2026-06-21
 - Notion API fallbackでプロジェクトDBの `dori-manga` 行を取得し、Git側ミラー `docs/notion/projects.csv` の同プロジェクト行をNotion最新値に同期。

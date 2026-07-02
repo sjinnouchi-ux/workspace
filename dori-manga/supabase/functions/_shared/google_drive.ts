@@ -1,15 +1,9 @@
-import { importPKCS8, SignJWT } from "https://esm.sh/jose@5.9.6";
 import { AppError } from "./errors.ts";
 
 const DRIVE_API = "https://www.googleapis.com/drive/v3";
 const DRIVE_UPLOAD_API = "https://www.googleapis.com/upload/drive/v3";
 const TOKEN_URL = "https://oauth2.googleapis.com/token";
 const FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
-
-type ServiceAccount = {
-  client_email?: string;
-  private_key?: string;
-};
 
 type DriveFile = {
   id: string;
@@ -22,68 +16,56 @@ type DriveListResponse = {
   files?: DriveFile[];
 };
 
+type OAuthTokenResponse = {
+  access_token?: string;
+  error?: string;
+  error_description?: string;
+};
+
 export function driveWebViewUrl(fileId: string): string {
   return `https://drive.google.com/drive/folders/${fileId}`;
 }
 
 export async function getDriveAccessToken(): Promise<string> {
-  const rawJson = Deno.env.get("GOOGLE_SERVICE_ACCOUNT_JSON");
-  if (!rawJson) {
+  const clientId = Deno.env.get("GOOGLE_OAUTH_CLIENT_ID");
+  const clientSecret = Deno.env.get("GOOGLE_OAUTH_CLIENT_SECRET");
+  const refreshToken = Deno.env.get("GOOGLE_OAUTH_REFRESH_TOKEN");
+
+  if (!clientId || !clientSecret || !refreshToken) {
     throw new AppError(
-      "GoogleサービスアカウントJSONが未設定です。Supabase secretsを確認してください。",
+      "Google OAuth認証情報が未設定です。Supabase secretsを確認してください。",
       500,
-      "google_service_account_missing",
+      "google_oauth_missing",
     );
   }
-
-  let account: ServiceAccount;
-  try {
-    account = JSON.parse(rawJson) as ServiceAccount;
-  } catch {
-    throw new AppError(
-      "GoogleサービスアカウントJSONの形式が不正です。",
-      500,
-      "google_service_account_invalid",
-    );
-  }
-
-  if (!account.client_email || !account.private_key) {
-    throw new AppError(
-      "GoogleサービスアカウントJSONに必要な項目がありません。",
-      500,
-      "google_service_account_incomplete",
-    );
-  }
-
-  const privateKey = await importPKCS8(account.private_key, "RS256");
-  const assertion = await new SignJWT({
-    scope: "https://www.googleapis.com/auth/drive",
-  })
-    .setProtectedHeader({ alg: "RS256", typ: "JWT" })
-    .setIssuer(account.client_email)
-    .setAudience(TOKEN_URL)
-    .setIssuedAt()
-    .setExpirationTime("1h")
-    .sign(privateKey);
 
   const tokenRes = await fetch(TOKEN_URL, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
-      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-      assertion,
+      client_id: clientId,
+      client_secret: clientSecret,
+      refresh_token: refreshToken,
+      grant_type: "refresh_token",
     }),
   });
 
+  const tokenJson = await tokenRes.json() as OAuthTokenResponse;
   if (!tokenRes.ok) {
+    if (tokenJson.error === "invalid_grant") {
+      throw new AppError(
+        "Google OAuthのrefresh tokenが失効しています。初回同意フローをやり直してSupabase secretsを更新してください。",
+        502,
+        "google_oauth_invalid_grant",
+      );
+    }
     throw new AppError(
-      "Google Drive認証に失敗しました。サービスアカウント設定を確認してください。",
+      "Google Drive認証に失敗しました。OAuthクライアントID、シークレット、refresh tokenを確認してください。",
       502,
       "google_auth_failed",
     );
   }
 
-  const tokenJson = await tokenRes.json() as { access_token?: string };
   if (!tokenJson.access_token) {
     throw new AppError(
       "Google Drive認証トークンを取得できませんでした。",
@@ -204,16 +186,23 @@ async function driveRequest<T>(
 
 function classifyDriveError(status: number, text: string): AppError {
   const lower = text.toLowerCase();
-  if (status === 401 || lower.includes("invalid_grant")) {
+  if (lower.includes("invalid_grant")) {
     return new AppError(
-      "Google Drive認証に失敗しました。サービスアカウントのキー設定を確認してください。",
+      "Google OAuthのrefresh tokenが失効しています。初回同意フローをやり直してSupabase secretsを更新してください。",
+      502,
+      "drive_oauth_invalid_grant",
+    );
+  }
+  if (status === 401) {
+    return new AppError(
+      "Google Drive認証に失敗しました。OAuth認証情報を確認してください。",
       502,
       "drive_auth_failed",
     );
   }
   if (status === 403) {
     return new AppError(
-      "Google Driveの権限が不足しています。親フォルダがサービスアカウントに編集者権限で共有されているか確認してください。",
+      "Google Driveの権限が不足しています。認証したGoogleユーザーが親フォルダにアクセスできるか確認してください。",
       403,
       "drive_permission_denied",
     );
