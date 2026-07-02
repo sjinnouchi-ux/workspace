@@ -241,6 +241,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 const STATUSES = ["完成", "未完成", "不採用"];
 const CSV_STATUSES = ["新規作成", ...STATUSES];
 const EVAL_STATUSES = ["OK", "NG", "CLOSE"];
+const DUPLICATE_REPAIR_WINDOW_MS = 10 * 60 * 1000;
 const PROMPT_NAMES = { OK:"評価プロンプト_OK", NG:"評価プロンプト_NG", CLOSE:"評価プロンプト_CLOSE" };
 const TABS = [
   { id:"production", label:"制作" },
@@ -386,15 +387,48 @@ async function loadStats() {
     ...STATUSES.map(status => sb.from("manga_episodes").select("id", { count:"exact", head:true }).eq("status", status)),
     sb.from("generation_attempts").select("id", { count:"exact", head:true }),
     sb.from("prompt_lessons").select("id", { count:"exact", head:true }).eq("is_active", true),
+    sb.from("generation_attempts").select("id", { count:"exact", head:true }).contains("evaluation_json", { repair_needed:true }),
   ]);
   if (latest.error) return msg("system-status", "err", "Supabase疎通に失敗しました。\n" + latest.error.message);
+  const duplicateRepairCount = await countNearDuplicateRepairs();
   const last = latest.data?.[0]?.created_at ? new Date(latest.data[0].created_at) : null;
   $("system-status").innerHTML = `<div class="alert ok">Supabase疎通OK</div>` +
     `<div class="compact">最終DB登録日時: ${last ? last.toLocaleString("ja-JP") : "未登録"} / keepaliveはGitHub Actionsで定期実行</div>`;
   $("stats").innerHTML = [
     ["作品数", counts[0].count], ["完成", counts[1].count], ["未完成", counts[2].count],
     ["不採用", counts[3].count], ["画像評価数", counts[4].count], ["改善ルール数", counts[5].count],
+    ["JSON補修対象", counts[6].count], ["近接重複疑い", duplicateRepairCount],
   ].map(([label, count]) => `<div class="stat"><div class="num">${count ?? "-"}</div><div class="lbl">${label}</div></div>`).join("");
+}
+
+async function countNearDuplicateRepairs() {
+  const { data, error } = await sb.from("generation_attempts")
+    .select("id,panel_id,file_name,created_at")
+    .not("file_name", "is", null)
+    .order("created_at", { ascending:false })
+    .limit(1000);
+  if (error) {
+    console.warn("near duplicate repair count failed", error.message);
+    return "-";
+  }
+  const groups = new Map();
+  for (const row of data || []) {
+    const fileName = String(row.file_name || "").trim();
+    if (!row.panel_id || !fileName) continue;
+    const key = `${row.panel_id}\n${fileName}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(row);
+  }
+  let count = 0;
+  for (const rows of groups.values()) {
+    rows.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    for (let i = 1; i < rows.length; i += 1) {
+      const prev = new Date(rows[i - 1].created_at).getTime();
+      const current = new Date(rows[i].created_at).getTime();
+      if (Number.isFinite(prev) && Number.isFinite(current) && current - prev <= DUPLICATE_REPAIR_WINDOW_MS) count += 1;
+    }
+  }
+  return count;
 }
 
 async function loadHistory() {

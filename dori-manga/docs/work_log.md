@@ -1,6 +1,11 @@
 # 作業ログ
 
 ## 2026-07-02（Phase 4）
+- 陣内さん指示により、v3.1補修として管理タブの補修対象見える化を追加。
+  - `evaluation_json.repair_needed = true` の件数を `JSON補修対象` として集計カードに表示。
+  - 自動採番時の副作用検知として、直近1000件内の `同一panel_id × 同一file_name` かつ10分以内の再登録を `近接重複疑い` として集計カードに表示。
+  - DBスキーマ変更は行わず、管理画面フロント側の集計として実装。
+  - 本番HTML反映を確認し、実データ18件で `repair_needed=0` / `近接重複疑い=0` を確認。
 - 陣内さん指示により、管理画面の操作マニュアルを追加。
   - Markdown正本: `dori-manga/docs/manuals/dori-manga-admin-user-manual.md`
   - Web配布PDF: `dori-manga/webapp/dori-manga-admin-manual.pdf`
