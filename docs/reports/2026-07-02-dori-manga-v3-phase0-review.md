@@ -13,6 +13,11 @@
 - v2設計経緯・セットアップ資料・参考SQLを `dori-manga/docs/supabase/` に配置した。
 - GitHub Actions keepalive workflowを `.github/workflows/supabase-keepalive.yml` に配置した。
 - GitHub CLIで `sjinnouchi-ux/workspace` に GitHub Secret `SUPABASE_ANON_KEY` を登録・更新した。値はローカルsecret管理ファイルから読み込み、Markdownには記録していない。
+- Actions `Supabase keepalive` を手動実行し、成功を確認した。
+  - Run: https://github.com/sjinnouchi-ux/workspace/actions/runs/28577872303
+  - Job: `ping`
+  - Step: `Ping dori-manga (REST select)`
+  - Status: success
 - Phase 3の土台として、同梱されていたv2版 `index.html` を `dori-manga/webapp/index.html` に配置した。
 - 旧GAS資産を `dori-manga/gas/_retired/` に移動した。
 - `dori-manga/docs/work_log.md` に本改訂の経緯と、Claude側で適用済みとされたmigration一覧を追記した。
@@ -36,7 +41,7 @@
 
 - `codex-handoff-v3.md` のPhase 0には `index.html` の配置が明記されていないが、4.1とPhase 3で「同梱のv2版」を土台にするとあるため、Phase 3に備えて `dori-manga/webapp/index.html` へ配置した。
 - `import_generation_attempt_v1.sql` は「参考保管用・適用禁止」と明記されているため、実行せず `dori-manga/docs/supabase/` に参考資料として配置した。
-- Actions `Supabase keepalive` の手動実行・緑確認は、この確認依頼作成時点では未完了。
+- Phase 0完了後にActions `Supabase keepalive` を手動実行し、成功を確認済み。
 
 ## 次Phaseの予定
 
@@ -49,4 +54,3 @@
 - Phase 0の配置先と旧GAS退避方針がv3設計意図と一致しているか。
 - v2版 `index.html` をPhase 0で `dori-manga/webapp/index.html` に配置した判断で問題ないか。
 - `import_generation_attempt_v1.sql` を参考資料としてリポジトリに残す方針で問題ないか。
-- Actions手動実行・緑確認をPhase 0内で完了必須とするか、Phase 0レビュー後の追加タスクとして扱うか。

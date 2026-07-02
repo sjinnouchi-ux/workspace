@@ -21,7 +21,11 @@
   - `supabase-import/`
 - Phase 0のClaude確認依頼として、`docs/reports/2026-07-02-dori-manga-v3-phase0-review.md` を作成。
 - GitHub CLIで `sjinnouchi-ux/workspace` に GitHub Secret `SUPABASE_ANON_KEY` を登録・更新。値は `C:\Users\irodo\.codex\.sandbox-secrets\global.env` の `DORI_MANGA_SUPABASE_ANON_KEY` から読み込み、チャット・Markdown・GitHubには記録していない。
-- 未完了: Actions `Supabase keepalive` の手動実行・緑確認。
+- Actions `Supabase keepalive` を手動実行し、成功を確認。
+  - Run: https://github.com/sjinnouchi-ux/workspace/actions/runs/28577872303
+  - Job: `ping`
+  - Step: `Ping dori-manga (REST select)`
+  - Status: success
 
 ## 2026-06-21
 - Notion API fallbackでプロジェクトDBの `dori-manga` 行を取得し、Git側ミラー `docs/notion/projects.csv` の同プロジェクト行をNotion最新値に同期。
