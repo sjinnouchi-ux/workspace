@@ -25,6 +25,12 @@
   - ブラウザ削除確認ダイアログ後に制御がタイムアウトしたため、残ったテストデータ1件をAPIで削除し、残数0を確認。
   - 画像あり相当はAPIでStorage `prompt-gallery` アップロード `200`、DB insert `201`、DB delete `204`、Storage delete `200`、DB残数0を確認。
 - Claude確認用MDを橋渡しDriveへアップロード: https://drive.google.com/file/d/1oQca-UnUNASeoELoNOs_pNAPMi99on8V/view?usp=drivesdk
+- Claudeレビュー結果:
+  - 仕様3章・4章の実装漏れなし。
+  - `copyText()` 再利用は妥当。
+  - クリップボードとファイル選択の自動操作制限に対し、Storage/API疎通での代替確認は受け入れ可能。
+  - v3.1追加残件なし。
+  - 検収完了前の人間目視確認として、陣内さん実ブラウザで「コピーボタンからChatGPT等へ貼り付けできること」「実画像登録後にカードへ画像表示されること」の2点を確認する。
 
 ## 2026-07-02（Phase 4）
 - 陣内さん指示により、v3.1補修として管理タブの補修対象見える化を追加。
