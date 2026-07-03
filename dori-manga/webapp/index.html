@@ -64,12 +64,27 @@
   .folder-link { font-size:11px; display:block; margin-top:4px; }
   .save-state { font-size:11px; color:var(--muted); min-height:16px; }
   .prompt-box textarea { min-height:180px; font-size:12px; line-height:1.45; }
+  .gallery-form { align-items:end; }
+  .image-preview { min-height:180px; border:1px dashed var(--line); border-radius:8px; display:flex; align-items:center; justify-content:center; background:var(--pink-3); overflow:hidden; color:var(--muted); font-size:12px; }
+  .image-preview img { max-width:100%; max-height:260px; object-fit:contain; display:block; }
+  .gallery-head { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .gallery-count { color:var(--muted); font-size:13px; font-weight:700; }
+  .gallery-list { display:grid; gap:10px; margin-top:10px; }
+  .gallery-card { display:grid; grid-template-columns:150px 1fr; gap:12px; border:1px solid var(--line); border-radius:8px; padding:10px; background:#fff; }
+  .gallery-image { width:150px; height:188px; border-radius:7px; background:var(--pink-3); border:1px solid var(--line); object-fit:cover; cursor:pointer; }
+  .gallery-image.expanded { width:min(100%, 520px); height:auto; max-height:70vh; object-fit:contain; grid-row:span 2; }
+  .gallery-placeholder { width:150px; height:188px; border-radius:7px; background:var(--pink-3); border:1px solid var(--line); color:var(--muted); display:flex; align-items:center; justify-content:center; font-size:12px; }
+  .gallery-body { min-width:0; }
+  .gallery-body textarea { min-height:128px; line-height:1.5; }
+  .gallery-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:8px; }
   .history table { min-width:760px; }
   .compact { font-size:12px; color:var(--muted); }
   .file-line { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
   @media (max-width:760px) {
     main { padding:10px; }
     .grid-2, .grid-3, .stat-row { grid-template-columns:1fr; }
+    .gallery-card { grid-template-columns:1fr; }
+    .gallery-image, .gallery-placeholder { width:100%; height:220px; }
     header { align-items:flex-start; flex-direction:column; }
   }
 </style>
@@ -189,6 +204,39 @@
       </div>
     </section>
 
+    <section id="tab-prompts" class="panel">
+      <div class="section">
+        <h2>プロンプト登録</h2>
+        <div class="grid-2 gallery-form">
+          <div>
+            <label for="gallery-title">タイトル</label>
+            <input id="gallery-title" placeholder="例：やさしい病棟夜勤の構図">
+            <label for="gallery-file">参考画像</label>
+            <input type="file" id="gallery-file" accept="image/*">
+          </div>
+          <div>
+            <label>プレビュー</label>
+            <div class="image-preview" id="gallery-preview">画像を選ぶと表示されます</div>
+          </div>
+        </div>
+        <label for="gallery-prompt">プロンプト</label>
+        <textarea id="gallery-prompt" placeholder="ChatGPTに貼り付ける構図・画風プロンプト"></textarea>
+        <button id="gallery-create-btn" onclick="createPromptGalleryItem()">登録する</button>
+        <div id="gallery-form-msg"></div>
+      </div>
+
+      <div class="section">
+        <div class="gallery-head">
+          <h2>プロンプト一覧</h2>
+          <div class="gallery-count" id="gallery-count">登録済みプロンプト（0件）</div>
+        </div>
+        <label for="gallery-search">タイトル検索</label>
+        <input id="gallery-search" placeholder="タイトルの一部で検索">
+        <div id="gallery-msg"></div>
+        <div class="gallery-list" id="gallery-list"></div>
+      </div>
+    </section>
+
     <section id="tab-admin" class="panel">
       <div class="section">
         <h2>システム状態</h2>
@@ -242,13 +290,15 @@ const STATUSES = ["完成", "未完成", "不採用"];
 const CSV_STATUSES = ["新規作成", ...STATUSES];
 const EVAL_STATUSES = ["OK", "NG", "CLOSE"];
 const DUPLICATE_REPAIR_WINDOW_MS = 10 * 60 * 1000;
+const PROMPT_GALLERY_BUCKET = "prompt-gallery";
 const PROMPT_NAMES = { OK:"評価プロンプト_OK", NG:"評価プロンプト_NG", CLOSE:"評価プロンプト_CLOSE" };
 const TABS = [
   { id:"production", label:"制作" },
   { id:"import", label:"インポート" },
+  { id:"prompts", label:"プロンプト" },
   { id:"admin", label:"管理" },
 ];
-const state = { session:null, episodes:[], prompts:{}, settings:{}, filter:"すべて", activeTab:"production" };
+const state = { session:null, episodes:[], prompts:{}, promptGallery:[], settings:{}, filter:"すべて", gallerySearch:"", activeTab:"production" };
 const saveTimers = new Map();
 const $ = id => document.getElementById(id);
 const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
@@ -272,6 +322,7 @@ function setTab(tabId) {
   document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.tab === tabId));
   document.querySelectorAll(".panel").forEach(panel => panel.classList.toggle("active", panel.id === `tab-${tabId}`));
   if (tabId === "import") renderImportEpisodeOptions();
+  if (tabId === "prompts") renderPromptGallery();
 }
 window.setTab = setTab;
 
@@ -317,6 +368,13 @@ function bindEvents() {
   $("copy-prompt-OK").onclick = () => copyPrompt("OK");
   $("copy-prompt-NG").onclick = () => copyPrompt("NG");
   $("copy-prompt-CLOSE").onclick = () => copyPrompt("CLOSE");
+  $("gallery-file").addEventListener("change", previewGalleryFile);
+  $("gallery-create-btn").onclick = createPromptGalleryItem;
+  $("gallery-search").addEventListener("input", event => {
+    state.gallerySearch = event.target.value;
+    renderPromptGallery();
+  });
+  bindPromptGalleryDelegates();
 }
 
 function showLogin() {
@@ -343,9 +401,10 @@ async function login() {
 }
 
 async function loadAll() {
-  await Promise.all([loadEpisodes(), loadPrompts(), loadSettings(), loadHistory(), loadStats()]);
+  await Promise.all([loadEpisodes(), loadPrompts(), loadPromptGallery(), loadSettings(), loadHistory(), loadStats()]);
   renderProduction();
   renderImportEpisodeOptions();
+  renderPromptGallery();
   renderAdmin();
 }
 window.loadAll = loadAll;
@@ -372,6 +431,18 @@ async function loadPrompts() {
   for (const status of EVAL_STATUSES) {
     state.prompts[status] = (data || []).find(row => row.name === PROMPT_NAMES[status]) || null;
   }
+}
+
+async function loadPromptGallery() {
+  const { data, error } = await sb.from("prompt_gallery")
+    .select("id,title,prompt_text,image_path,image_url,created_at")
+    .order("created_at", { ascending:false });
+  if (error) {
+    state.promptGallery = [];
+    msg("gallery-msg", "err", "プロンプト一覧を読み込めませんでした。\n" + error.message);
+    return;
+  }
+  state.promptGallery = data || [];
 }
 
 async function loadSettings() {
@@ -674,6 +745,205 @@ async function copyText(text) {
     textarea.remove();
     if (!ok) throw new Error("ブラウザがクリップボード書き込みを許可しませんでした。");
   }
+}
+
+function renderPromptGallery() {
+  const query = state.gallerySearch.trim().toLowerCase();
+  const items = query
+    ? state.promptGallery.filter(item => String(item.title || "").toLowerCase().includes(query))
+    : state.promptGallery;
+  $("gallery-count").textContent = `登録済みプロンプト（${items.length}件）`;
+  $("gallery-list").innerHTML = items.map(item => `
+    <article class="gallery-card" data-gallery-id="${item.id}">
+      ${item.image_url
+        ? `<img class="gallery-image" src="${esc(item.image_url)}" alt="${esc(item.title || "参考画像")}" data-action="toggle-gallery-image">`
+        : `<div class="gallery-placeholder">画像なし</div>`}
+      <div class="gallery-body">
+        <label>タイトル</label>
+        <input data-gallery-field="title" value="${esc(item.title || "")}">
+        <label>プロンプト</label>
+        <textarea data-gallery-field="prompt_text">${esc(item.prompt_text || "")}</textarea>
+        <div class="gallery-actions">
+          <button class="secondary small" data-action="copy-gallery-prompt">コピー</button>
+          <button class="danger small" data-action="delete-gallery-item">削除</button>
+          <span class="save-state" id="gallery-save-${item.id}"></span>
+        </div>
+      </div>
+    </article>`).join("") || `<div class="compact">該当するプロンプトがありません。</div>`;
+}
+
+function bindPromptGalleryDelegates() {
+  const list = $("gallery-list");
+  list.addEventListener("click", async event => {
+    const card = event.target.closest("[data-gallery-id]");
+    if (!card) return;
+    const id = card.dataset.galleryId;
+    const item = state.promptGallery.find(row => row.id === id);
+    if (!item) return;
+    if (event.target.matches('[data-action="toggle-gallery-image"]')) {
+      event.target.classList.toggle("expanded");
+      return;
+    }
+    if (event.target.closest('[data-action="copy-gallery-prompt"]')) {
+      await copyGalleryPrompt(id, event.target.closest("button"));
+      return;
+    }
+    if (event.target.closest('[data-action="delete-gallery-item"]')) {
+      await deletePromptGalleryItem(id);
+    }
+  });
+  list.addEventListener("focusout", event => {
+    const card = event.target.closest("[data-gallery-id]");
+    if (!card || !event.target.matches("[data-gallery-field]")) return;
+    savePromptGalleryField(card.dataset.galleryId, event.target.dataset.galleryField, event.target.value);
+  });
+  list.addEventListener("input", event => {
+    const card = event.target.closest("[data-gallery-id]");
+    if (!card || !event.target.matches("[data-gallery-field]")) return;
+    scheduleSave(`gallery:${card.dataset.galleryId}:${event.target.dataset.galleryField}`, () =>
+      savePromptGalleryField(card.dataset.galleryId, event.target.dataset.galleryField, event.target.value)
+    );
+  });
+}
+
+function previewGalleryFile() {
+  const file = $("gallery-file").files[0];
+  if (!file) {
+    $("gallery-preview").textContent = "画像を選ぶと表示されます";
+    return;
+  }
+  if (!file.type.startsWith("image/")) {
+    $("gallery-preview").textContent = "PNGかJPEGを選んでください";
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    $("gallery-preview").innerHTML = `<img src="${esc(reader.result)}" alt="プレビュー">`;
+  };
+  reader.onerror = () => {
+    $("gallery-preview").textContent = "画像を表示できませんでした";
+  };
+  reader.readAsDataURL(file);
+}
+
+async function createPromptGalleryItem() {
+  const title = $("gallery-title").value.trim();
+  const promptText = $("gallery-prompt").value.trim();
+  const file = $("gallery-file").files[0];
+  if (!title) return msg("gallery-form-msg", "err", "タイトルを入力してください。");
+  if (!promptText) return msg("gallery-form-msg", "err", "プロンプトを入力してください。");
+  $("gallery-create-btn").disabled = true;
+  try {
+    let imagePath = null;
+    let imageUrl = null;
+    if (file) {
+      const resized = await resizePromptGalleryImage(file);
+      imagePath = `${makeUuid()}.jpg`;
+      const upload = await sb.storage.from(PROMPT_GALLERY_BUCKET).upload(imagePath, resized, { contentType:"image/jpeg" });
+      if (upload.error) throw new Error(upload.error.message);
+      const publicUrl = sb.storage.from(PROMPT_GALLERY_BUCKET).getPublicUrl(imagePath);
+      imageUrl = publicUrl.data.publicUrl;
+    }
+    const { error } = await sb.from("prompt_gallery").insert({ title, prompt_text:promptText, image_path:imagePath, image_url:imageUrl });
+    if (error) {
+      if (imagePath) await sb.storage.from(PROMPT_GALLERY_BUCKET).remove([imagePath]);
+      throw new Error(error.message);
+    }
+    $("gallery-title").value = "";
+    $("gallery-prompt").value = "";
+    $("gallery-file").value = "";
+    $("gallery-preview").textContent = "画像を選ぶと表示されます";
+    await loadPromptGallery();
+    renderPromptGallery();
+    msg("gallery-form-msg", "ok", "プロンプトを登録しました。");
+  } catch (error) {
+    msg("gallery-form-msg", "err", error.message);
+  } finally {
+    $("gallery-create-btn").disabled = false;
+  }
+}
+window.createPromptGalleryItem = createPromptGalleryItem;
+
+async function resizePromptGalleryImage(file) {
+  if (!file.type.startsWith("image/")) throw new Error("この画像形式は使えません。PNGかJPEGで保存し直してください。");
+  const bitmap = await loadImageBitmap(file);
+  const maxSide = 1280;
+  const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+  const width = Math.max(1, Math.round(bitmap.width * scale));
+  const height = Math.max(1, Math.round(bitmap.height * scale));
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d");
+  context.drawImage(bitmap, 0, 0, width, height);
+  let blob = await canvasToJpegBlob(canvas, 0.8);
+  if (blob.size > 5 * 1024 * 1024) blob = await canvasToJpegBlob(canvas, 0.6);
+  if (blob.size > 5 * 1024 * 1024) throw new Error("画像を縮小しても5MBを超えます。PNGかJPEGで軽くしてから登録してください。");
+  return blob;
+}
+
+function loadImageBitmap(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const image = new Image();
+    image.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve(image);
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("この画像形式は使えません。PNGかJPEGで保存し直してください。"));
+    };
+    image.src = url;
+  });
+}
+
+function canvasToJpegBlob(canvas, quality) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("画像をJPEGへ変換できませんでした。")), "image/jpeg", quality);
+  });
+}
+
+function makeUuid() {
+  return crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+async function copyGalleryPrompt(id, button) {
+  const item = state.promptGallery.find(row => row.id === id);
+  if (!item?.prompt_text) return;
+  const original = button.textContent;
+  try {
+    await copyText(item.prompt_text);
+    button.textContent = "✓ コピーしました";
+    setTimeout(() => { button.textContent = original; }, 1500);
+  } catch (error) {
+    msg("gallery-msg", "err", "コピーに失敗しました。\n" + error.message);
+  }
+}
+
+async function savePromptGalleryField(id, field, value) {
+  const patch = { [field]: value || null };
+  const { error } = await sb.from("prompt_gallery").update(patch).eq("id", id);
+  if (error) return msg("gallery-msg", "err", error.message);
+  const item = state.promptGallery.find(row => row.id === id);
+  if (item) item[field] = patch[field];
+  const save = $("gallery-save-" + id);
+  if (save) save.textContent = "保存しました";
+}
+
+async function deletePromptGalleryItem(id) {
+  const item = state.promptGallery.find(row => row.id === id);
+  if (!item) return;
+  if (!confirm(`「${item.title || "無題"}」を削除しますか？`)) return;
+  const { error } = await sb.from("prompt_gallery").delete().eq("id", id);
+  if (error) return msg("gallery-msg", "err", error.message);
+  if (item.image_path) {
+    const removed = await sb.storage.from(PROMPT_GALLERY_BUCKET).remove([item.image_path]);
+    if (removed.error) msg("gallery-msg", "warn", "DB行は削除しましたが、画像削除に失敗しました。\n" + removed.error.message);
+  }
+  state.promptGallery = state.promptGallery.filter(row => row.id !== id);
+  renderPromptGallery();
+  msg("gallery-msg", "ok", "削除しました。");
 }
 
 async function importImage() {

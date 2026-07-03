@@ -1,5 +1,31 @@
 # 作業ログ
 
+## 2026-07-03（v3.1 プロンプトタブ追加）
+- Claude設計書 `codex-handoff-v3-1-prompt-tab.md` に基づき、管理画面へ「プロンプト」タブを追加。
+  - `TABS` に `プロンプト` を追加し、制作／インポート／プロンプト／管理の4タブ構成に変更。
+  - `prompt_gallery` テーブルから `created_at` 降順で一覧取得。
+  - 登録フォーム: タイトル必須、プロンプト必須、参考画像任意。
+  - 画像選択時のプレビューを追加。
+  - 画像あり登録ではブラウザ側で長辺1280pxへ縮小し、JPEG品質0.8でStorage `prompt-gallery` へアップロード。5MB超過時は品質0.6で再試行。
+  - 保存パスはUUIDベースの `{uuid}.jpg` とし、日本語ファイル名は使わない。
+  - 画像なし登録では `image_path` / `image_url` を `null` で登録。
+  - 一覧カード: 画像、タイトル、プロンプトtextarea、コピー、削除、タイトル検索、件数表示を実装。
+  - タイトル・プロンプトは入力中700msデバウンス、フォーカスアウトでも保存。
+  - 削除はconfirm後にDB行削除、`image_path` がある場合はStorageオブジェクトも削除。
+- マニュアルを更新。
+  - `dori-manga/docs/manuals/dori-manga-admin-user-manual.md` に「プロンプトタブ」章を追加。
+  - 困ったときに、Supabase疎通NG、画像サイズ、パスワードリセット、Drive自動振り分け、PNG/JPEG案内を追記。
+  - `dori-manga/webapp/dori-manga-admin-manual.pdf` を再生成し、日本語レンダリングを確認。
+- 検証:
+  - `index.html` 内インラインJavaScriptの構文チェック成功。
+  - Supabase RESTで `prompt_gallery` 読み取り status `200` を確認。
+  - Cloudflare Pagesへデプロイし、本番URL `https://dori-manga-admin.pages.dev/?v=prompt-tab-final` で4タブ表示、プロンプトフォーム、マニュアルリンク、コンソールエラー0件を確認。
+  - ブラウザで画像なし登録→カード表示→編集保存→検索を確認。
+  - 自動ブラウザ操作ではクリップボード権限によりコピーは拒否表示を確認。実運用の人間クリックでは既存コピー導線と同じ実装を使用。
+  - ブラウザ削除確認ダイアログ後に制御がタイムアウトしたため、残ったテストデータ1件をAPIで削除し、残数0を確認。
+  - 画像あり相当はAPIでStorage `prompt-gallery` アップロード `200`、DB insert `201`、DB delete `204`、Storage delete `200`、DB残数0を確認。
+- Claude確認用MDを橋渡しDriveへアップロード: https://drive.google.com/file/d/1oQca-UnUNASeoELoNOs_pNAPMi99on8V/view?usp=drivesdk
+
 ## 2026-07-02（Phase 4）
 - 陣内さん指示により、v3.1補修として管理タブの補修対象見える化を追加。
   - `evaluation_json.repair_needed = true` の件数を `JSON補修対象` として集計カードに表示。
