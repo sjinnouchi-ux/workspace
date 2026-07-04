@@ -1,0 +1,806 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>AI経営実装度診断</title>
+  <style>
+    :root {
+      --brand: #1f6feb;
+      --brand-weak: #e8f0fe;
+      --text: #1a1a1a;
+      --text-sub: #6b7280;
+      --bg: #ffffff;
+      --card: #f7f7f5;
+      --border: #e3e3e0;
+      --danger: #c0392b;
+      --radius: 12px;
+      --btn-min-h: 56px;
+      --space-1: 8px;
+      --space-2: 12px;
+      --space-3: 16px;
+      --space-4: 24px;
+      --space-5: 32px;
+      --font: system-ui, "Hiragino Sans", "Noto Sans JP", sans-serif;
+      --font-voice: Georgia, "Hiragino Mincho ProN", serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.7;
+    }
+    main {
+      width: min(100%, 760px);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: var(--space-4);
+      display: flex;
+      align-items: center;
+    }
+    .screen {
+      width: 100%;
+      padding: var(--space-5);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg);
+    }
+    .eyebrow {
+      margin: 0 0 var(--space-2);
+      color: var(--text-sub);
+      font-size: 0.9rem;
+    }
+    h1, h2 {
+      margin: 0 0 var(--space-3);
+      line-height: 1.35;
+      letter-spacing: 0;
+    }
+    h1 { font-size: 1.9rem; }
+    h2 { font-size: 1.45rem; }
+    p { margin: 0 0 var(--space-3); }
+    label {
+      display: block;
+      margin: var(--space-3) 0 var(--space-1);
+      font-weight: 700;
+    }
+    input {
+      width: 100%;
+      min-height: var(--btn-min-h);
+      padding: 0 var(--space-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font: inherit;
+      color: var(--text);
+      background: var(--bg);
+    }
+    .actions {
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      margin-top: var(--space-4);
+    }
+    button, .link-button {
+      min-height: var(--btn-min-h);
+      border: 1px solid var(--brand);
+      border-radius: var(--radius);
+      padding: 0 var(--space-4);
+      background: var(--brand);
+      color: var(--bg);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    button.secondary {
+      background: var(--bg);
+      color: var(--brand);
+    }
+    button:disabled {
+      border-color: var(--border);
+      background: var(--card);
+      color: var(--text-sub);
+      cursor: not-allowed;
+    }
+    .choice-list {
+      display: grid;
+      gap: var(--space-2);
+      margin-top: var(--space-4);
+    }
+    .choice {
+      width: 100%;
+      justify-content: flex-start;
+      text-align: left;
+      background: var(--bg);
+      color: var(--text);
+      border-color: var(--border);
+    }
+    .choice.is-selected {
+      background: var(--brand-weak);
+      color: var(--brand);
+      border-color: var(--brand);
+    }
+    .notice {
+      padding: var(--space-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+      color: var(--text-sub);
+    }
+    .error { color: var(--danger); }
+    .progress {
+      height: 8px;
+      margin: 0 0 var(--space-3);
+      border-radius: var(--radius);
+      background: var(--card);
+      overflow: hidden;
+    }
+    .progress span {
+      display: block;
+      height: 100%;
+      width: var(--progress, 0%);
+      background: var(--brand);
+    }
+    .md ul { padding-left: var(--space-4); }
+    .article-card {
+      padding: var(--space-4);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+    }
+    @media (max-width: 520px) {
+      main { padding: var(--space-2); align-items: stretch; }
+      .screen { padding: var(--space-4); border-left: 0; border-right: 0; }
+      h1 { font-size: 1.55rem; }
+      h2 { font-size: 1.25rem; }
+      .actions { flex-direction: column; }
+      button, .link-button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <main id="app"></main>
+  <script>
+    // CORE_START
+    const EMPLOYEE_SIZE_LEVELS = {
+      employee_1_9: 0,
+      employee_10_29: 1,
+      employee_30_99: 2,
+      employee_100_200: 3,
+      employee_201_plus: 4,
+    };
+
+    const COMPUTED_KEYS = [
+      "ceo_level",
+      "ceo_tool_level",
+      "agent_level",
+      "api_level",
+      "field_level",
+      "admin_level",
+      "admin_role_level",
+      "knowledge_spread_level",
+    ];
+
+    function defaultComputed() {
+      return {
+        ceo_level: 0,
+        ceo_tool_level: 0,
+        agent_level: 0,
+        api_level: 0,
+        field_level: 0,
+        admin_level: 0,
+        admin_role_level: 0,
+        knowledge_spread_level: 0,
+        employee_size_level: 0,
+        advanced_ai_usage: false,
+        e_candidate: false,
+      };
+    }
+
+    function convertEmployeeSize(employeeSize) {
+      return EMPLOYEE_SIZE_LEVELS[employeeSize] ?? 0;
+    }
+
+    function normalizeBoolean(value) {
+      if (typeof value === "boolean") return value;
+      if (typeof value === "string") return ["true", "TRUE", "1", "yes"].includes(value);
+      return Boolean(value);
+    }
+
+    function parseCondition(condition) {
+      if (!condition || condition === "{}") return {};
+      if (typeof condition === "object") return condition;
+      try {
+        return JSON.parse(condition);
+      } catch (_error) {
+        return { invalid: true };
+      }
+    }
+
+    function getPathValue(target, path) {
+      return String(path).split(".").reduce((current, key) => {
+        if (current === undefined || current === null) return undefined;
+        return current[key];
+      }, target);
+    }
+
+    function compareConditionValue(actual, expected) {
+      if (Array.isArray(expected)) return expected.includes(actual);
+      return actual === expected;
+    }
+
+    function evalCondition(conditionInput, state) {
+      const condition = parseCondition(conditionInput);
+      if (condition.invalid) return false;
+      const keys = Object.keys(condition);
+      if (keys.length === 0) return true;
+      if (Array.isArray(condition.or)) return condition.or.some((item) => evalCondition(item, state));
+      if (Array.isArray(condition.and)) return condition.and.every((item) => evalCondition(item, state));
+      return keys.every((key) => compareConditionValue(getPathValue(state, key), condition[key]));
+    }
+
+    function createInitialState(config) {
+      const answers = {};
+      (config.questions || [])
+        .filter((q) => q.page_type !== "employee")
+        .forEach((q) => { answers[q.question_id] = null; });
+      return {
+        submissionId: crypto.randomUUID(),
+        diagnosisVersion: config.diagnosis_version || "1.0.0-fallback",
+        startedAt: null,
+        company_name: "",
+        industry: "",
+        employee_size: null,
+        answers,
+        computed: defaultComputed(),
+        result: { result_code: null, headline: null, phase_name: null },
+        screen: "top",
+        currentQuestionIndex: 0,
+        resultStepIndex: 0,
+        submitStarted: false,
+        submitted: false,
+      };
+    }
+
+    function computeValues(state, config) {
+      const computed = defaultComputed();
+      computed.employee_size_level = convertEmployeeSize(state.employee_size);
+      const choices = config.choices || [];
+      Object.entries(state.answers || {}).forEach(([questionId, value]) => {
+        if (!value) return;
+        const choice = choices.find((candidate) => candidate.question_id === questionId && candidate.value === value);
+        if (!choice) return;
+        COMPUTED_KEYS.forEach((key) => {
+          const raw = choice[key];
+          if (raw !== null && raw !== undefined && raw !== "") computed[key] = Number(raw) || 0;
+        });
+      });
+      computed.advanced_ai_usage = (
+        computed.ceo_level >= 3 ||
+        computed.ceo_tool_level >= 3 ||
+        computed.agent_level >= 3 ||
+        computed.api_level >= 3 ||
+        computed.field_level >= 3
+      );
+      computed.e_candidate = isECandidate({ ...state, computed });
+      return computed;
+    }
+
+    function isECandidate(state) {
+      const c = state.computed || defaultComputed();
+      if (c.admin_level < 1) return false;
+      return (
+        c.ceo_level >= 3 ||
+        c.ceo_tool_level >= 3 ||
+        c.agent_level >= 3 ||
+        c.api_level >= 1 ||
+        c.field_level >= 3 ||
+        (c.employee_size_level >= 2 && c.admin_level >= 2)
+      );
+    }
+
+    function computeResult(state) {
+      const c = state.computed || defaultComputed();
+      const size = c.employee_size_level;
+      const ceoActive = c.ceo_level >= 1;
+      const fieldActive = c.field_level >= 1;
+      const advancedAiUsage = (
+        c.ceo_level >= 3 ||
+        c.ceo_tool_level >= 3 ||
+        c.agent_level >= 3 ||
+        c.api_level >= 3 ||
+        c.field_level >= 3
+      );
+      const adminWeak = c.admin_level === 0 || (size >= 2 && c.admin_level <= 1);
+      const resultE = (
+        advancedAiUsage &&
+        c.admin_level >= 2 &&
+        c.admin_role_level >= 3 &&
+        c.knowledge_spread_level >= 3
+      );
+      if (resultE) return "E";
+      if (fieldActive && adminWeak) return "C";
+      if ((c.admin_level >= 1 || c.admin_role_level >= 1) && (ceoActive || fieldActive)) return "D";
+      if (ceoActive && !fieldActive) return "B";
+      return "A";
+    }
+
+    function buildVisibleQuestions(state, config) {
+      const projectedState = { ...state, answers: { ...(state.answers || {}) } };
+      const visible = [];
+      (config.questions || [])
+        .filter((q) => q.page_type !== "employee")
+        .filter((q) => q.question_id && q.question_text)
+        .sort((a, b) => Number(a.order || 0) - Number(b.order || 0))
+        .forEach((question) => {
+          projectedState.computed = computeValues(projectedState, config);
+          if (evalCondition(question.display_condition_json, projectedState)) {
+            visible.push(question);
+          } else {
+            projectedState.answers[question.question_id] = null;
+          }
+        });
+      return visible;
+    }
+
+    function sanitizeHiddenAnswers(state, config) {
+      const visibleIds = new Set(buildVisibleQuestions(state, config).map((q) => q.question_id));
+      const nextAnswers = { ...state.answers };
+      Object.keys(nextAnswers).forEach((questionId) => {
+        if (!visibleIds.has(questionId)) nextAnswers[questionId] = null;
+      });
+      const nextState = { ...state, answers: nextAnswers };
+      nextState.computed = computeValues(nextState, config);
+      return nextState;
+    }
+
+    function buildResultSteps(resultCode, config, state) {
+      return (config.result_steps || [])
+        .filter((step) => step.result_code === resultCode || step.result_code === "*")
+        .filter((step) => normalizeBoolean(step.enabled) !== false)
+        .filter((step) => evalCondition(step.display_condition_json, state))
+        .filter((step) => step.type === "text" || (step.type === "article" && step.url))
+        .sort((a, b) => Number(a.step_order || 0) - Number(b.step_order || 0));
+    }
+
+    if (typeof window !== "undefined") {
+      window.AIKeieiCore = {
+        convertEmployeeSize,
+        computeValues,
+        computeResult,
+        isECandidate,
+        buildVisibleQuestions,
+        sanitizeHiddenAnswers,
+        buildResultSteps,
+        evalCondition,
+        createInitialState,
+        defaultComputed,
+      };
+    }
+    // CORE_END
+
+    const WEBAPP_URL = "";
+    const PENDING_STORAGE_KEY = "ai_keiei_shindan_pending_submissions";
+    const SESSION_KEY = "ai_keiei_shindan_session";
+    const FALLBACK_CONFIG = {
+      diagnosis_version: "1.0.0-fallback",
+      app_config: {
+        app_title: "AI経営実装度診断",
+        top_subtitle: "診断データの確定後に利用できます。",
+        top_disclaimer: "質問・選択肢・結果文言は正本仕様確認後に反映します。",
+        start_button_label: "診断を開始する",
+        result_intro_headline: "診断結果がまとまりました。",
+        result_intro_sub: "このあと、現在地と次に決めることを表示します。",
+        result_reveal_button_label: "結果を見る",
+        result_finish_label: "診断結果を確認しました",
+      },
+      questions: [
+        { question_id: "q1", page_type: "diagnosis", question_text: "", description: "", is_required: true, display_condition_json: "{}", order: 1 },
+      ],
+      choices: [],
+      results: [
+        { result_code: "A", phase_name: "", headline: "" },
+        { result_code: "B", phase_name: "", headline: "" },
+        { result_code: "C", phase_name: "", headline: "" },
+        { result_code: "D", phase_name: "", headline: "" },
+        { result_code: "E", phase_name: "", headline: "" },
+      ],
+      result_steps: [],
+    };
+
+    const app = document.getElementById("app");
+    let config = FALLBACK_CONFIG;
+    let state = restoreState() || createInitialState(config);
+    let configSource = "fallback";
+
+    function cfg(key, fallback = "") {
+      return config.app_config?.[key] || fallback;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function renderMarkdown(markdown) {
+      const lines = String(markdown || "").split(/\r?\n/);
+      let html = "";
+      let inList = false;
+      lines.forEach((line) => {
+        const text = line.trim();
+        if (!text) {
+          if (inList) { html += "</ul>"; inList = false; }
+          return;
+        }
+        if (text.startsWith("- ") || text.startsWith("* ")) {
+          if (!inList) { html += "<ul>"; inList = true; }
+          html += `<li>${escapeHtml(text.slice(2)).replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")}</li>`;
+          return;
+        }
+        if (inList) { html += "</ul>"; inList = false; }
+        const strong = escapeHtml(text).replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+        html += `<p>${strong}</p>`;
+      });
+      if (inList) html += "</ul>";
+      return `<div class="md">${html}</div>`;
+    }
+
+    function hasUsableConfig() {
+      const visible = buildVisibleQuestions(state, config);
+      return visible.length > 0 && (config.choices || []).some((choice) => choice.question_id === visible[0].question_id);
+    }
+
+    function saveState() {
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify(state));
+    }
+
+    function restoreState() {
+      try {
+        const raw = sessionStorage.getItem(SESSION_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch (_error) {
+        return null;
+      }
+    }
+
+    function clearState() {
+      sessionStorage.removeItem(SESSION_KEY);
+      state = createInitialState(config);
+      render();
+    }
+
+    function setState(nextState) {
+      state = { ...nextState, computed: computeValues(nextState, config) };
+      saveState();
+      render();
+    }
+
+    async function loadConfig() {
+      if (!WEBAPP_URL) {
+        render();
+        return;
+      }
+      try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 5000);
+        const response = await fetch(`${WEBAPP_URL}?action=config`, { signal: controller.signal });
+        clearTimeout(timer);
+        if (!response.ok) throw new Error("config response was not ok");
+        const loaded = await response.json();
+        config = loaded;
+        configSource = "remote";
+        state = { ...state, diagnosisVersion: loaded.diagnosis_version || state.diagnosisVersion };
+        state.computed = computeValues(state, config);
+        await retryPendingSubmissions();
+        render();
+      } catch (_error) {
+        config = { ...FALLBACK_CONFIG, diagnosis_version: `${FALLBACK_CONFIG.diagnosis_version}` };
+        configSource = "fallback";
+        render();
+      }
+    }
+
+    function startDiagnosis() {
+      if (!state.company_name.trim() || !hasUsableConfig()) return;
+      setState({
+        ...state,
+        startedAt: new Date().toISOString(),
+        screen: "employee",
+        currentQuestionIndex: 0,
+      });
+    }
+
+    function answerQuestion(questionId, value) {
+      const next = sanitizeHiddenAnswers({
+        ...state,
+        answers: { ...state.answers, [questionId]: value },
+      }, config);
+      setState(next);
+    }
+
+    function goNextQuestion() {
+      const visible = buildVisibleQuestions(state, config);
+      if (state.currentQuestionIndex < visible.length - 1) {
+        setState({ ...state, currentQuestionIndex: state.currentQuestionIndex + 1 });
+        return;
+      }
+      const resultCode = computeResult(state);
+      const resultMeta = (config.results || []).find((result) => result.result_code === resultCode) || {};
+      const nextState = {
+        ...state,
+        result: {
+          result_code: resultCode,
+          headline: resultMeta.headline || "",
+          phase_name: resultMeta.phase_name || "",
+        },
+        screen: "result_intro",
+        resultStepIndex: 0,
+      };
+      state = nextState;
+      saveState();
+      void submitResult(nextState);
+      render();
+    }
+
+    function goBack() {
+      if (state.screen === "employee") setState({ ...state, screen: "top" });
+      else if (state.screen === "question" && state.currentQuestionIndex === 0) setState({ ...state, screen: "employee" });
+      else if (state.screen === "question") setState({ ...state, currentQuestionIndex: state.currentQuestionIndex - 1 });
+      else if (state.screen === "result_intro") setState({ ...state, screen: "question" });
+    }
+
+    function buildPayload(submitState) {
+      return {
+        action: "submit",
+        submission_id: submitState.submissionId,
+        diagnosis_version: submitState.diagnosisVersion,
+        timestamp: new Date().toISOString(),
+        company_name: submitState.company_name,
+        industry: submitState.industry,
+        employee_size: submitState.employee_size,
+        answers: submitState.answers,
+        computed: submitState.computed,
+        result: submitState.result,
+        meta: { device_type: inferDeviceType(), user_agent: navigator.userAgent },
+      };
+    }
+
+    function inferDeviceType() {
+      const width = window.innerWidth;
+      if (width < 640) return "mobile";
+      if (width < 1024) return "tablet";
+      return "desktop";
+    }
+
+    async function submitResult(submitState) {
+      if (submitState.submitStarted) return;
+      state = { ...submitState, submitStarted: true };
+      saveState();
+      const payload = buildPayload(state);
+      if (!WEBAPP_URL) {
+        storePending(payload);
+        return;
+      }
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        try {
+          const response = await fetch(WEBAPP_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify(payload),
+          });
+          const result = await response.json();
+          if (response.ok && result.ok) {
+            state = { ...state, submitted: true };
+            saveState();
+            return;
+          }
+        } catch (_error) {
+          await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)));
+        }
+      }
+      storePending(payload);
+    }
+
+    function storePending(payload) {
+      const current = JSON.parse(localStorage.getItem(PENDING_STORAGE_KEY) || "[]");
+      if (!current.some((item) => item.submission_id === payload.submission_id)) {
+        current.push(payload);
+        localStorage.setItem(PENDING_STORAGE_KEY, JSON.stringify(current));
+      }
+    }
+
+    async function retryPendingSubmissions() {
+      if (!WEBAPP_URL) return;
+      const pending = JSON.parse(localStorage.getItem(PENDING_STORAGE_KEY) || "[]");
+      const remaining = [];
+      for (const payload of pending) {
+        try {
+          const response = await fetch(WEBAPP_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify(payload),
+          });
+          const result = await response.json();
+          if (!response.ok || !result.ok) remaining.push(payload);
+        } catch (_error) {
+          remaining.push(payload);
+        }
+      }
+      localStorage.setItem(PENDING_STORAGE_KEY, JSON.stringify(remaining));
+    }
+
+    function render() {
+      if (state.screen === "top") renderTop();
+      if (state.screen === "employee") renderEmployee();
+      if (state.screen === "question") renderQuestion();
+      if (state.screen === "result_intro") renderResultIntro();
+      if (state.screen === "result_step") renderResultStep();
+    }
+
+    function renderTop() {
+      const blocked = !hasUsableConfig();
+      app.innerHTML = `
+        <section class="screen">
+          <p class="eyebrow">${escapeHtml(configSource === "remote" ? "ready" : "draft")}</p>
+          <h1>${escapeHtml(cfg("app_title", "AI経営実装度診断"))}</h1>
+          <p>${escapeHtml(cfg("top_subtitle", ""))}</p>
+          ${blocked ? `<div class="notice">質問・選択肢・結果文言の正本データが未投入です。Claude確認後にスプレッドシートを埋めると、この画面から診断を開始できます。</div>` : ""}
+          <label for="company">会社名 <span class="error">*</span></label>
+          <input id="company" value="${escapeHtml(state.company_name)}" autocomplete="organization">
+          <label for="industry">業種</label>
+          <input id="industry" value="${escapeHtml(state.industry)}">
+          <p class="notice">${escapeHtml(cfg("top_disclaimer", ""))}</p>
+          <div class="actions">
+            <button id="start" ${blocked || !state.company_name.trim() ? "disabled" : ""}>${escapeHtml(cfg("start_button_label", "診断を開始する"))}</button>
+          </div>
+        </section>
+      `;
+      document.getElementById("company").addEventListener("input", (event) => {
+        state.company_name = event.target.value;
+        saveState();
+        document.getElementById("start").disabled = blocked || !state.company_name.trim();
+      });
+      document.getElementById("industry").addEventListener("input", (event) => {
+        state.industry = event.target.value;
+        saveState();
+      });
+      document.getElementById("start").addEventListener("click", startDiagnosis);
+    }
+
+    function renderEmployee() {
+      const choices = [
+        ["employee_1_9", "1〜9人"],
+        ["employee_10_29", "10〜29人"],
+        ["employee_30_99", "30〜99人"],
+        ["employee_100_200", "100〜200人"],
+        ["employee_201_plus", "201人以上"],
+      ];
+      app.innerHTML = `
+        <section class="screen">
+          <p class="eyebrow">従業員規模</p>
+          <h2>従業員規模を選択してください</h2>
+          <div class="choice-list">
+            ${choices.map(([value, label]) => `<button class="choice ${state.employee_size === value ? "is-selected" : ""}" data-size="${value}">${label}</button>`).join("")}
+          </div>
+          <div class="actions">
+            <button class="secondary" id="back">戻る</button>
+            <button id="next" ${state.employee_size ? "" : "disabled"}>次へ</button>
+          </div>
+        </section>
+      `;
+      document.querySelectorAll("[data-size]").forEach((button) => {
+        button.addEventListener("click", () => {
+          setState({ ...state, employee_size: button.dataset.size, screen: "employee" });
+        });
+      });
+      document.getElementById("back").addEventListener("click", goBack);
+      document.getElementById("next").addEventListener("click", () => setState({ ...state, screen: "question", currentQuestionIndex: 0 }));
+    }
+
+    function renderQuestion() {
+      const visible = buildVisibleQuestions(state, config);
+      const question = visible[state.currentQuestionIndex];
+      if (!question) {
+        app.innerHTML = `<section class="screen"><div class="notice">表示できる質問がありません。スプレッドシートの質問データ確認が必要です。</div></section>`;
+        return;
+      }
+      const choices = (config.choices || [])
+        .filter((choice) => choice.question_id === question.question_id)
+        .sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
+      const selected = state.answers[question.question_id];
+      const progress = Math.round(((state.currentQuestionIndex + 1) / visible.length) * 100);
+      app.innerHTML = `
+        <section class="screen">
+          <div class="progress" aria-hidden="true"><span style="--progress:${progress}%"></span></div>
+          <p class="eyebrow">質問 ${state.currentQuestionIndex + 1} / ${visible.length}</p>
+          <h2>${escapeHtml(question.question_text)}</h2>
+          ${question.description ? `<p>${escapeHtml(question.description)}</p>` : ""}
+          <div class="choice-list">
+            ${choices.map((choice) => `<button class="choice ${selected === choice.value ? "is-selected" : ""}" data-choice="${escapeHtml(choice.value)}">${escapeHtml(choice.label)}</button>`).join("")}
+          </div>
+          <div class="actions">
+            <button class="secondary" id="back">戻る</button>
+            <button id="next" ${selected ? "" : "disabled"}>次へ</button>
+          </div>
+        </section>
+      `;
+      document.querySelectorAll("[data-choice]").forEach((button) => {
+        button.addEventListener("click", () => answerQuestion(question.question_id, button.dataset.choice));
+      });
+      document.getElementById("back").addEventListener("click", goBack);
+      document.getElementById("next").addEventListener("click", goNextQuestion);
+    }
+
+    function renderResultIntro() {
+      app.innerHTML = `
+        <section class="screen">
+          <p class="eyebrow">${escapeHtml(state.company_name)} さまの結果</p>
+          <h2>${escapeHtml(cfg("result_intro_headline", "診断結果がまとまりました。"))}</h2>
+          <p>${escapeHtml(cfg("result_intro_sub", "このあと、現在地と次に決めることを表示します。"))}</p>
+          <div class="actions">
+            <button class="secondary" id="back">戻る</button>
+            <button id="reveal">${escapeHtml(cfg("result_reveal_button_label", "結果を見る"))}</button>
+          </div>
+        </section>
+      `;
+      document.getElementById("back").addEventListener("click", goBack);
+      document.getElementById("reveal").addEventListener("click", () => setState({ ...state, screen: "result_step", resultStepIndex: 0 }));
+    }
+
+    function renderResultStep() {
+      const steps = buildResultSteps(state.result.result_code, config, state);
+      const step = steps[state.resultStepIndex];
+      if (!step) {
+        app.innerHTML = `
+          <section class="screen">
+            <p class="eyebrow">結果 ${escapeHtml(state.result.result_code || "")}</p>
+            <h2>${escapeHtml(state.result.headline || "結果ステップの確認が必要です")}</h2>
+            <div class="notice">result_steps に表示可能なステップがありません。</div>
+            <div class="actions"><button id="finish">${escapeHtml(cfg("result_finish_label", "診断結果を確認しました"))}</button></div>
+          </section>
+        `;
+        document.getElementById("finish").addEventListener("click", clearState);
+        return;
+      }
+      const isLast = state.resultStepIndex >= steps.length - 1;
+      const body = step.type === "article" ? renderArticle(step) : renderMarkdown(step.body_md);
+      app.innerHTML = `
+        <section class="screen">
+          <div class="progress" aria-hidden="true"><span style="--progress:${Math.round(((state.resultStepIndex + 1) / steps.length) * 100)}%"></span></div>
+          <p class="eyebrow">結果 ${state.resultStepIndex + 1} / ${steps.length}</p>
+          <h2>${escapeHtml(step.headline || state.result.headline || "")}</h2>
+          ${body}
+          <div class="actions">
+            <button id="next">${escapeHtml(isLast ? cfg("result_finish_label", "診断結果を確認しました") : (step.next_label || "次へ"))}</button>
+          </div>
+        </section>
+      `;
+      document.getElementById("next").addEventListener("click", () => {
+        if (isLast) clearState();
+        else setState({ ...state, resultStepIndex: state.resultStepIndex + 1 });
+      });
+    }
+
+    function renderArticle(step) {
+      return `
+        <div class="article-card">
+          ${step.body_md ? renderMarkdown(step.body_md) : ""}
+          <a class="link-button" href="${escapeHtml(step.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(step.link_label || "記事を読む")}</a>
+        </div>
+      `;
+    }
+
+    loadConfig();
+  </script>
+</body>
+</html>

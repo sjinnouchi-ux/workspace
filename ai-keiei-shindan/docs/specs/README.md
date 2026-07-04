@@ -11,6 +11,8 @@
 
 ## Implementation Gate
 
-Do not implement the spreadsheet initializer, GAS, frontend, or fallback config until `ai_keiei_shindan_app_spec.md` is available. The kickoff prompt says this logic spec is canonical for questions, choices, result judgement, and result copy.
+Do not fill canonical question, choice, result, or result-step copy until `ai_keiei_shindan_app_spec.md` is available. The kickoff prompt says this logic spec is canonical for questions, choices, result judgement, and result copy.
 
 The spreadsheet already exists, but it currently contains only headers, implementation placeholders, and source-status flags.
+
+On 2026-07-04, the user asked Codex to continue implementation until Claude confirmation is required. Based on that instruction, structural code may proceed, but canonical content remains blocked.

@@ -4,14 +4,14 @@
 
 ## Current State
 
-Project Git shell is ready. Implementation has not started.
+Project Git shell is ready. A structural implementation has started.
 
 Before implementation, read both canonical specs:
 
 1. `ai_keiei_shindan_app_spec.md`
 2. `ai_keiei_shindan_web_impl_spec.md`
 
-The web implementation spec v0.4 has been found. The logic spec is still pending confirmation.
+The web implementation spec v0.4 has been found. The logic spec is still pending confirmation, so current code intentionally avoids final question, choice, and result copy.
 
 ## Planned Structure
 
@@ -24,6 +24,13 @@ ai-keiei-shindan/
 ├─ docs/
 │  ├─ specs/
 │  └─ SETUP.md
+├─ tests/
+│  └─ logic.test.js
 └─ README.md
 ```
 
+## Local Verification
+
+```powershell
+node tests/logic.test.js
+```

@@ -54,3 +54,51 @@ Verification:
 Important limitation:
 
 - This is a shell with headers/placeholders only. Question text, choices, result metadata, and result-step copy remain pending until `ai_keiei_shindan_app_spec.md` is available or the user confirms an alternate source.
+
+## 2026-07-04 Structural implementation until Claude confirmation
+
+User instruction:
+
+- Continue implementation until Claude confirmation is required.
+
+Implemented:
+
+- `index.html`
+  - Single-file HTML/CSS/Vanilla JS frontend.
+  - `:root` design-token block.
+  - Top, employee-size, question, result-intro, and result-step screens.
+  - Config fetch with fallback behavior.
+  - Session state and pending submission retry storage.
+  - `text` result steps and external-link `article` result steps.
+  - Unknown step types are skipped.
+  - URL-less article steps are skipped.
+- `gas/Code.gs`
+  - `doGet` config response for `app_config`, `questions`, `choices`, `results`, and `result_steps`.
+  - `doPost` submission save.
+  - `submission_id` idempotence.
+  - `text/plain` POST body parsing.
+  - Config cache and cache-clear helper.
+- `gas/appsscript.json`
+  - V8 runtime and `Asia/Tokyo`.
+- `tests/logic.test.js`
+  - Tests for `convertEmployeeSize`, `isECandidate`, `computeResult`, branch reset, and result-step filtering.
+- `docs/SETUP.md`
+  - Spreadsheet, GAS, frontend, GitHub Pages, and article-step operational notes.
+- `docs/QUESTIONS_FOR_CLAUDE.md`
+  - Blocking confirmation items.
+
+Verification:
+
+- `node tests/logic.test.js` passed.
+- Full `index.html` script block compiled with Node `vm.Script`.
+- Color-code scan found hex values only in the `:root` token block; one additional match was HTML entity `&#039;`.
+
+Verification not completed:
+
+- Browser screenshot/visual QA was attempted with Playwright, but the local Playwright browser executable was not installed (`chromium_headless_shell` missing). No rendered screenshot was claimed.
+
+Stop point / Claude confirmation required:
+
+- Need canonical `ai_keiei_shindan_app_spec.md` location or content before filling final spreadsheet master data.
+- Need Claude/user confirmation before GAS deploy and GitHub Pages publication.
+- Need GAS Web App `/exec` URL before setting `WEBAPP_URL` in `index.html`.
