@@ -27,11 +27,11 @@ Last updated: 2026-07-04
 
 Project shell was created in Git on 2026-07-04.
 
-Implementation has not started because the kickoff document requires reading two canonical specs first. The web implementation spec v0.4 was found and reviewed. The logic spec `ai_keiei_shindan_app_spec.md` has not yet been found in Google Drive search results in this run.
+A new Google Sheets master/log spreadsheet was created on 2026-07-04 with the required tabs and placeholder headers. Initial question, choice, result, and result copy data has not been filled because the kickoff document requires the logic spec as canonical source first. The web implementation spec v0.4 was found and reviewed. The logic spec `ai_keiei_shindan_app_spec.md` has not yet been found in Google Drive search results in this run.
 
 ## Source Links
 
 - Kickoff prompt: https://docs.google.com/document/d/1307NeoqwpP1ANBMXgPAh7MphBp4NyiIllLARX3kW8GA
 - Web implementation spec v0.4: https://docs.google.com/document/d/1i0jF9gtzALP2Eyvsyd-JrXN-87_tq3YwV7Q8J6WF_4k
 - Logic spec: pending confirmation of `ai_keiei_shindan_app_spec.md`
-
+- Google Sheets master/log spreadsheet: https://docs.google.com/spreadsheets/d/1wYT01OGL1-lKzzytLDJi8QIVimq61aVFrS88RIiCR0I
