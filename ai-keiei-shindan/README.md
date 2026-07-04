@@ -11,7 +11,9 @@ Before implementation, read both canonical specs:
 1. `ai_keiei_shindan_app_spec.md`
 2. `ai_keiei_shindan_web_impl_spec.md`
 
-The web implementation spec v0.4 has been found. The logic spec is still pending confirmation, so current code intentionally avoids final question, choice, and result copy.
+The web implementation spec v0.4 has been found. Claude's review answer is recorded in `docs/ANSWERS_FROM_CLAUDE.md`.
+
+Current blocker: `config.seed.json` and `docs/ai_keiei_shindan_app_spec.md` are referenced by Claude as canonical files, but they are not present in the GitHub branch or current Drive search results yet. Spreadsheet master data must not be inferred without `config.seed.json`.
 
 ## Planned Structure
 

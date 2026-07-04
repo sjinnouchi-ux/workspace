@@ -62,10 +62,10 @@ const branchConfig = {
     { question_id: "q1", page_type: "diagnosis", question_text: "q1", display_condition_json: "{}", order: 1 },
     { question_id: "q2", page_type: "diagnosis", question_text: "q2", display_condition_json: { "answers.q1": ["ceo_light", "ceo_daily", "ceo_agent"] }, order: 2 },
     { question_id: "q3", page_type: "diagnosis", question_text: "q3", display_condition_json: { "answers.q2": "ceo_tool_chat" }, order: 3 },
-    { question_id: "q3b", page_type: "diagnosis", question_text: "q3b", display_condition_json: { or: [{ "answers.q2": ["ceo_tool_agent", "ceo_tool_api", "ceo_tool_mix"] }, { "answers.q3": ["agent_work", "agent_api"] }] }, order: 4 },
+    { question_id: "q3b", page_type: "diagnosis", question_text: "q3b", display_condition_json: { $or: [{ q2: ["ceo_tool_agent", "ceo_tool_api", "ceo_tool_mix"] }, { q3: ["agent_work", "agent_api"] }] }, order: 4 },
     { question_id: "q4", page_type: "diagnosis", question_text: "q4", display_condition_json: "{}", order: 5 },
     { question_id: "q5", page_type: "diagnosis", question_text: "q5", display_condition_json: "{}", order: 6 },
-    { question_id: "q6", page_type: "diagnosis", question_text: "q6", display_condition_json: { "computed.e_candidate": true }, order: 7 },
+    { question_id: "q6", page_type: "diagnosis", question_text: "q6", display_condition_json: { e_candidate: true }, order: 7 },
   ],
 };
 
@@ -75,6 +75,16 @@ let state = {
   computed: core.defaultComputed(),
 };
 assert.deepEqual(core.buildVisibleQuestions(state, branchConfig).map((q) => q.question_id), ["q1", "q2", "q3b", "q4", "q5"]);
+
+state = {
+  ...state,
+  answers: { ...state.answers, q5: "admin_personal" },
+};
+const eCandidateConfig = {
+  ...branchConfig,
+  choices: [...branchConfig.choices, { question_id: "q5", value: "admin_personal", admin_level: 1 }],
+};
+assert.deepEqual(core.buildVisibleQuestions(state, eCandidateConfig).map((q) => q.question_id), ["q1", "q2", "q3b", "q4", "q5", "q6"]);
 
 state = {
   ...state,

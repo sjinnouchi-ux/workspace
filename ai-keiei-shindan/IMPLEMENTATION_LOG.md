@@ -102,3 +102,29 @@ Stop point / Claude confirmation required:
 - Need canonical `ai_keiei_shindan_app_spec.md` location or content before filling final spreadsheet master data.
 - Need Claude/user confirmation before GAS deploy and GitHub Pages publication.
 - Need GAS Web App `/exec` URL before setting `WEBAPP_URL` in `index.html`.
+
+## 2026-07-05 Claude review follow-up
+
+User instruction:
+
+- Claude responded that all blockers are resolved and instructed implementation to continue with `config.seed.json`.
+
+Confirmed from available sources:
+
+- Found Drive document `ANSWERS_FROM_CLAUDE.md`: https://docs.google.com/document/d/1G-4NcdUwYCbCcTNbGEeXmwEoOJ9WaT4gI9agMJUzWdY
+- GitHub branch `codex/ai-keiei-shindan-setup` was up to date at commit `ed1f135`.
+- The branch did not contain `config.seed.json`, `docs/ai_keiei_shindan_app_spec.md`, or `docs/ANSWERS_FROM_CLAUDE.md` before this follow-up.
+- Local filesystem and Google Drive searches did not find `config.seed.json` or `ai_keiei_shindan_app_spec.md`.
+
+Implemented from Claude's confirmed answer:
+
+- Added frontend support for canonical display conditions using `$or`, `$and`, bare answer keys such as `q2`, and computed flag key `e_candidate`.
+- Added tests for `$or` and `e_candidate` display conditions.
+- Added GAS `seedSheetsFromJson(jsonText, preserveSubmissions)` and `seedSheetsFromScriptProperty()` helpers so `config.seed.json` can reproducibly seed the spreadsheet once available.
+- Updated GAS submission saving to populate the fixed Claude-confirmed `submissions` header order while keeping backward-compatible values for older placeholder headers if present.
+- Added `docs/ANSWERS_FROM_CLAUDE.md` as a source pointer and implementation summary.
+
+Still blocked:
+
+- Spreadsheet master data cannot be filled until the actual `config.seed.json` body is available.
+- GAS deploy and GitHub Pages publish are intentionally not performed before canonical seeding and `/config` verification.

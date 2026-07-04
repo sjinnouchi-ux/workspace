@@ -1,6 +1,6 @@
 # SETUP
 
-Last updated: 2026-07-04
+Last updated: 2026-07-05
 
 ## Current Deployment State
 
@@ -8,7 +8,7 @@ Last updated: 2026-07-04
 - Frontend and GAS code are prepared in Git.
 - GAS has not been pushed or deployed.
 - GitHub Pages has not been published.
-- Question, choice, result, and result-step master data is not final because `ai_keiei_shindan_app_spec.md` is still pending.
+- Question, choice, result, and result-step master data is not final because the `config.seed.json` body is still pending.
 
 ## Google Sheets
 
@@ -28,7 +28,26 @@ Tabs:
 - `submissions`
 - `_README`
 
-Do not treat placeholder rows as final content. Fill the master data from `ai_keiei_shindan_app_spec.md` after Claude confirms the canonical source.
+Do not treat placeholder rows as final content. Fill the master data from `config.seed.json` after the actual JSON body is available.
+
+## Seeding From `config.seed.json`
+
+GAS includes two reproducible seed helpers:
+
+- `seedSheetsFromJson(jsonText, preserveSubmissions)`
+- `seedSheetsFromScriptProperty()`
+
+Recommended flow after `config.seed.json` is available:
+
+1. Paste the JSON body into Apps Script project property `CONFIG_SEED_JSON`.
+2. Run `seedSheetsFromScriptProperty()`.
+3. Confirm returned counts:
+   - `questions: 9`
+   - `choices: 37`
+   - `results: 5`
+   - `result_steps: 20`
+4. Confirm the spreadsheet tabs have the same data-row counts.
+5. Clear or avoid storing the JSON anywhere secret-bearing. The seed is content data, not credentials, but the GitHub copy should still be the durable source.
 
 ## GAS
 
@@ -83,7 +102,7 @@ https://sjinnouchi-ux.github.io/workspace/ai-keiei-shindan/
 
 Publish only after:
 
-- Claude confirms the logic spec source.
+- `config.seed.json` is present in GitHub and used to seed the spreadsheet.
 - Spreadsheet master data is filled.
 - GAS Web App is deployed.
 - Frontend has the GAS `/exec` URL.
@@ -98,4 +117,3 @@ Publish only after:
 - Use `url` for the external article URL.
 - Use `link_label`, or leave it blank to show the default article button text.
 - Do not use booking pages, price pages, inquiry forms, or email capture pages as article URLs.
-

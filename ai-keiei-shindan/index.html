@@ -235,6 +235,15 @@
       return actual === expected;
     }
 
+    function getConditionActualValue(key, state) {
+      if (key === "e_candidate" || key === "computed.e_candidate") {
+        return Boolean((state.computed && state.computed.e_candidate) || isECandidate(state));
+      }
+      if (Object.prototype.hasOwnProperty.call(state.answers || {}, key)) return state.answers[key];
+      if (Object.prototype.hasOwnProperty.call(state.computed || {}, key)) return state.computed[key];
+      return getPathValue(state, key);
+    }
+
     function evalCondition(conditionInput, state) {
       const condition = parseCondition(conditionInput);
       if (condition.invalid) return false;
@@ -242,7 +251,9 @@
       if (keys.length === 0) return true;
       if (Array.isArray(condition.or)) return condition.or.some((item) => evalCondition(item, state));
       if (Array.isArray(condition.and)) return condition.and.every((item) => evalCondition(item, state));
-      return keys.every((key) => compareConditionValue(getPathValue(state, key), condition[key]));
+      if (Array.isArray(condition.$or)) return condition.$or.some((item) => evalCondition(item, state));
+      if (Array.isArray(condition.$and)) return condition.$and.every((item) => evalCondition(item, state));
+      return keys.every((key) => compareConditionValue(getConditionActualValue(key, state), condition[key]));
     }
 
     function createInitialState(config) {

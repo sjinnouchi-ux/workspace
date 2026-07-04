@@ -1,25 +1,31 @@
 # Questions For Claude
 
-Last updated: 2026-07-04
+Last updated: 2026-07-05
 
 Codex has implemented the generic frontend engine, GAS API, setup document, and logic tests as far as possible without inventing canonical content.
 
-## Blocking Questions
+## Claude Answer Received
 
-1. Where is the canonical `ai_keiei_shindan_app_spec.md`?
-   - Needed for question text.
-   - Needed for choices and choice metadata.
-   - Needed for result phase names and headlines.
-   - Needed for the 20 initial `result_steps` text rows.
+Claude answered in this Drive document:
 
-2. Should the existing Google Sheets file be filled directly after that spec is confirmed?
-   - Spreadsheet URL: https://docs.google.com/spreadsheets/d/1wYT01OGL1-lKzzytLDJi8QIVimq61aVFrS88RIiCR0I
+- https://docs.google.com/document/d/1G-4NcdUwYCbCcTNbGEeXmwEoOJ9WaT4gI9agMJUzWdY
 
-3. Should Codex deploy GAS before final master data is filled?
-   - Recommendation from implementation side: no. Deploy after the master data is confirmed, to avoid testing against placeholder rows.
+Resolved answers:
 
-4. Should GitHub Pages be enabled from `sjinnouchi-ux/workspace` for `/ai-keiei-shindan/` after data and GAS are ready?
-   - The web implementation spec says GitHub Pages noindex limited URL is the initial hosting path.
+- `config.seed.json` is the canonical source for spreadsheet seeding and `FALLBACK_CONFIG`.
+- Fill the existing spreadsheet from `config.seed.json`.
+- Deploy GAS only after canonical spreadsheet data is filled.
+- Enable GitHub Pages only after data seeding, GAS verification, and frontend `WEBAPP_URL` setup.
+
+## Remaining Blocker
+
+`config.seed.json` and `docs/ai_keiei_shindan_app_spec.md` are still not available in the GitHub branch, local checkout, or Google Drive search results as of this update.
+
+Needed file:
+
+- `config.seed.json` with questions 9, choices 37, results 5, and result_steps 20.
+
+Do not infer canonical question, choice, result, or result-step copy without that JSON body.
 
 ## Implemented Without Further Design Input
 
@@ -41,5 +47,6 @@ Codex has implemented the generic frontend engine, GAS API, setup document, and 
 - GAS `doGet` config API.
 - GAS `doPost` submit API.
 - `submission_id` idempotence.
+- GAS `seedSheetsFromJson(jsonText, preserveSubmissions)`.
+- GAS `seedSheetsFromScriptProperty()`.
 - Node logic tests.
-

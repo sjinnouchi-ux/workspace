@@ -10,6 +10,22 @@ const SHEETS = {
   submissions: 'submissions',
 };
 
+const SHEET_HEADERS = {
+  app_config: ['key', 'value', 'notes'],
+  questions: ['question_id', 'page_type', 'question_text', 'description', 'is_required', 'display_condition_json', 'order'],
+  choices: ['question_id', 'value', 'label', 'ceo_level', 'ceo_tool_level', 'agent_level', 'api_level', 'field_level', 'admin_level', 'admin_role_level', 'knowledge_spread_level', 'order'],
+  results: ['result_code', 'phase_name', 'headline'],
+  result_steps: ['result_code', 'step_order', 'type', 'headline', 'body_md', 'url', 'link_label', 'next_label', 'display_condition_json', 'enabled'],
+  submissions: [
+    'timestamp', 'submission_id', 'diagnosis_version', 'company_name', 'industry', 'employee_size',
+    'q1_value', 'q2_value', 'q3_value', 'q3b_value', 'q4_value', 'q5_value', 'q6_value', 'q7_value',
+    'ceo_level', 'ceo_tool_level', 'agent_level', 'api_level', 'field_level', 'admin_level',
+    'admin_role_level', 'knowledge_spread_level', 'advanced_ai_usage',
+    'result_code', 'result_headline', 'result_phase', 'raw_payload_json',
+    'device_type', 'user_agent',
+  ],
+};
+
 function doGet(e) {
   const action = (e && e.parameter && e.parameter.action) || 'config';
   if (action !== 'config') return jsonOutput({ ok: false, error: 'unknown_action' });
@@ -67,19 +83,38 @@ function saveSubmission(payload) {
       }
     }
     const rowObject = {
+      timestamp: payload.timestamp || new Date().toISOString(),
       submission_id: payload.submission_id,
       diagnosis_version: payload.diagnosis_version || '',
-      timestamp: payload.timestamp || new Date().toISOString(),
       company_name: payload.company_name || '',
       industry: payload.industry || '',
       employee_size: payload.employee_size || '',
+      q1_value: payload.answers && payload.answers.q1 || '',
+      q2_value: payload.answers && payload.answers.q2 || '',
+      q3_value: payload.answers && payload.answers.q3 || '',
+      q3b_value: payload.answers && payload.answers.q3b || '',
+      q4_value: payload.answers && payload.answers.q4 || '',
+      q5_value: payload.answers && payload.answers.q5 || '',
+      q6_value: payload.answers && payload.answers.q6 || '',
+      q7_value: payload.answers && payload.answers.q7 || '',
+      ceo_level: payload.computed && payload.computed.ceo_level || 0,
+      ceo_tool_level: payload.computed && payload.computed.ceo_tool_level || 0,
+      agent_level: payload.computed && payload.computed.agent_level || 0,
+      api_level: payload.computed && payload.computed.api_level || 0,
+      field_level: payload.computed && payload.computed.field_level || 0,
+      admin_level: payload.computed && payload.computed.admin_level || 0,
+      admin_role_level: payload.computed && payload.computed.admin_role_level || 0,
+      knowledge_spread_level: payload.computed && payload.computed.knowledge_spread_level || 0,
+      advanced_ai_usage: payload.computed && payload.computed.advanced_ai_usage || false,
+      result_code: payload.result && payload.result.result_code || '',
+      result_headline: payload.result && payload.result.headline || '',
+      result_phase: payload.result && (payload.result.phase_name || payload.result.phase) || '',
+      raw_payload_json: JSON.stringify(payload),
+      device_type: payload.meta && payload.meta.device_type || '',
+      user_agent: payload.meta && payload.meta.user_agent || '',
       answers_json: JSON.stringify(payload.answers || {}),
       computed_json: JSON.stringify(payload.computed || {}),
-      result_code: payload.result && payload.result.result_code || '',
-      result_phase: payload.result && (payload.result.phase_name || payload.result.phase) || '',
-      result_headline: payload.result && payload.result.headline || '',
       config_source: payload.config_source || '',
-      user_agent: payload.meta && payload.meta.user_agent || '',
       created_at: new Date().toISOString(),
     };
     sheet.appendRow(headers.map(header => rowObject[header] !== undefined ? rowObject[header] : ''));
@@ -87,6 +122,40 @@ function saveSubmission(payload) {
   } finally {
     lock.releaseLock();
   }
+}
+
+function seedSheetsFromJson(jsonText, preserveSubmissions) {
+  const seed = typeof jsonText === 'string' ? JSON.parse(jsonText) : jsonText;
+  if (!seed) throw new Error('seed is required');
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const keepSubmissions = preserveSubmissions !== false;
+
+  writeSheet_(ss, SHEETS.appConfig, SHEET_HEADERS.app_config, buildAppConfigRows_(seed));
+  writeSheet_(ss, SHEETS.questions, SHEET_HEADERS.questions, objectRows_(seed.questions || [], SHEET_HEADERS.questions));
+  writeSheet_(ss, SHEETS.choices, SHEET_HEADERS.choices, objectRows_(seed.choices || [], SHEET_HEADERS.choices));
+  writeSheet_(ss, SHEETS.results, SHEET_HEADERS.results, objectRows_(seed.results || [], SHEET_HEADERS.results));
+  writeSheet_(ss, SHEETS.resultSteps, SHEET_HEADERS.result_steps, objectRows_(seed.result_steps || [], SHEET_HEADERS.result_steps));
+  if (keepSubmissions) {
+    ensureSubmissionsHeader_(ss);
+  } else {
+    writeSheet_(ss, SHEETS.submissions, SHEET_HEADERS.submissions, []);
+  }
+  clearConfigCache();
+
+  return {
+    ok: true,
+    questions: (seed.questions || []).length,
+    choices: (seed.choices || []).length,
+    results: (seed.results || []).length,
+    result_steps: (seed.result_steps || []).length,
+    preserve_submissions: keepSubmissions,
+  };
+}
+
+function seedSheetsFromScriptProperty() {
+  const jsonText = PropertiesService.getScriptProperties().getProperty('CONFIG_SEED_JSON');
+  if (!jsonText) throw new Error('CONFIG_SEED_JSON script property not found');
+  return seedSheetsFromJson(jsonText, true);
 }
 
 function clearConfigCache() {
@@ -143,4 +212,42 @@ function normalizeObject_(obj) {
 
 function getHeaders_(sheet) {
   return sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(String);
+}
+
+function buildAppConfigRows_(seed) {
+  const rows = [];
+  rows.push(['diagnosis_version', seed.diagnosis_version || '', 'seed']);
+  const appConfig = seed.app_config || {};
+  Object.keys(appConfig).sort().forEach(key => {
+    rows.push([key, valueForCell_(appConfig[key]), 'seed']);
+  });
+  return rows;
+}
+
+function objectRows_(items, headers) {
+  return items.map(item => headers.map(header => valueForCell_(item[header])));
+}
+
+function valueForCell_(value) {
+  if (value === null || value === undefined) return '';
+  if (typeof value === 'object') return JSON.stringify(value);
+  return value;
+}
+
+function writeSheet_(ss, sheetName, headers, rows) {
+  const sheet = ss.getSheetByName(sheetName) || ss.insertSheet(sheetName);
+  sheet.clearContents();
+  const values = [headers].concat(rows);
+  sheet.getRange(1, 1, values.length, headers.length).setValues(values);
+  sheet.setFrozenRows(1);
+  sheet.autoResizeColumns(1, headers.length);
+}
+
+function ensureSubmissionsHeader_(ss) {
+  const sheet = ss.getSheetByName(SHEETS.submissions) || ss.insertSheet(SHEETS.submissions);
+  const hasData = sheet.getLastRow() > 1;
+  if (hasData) return;
+  sheet.clearContents();
+  sheet.getRange(1, 1, 1, SHEET_HEADERS.submissions.length).setValues([SHEET_HEADERS.submissions]);
+  sheet.setFrozenRows(1);
 }

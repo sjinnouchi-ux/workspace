@@ -1,6 +1,6 @@
 # AI経営実装度診断WEBアプリ Project Brief
 
-Last updated: 2026-07-04
+Last updated: 2026-07-05
 
 ## Purpose
 
@@ -27,13 +27,17 @@ Last updated: 2026-07-04
 
 Project shell was created in Git on 2026-07-04.
 
-A new Google Sheets master/log spreadsheet was created on 2026-07-04 with the required tabs and placeholder headers. A structural frontend/GAS implementation has also been prepared. Initial question, choice, result, and result copy data has not been filled because the kickoff document requires the logic spec as canonical source first. The web implementation spec v0.4 was found and reviewed. The logic spec `ai_keiei_shindan_app_spec.md` has not yet been found in Google Drive search results in this run.
+A new Google Sheets master/log spreadsheet was created on 2026-07-04 with the required tabs and placeholder headers. A structural frontend/GAS implementation has also been prepared.
+
+Claude's review answer was found on 2026-07-05 and confirms that `config.seed.json` is the single source for question, choice, result, and result-step data. The actual `config.seed.json` body and `docs/ai_keiei_shindan_app_spec.md` are not yet present in the GitHub branch or Drive search results, so spreadsheet master data has not been filled.
 
 ## Source Links
 
 - Kickoff prompt: https://docs.google.com/document/d/1307NeoqwpP1ANBMXgPAh7MphBp4NyiIllLARX3kW8GA
 - Web implementation spec v0.4: https://docs.google.com/document/d/1i0jF9gtzALP2Eyvsyd-JrXN-87_tq3YwV7Q8J6WF_4k
-- Logic spec: pending confirmation of `ai_keiei_shindan_app_spec.md`
+- Claude answer: https://docs.google.com/document/d/1G-4NcdUwYCbCcTNbGEeXmwEoOJ9WaT4gI9agMJUzWdY
+- Config seed: pending `config.seed.json` body
+- Logic spec: pending `docs/ai_keiei_shindan_app_spec.md` body
 - Google Sheets master/log spreadsheet: https://docs.google.com/spreadsheets/d/1wYT01OGL1-lKzzytLDJi8QIVimq61aVFrS88RIiCR0I
 
 ## Current Implementation Artifacts
@@ -44,3 +48,4 @@ A new Google Sheets master/log spreadsheet was created on 2026-07-04 with the re
 - `tests/logic.test.js`: Node logic tests.
 - `docs/SETUP.md`: deployment and operation notes.
 - `docs/QUESTIONS_FOR_CLAUDE.md`: confirmation items before data fill/deploy.
+- `docs/ANSWERS_FROM_CLAUDE.md`: Claude answer pointer and implementation summary.
