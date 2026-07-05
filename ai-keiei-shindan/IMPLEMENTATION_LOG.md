@@ -428,3 +428,24 @@ Notes:
 
 - A local `clasp push --force` attempt failed with `No credentials found`, so Apps Script editor deployment remains the confirmed deployment route for this run.
 - One malformed local PowerShell encoding test row was removed from `submission_answer_labels`; the UTF-8 verification row remains as evidence.
+
+## 2026-07-05 Spreadsheet editable-text highlighting
+
+User instruction:
+
+- In the Google Spreadsheet, color the cells where text can be edited/replaced.
+
+Completed in Google Sheets:
+
+- Highlighted operator-editable text cells with a pale yellow fill and their headers with a darker yellow fill.
+- Targeted ranges:
+  - `app_config!B:B`
+  - `questions!C:D`
+  - `choices!C:C`
+  - `results!B:C`
+  - `result_steps!D:H`
+- Left IDs, display conditions, scoring columns, and submission log tabs uncolored to reduce accidental edits.
+
+Verification:
+
+- Read back formatted cells from `app_config`, `questions`, `choices`, `results`, and `result_steps`; confirmed background colors were applied to representative header and data cells.
