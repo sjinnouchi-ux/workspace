@@ -150,3 +150,62 @@ Result:
 - Remote branch still points to commit `102a359`.
 - The two seed/spec files are not yet visible in GitHub, local checkout, or Drive search.
 - Spreadsheet seeding, fallback sync, GAS deploy, and `/config` verification remain blocked until `config.seed.json` is actually available.
+
+## 2026-07-05 Canonical seed ingestion and spreadsheet seeding
+
+User instruction:
+
+- Fetch the two missing canonical files from Google Drive, commit and push them to branch `codex/ai-keiei-shindan-setup`, then continue seeding and verification.
+
+Fetched from Google Drive:
+
+- `config.seed.json`
+  - Drive file ID: `1riiZgv694hymqgmqMOJe3IP6vo3PuNWR`
+  - Destination: `config.seed.json`
+- `docs/ai_keiei_shindan_app_spec.md`
+  - Drive file ID: `1HVKYX8Z9V0hXXtR8Y-jNVyaf0SxWH87u`
+  - Destination: `docs/ai_keiei_shindan_app_spec.md`
+
+GitHub:
+
+- Committed and pushed canonical files in commit `2325b10` (`Add config.seed.json and logic spec canonical content`).
+
+Seed verification before commit:
+
+- `config.seed.json` parsed successfully.
+- Counts confirmed:
+  - `questions`: 9
+  - `choices`: 37
+  - `results`: 5
+  - `result_steps`: 20
+
+Spreadsheet:
+
+- Seeded spreadsheet: https://docs.google.com/spreadsheets/d/1wYT01OGL1-lKzzytLDJi8QIVimq61aVFrS88RIiCR0I
+- `app_config`, `questions`, `choices`, `results`, and `result_steps` were filled from `config.seed.json`.
+- `submissions` was set to the Claude-confirmed header order. No existing submission data rows were observed before header replacement.
+- `result_steps.body_md` was written with actual cell newlines via structured cell updates after initial TSV paste verification showed literal newline markers would not be equivalent to the seed.
+
+Spreadsheet readback verification:
+
+- `questions`: 9 data rows
+- `choices`: 37 data rows
+- `results`: 5 data rows
+- `result_steps`: 20 data rows
+- `submissions`: Claude-confirmed 29-column header present
+
+Frontend:
+
+- Synced `index.html` `FALLBACK_CONFIG` from `config.seed.json`.
+- Verified `FALLBACK_CONFIG` is byte-equivalent as JSON content to `config.seed.json`.
+
+Local verification:
+
+- `node tests/logic.test.js` passed.
+- `index.html` script block compiled with Node `vm.Script`.
+
+Still blocked:
+
+- GAS push/deploy was not completed because this local environment has no authenticated `clasp` setup and no `ai-keiei-shindan/.clasp.json` project link.
+- `/config` live verification and `WEBAPP_URL` setup remain pending until GAS deploy provides a Web App `/exec` URL.
+- GitHub Pages publication remains pending until GAS deploy and `WEBAPP_URL` setup are complete.

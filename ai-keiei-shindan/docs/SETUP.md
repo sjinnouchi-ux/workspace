@@ -6,9 +6,11 @@ Last updated: 2026-07-05
 
 - Google Sheets master/log file exists.
 - Frontend and GAS code are prepared in Git.
+- `config.seed.json` and `docs/ai_keiei_shindan_app_spec.md` are present in Git.
+- Spreadsheet master data has been seeded from `config.seed.json`.
 - GAS has not been pushed or deployed.
 - GitHub Pages has not been published.
-- Question, choice, result, and result-step master data is not final because the `config.seed.json` body is still pending.
+- `index.html` `FALLBACK_CONFIG` is synced with `config.seed.json`.
 
 ## Google Sheets
 
@@ -28,7 +30,14 @@ Tabs:
 - `submissions`
 - `_README`
 
-Do not treat placeholder rows as final content. Fill the master data from `config.seed.json` after the actual JSON body is available.
+The master data was seeded from `config.seed.json` on 2026-07-05 and verified with these data-row counts:
+
+- `questions`: 9
+- `choices`: 37
+- `results`: 5
+- `result_steps`: 20
+
+`submissions` has the Claude-confirmed header order and no data rows were present before reseeding.
 
 ## Seeding From `config.seed.json`
 
@@ -37,7 +46,7 @@ GAS includes two reproducible seed helpers:
 - `seedSheetsFromJson(jsonText, preserveSubmissions)`
 - `seedSheetsFromScriptProperty()`
 
-Recommended flow after `config.seed.json` is available:
+Recommended reproducible flow:
 
 1. Paste the JSON body into Apps Script project property `CONFIG_SEED_JSON`.
 2. Run `seedSheetsFromScriptProperty()`.
@@ -50,6 +59,12 @@ Recommended flow after `config.seed.json` is available:
 5. Clear or avoid storing the JSON anywhere secret-bearing. The seed is content data, not credentials, but the GitHub copy should still be the durable source.
 
 ## GAS
+
+Current local blocker:
+
+- `clasp` is not authenticated in this Windows environment.
+- `ai-keiei-shindan/.clasp.json` is not present, so the local checkout is not linked to an Apps Script project.
+- GAS push/deploy and live `/config` verification must be completed after authenticating/linking `clasp` with `s.jinnouchi@yumekango.com`, or by using another authenticated Apps Script deployment route.
 
 Source files:
 

@@ -4,7 +4,7 @@
 
 ## Current State
 
-Project Git shell is ready. A structural implementation has started.
+Project Git shell and structural implementation are ready.
 
 Before implementation, read both canonical specs:
 
@@ -13,7 +13,9 @@ Before implementation, read both canonical specs:
 
 The web implementation spec v0.4 has been found. Claude's review answer is recorded in `docs/ANSWERS_FROM_CLAUDE.md`.
 
-Current blocker: `config.seed.json` and `docs/ai_keiei_shindan_app_spec.md` are referenced by Claude as canonical files, but they are not present in the GitHub branch or current Drive search results yet. Spreadsheet master data must not be inferred without `config.seed.json`.
+`config.seed.json` is now present and is the canonical source for questions, choices, results, result steps, spreadsheet seeding, and `index.html` `FALLBACK_CONFIG`. The Google Sheets master data has been seeded from it and verified for the canonical row counts.
+
+Current blocker: GAS has not been pushed or deployed from this local environment because `clasp` is not authenticated or linked to an Apps Script project here. `WEBAPP_URL` remains blank until the deployed `/exec` URL is available.
 
 ## Planned Structure
 
