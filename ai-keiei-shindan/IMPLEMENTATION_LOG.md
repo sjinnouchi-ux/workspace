@@ -128,3 +128,25 @@ Still blocked:
 
 - Spreadsheet master data cannot be filled until the actual `config.seed.json` body is available.
 - GAS deploy and GitHub Pages publish are intentionally not performed before canonical seeding and `/config` verification.
+
+## 2026-07-05 Seed file pull retry
+
+User instruction:
+
+- Continue after `config.seed.json` and `docs/ai_keiei_shindan_app_spec.md` are committed to branch `codex/ai-keiei-shindan-setup`.
+
+Verification:
+
+- Ran `git pull --ff-only origin codex/ai-keiei-shindan-setup`.
+- Ran `git fetch --all --prune`.
+- Checked local paths:
+  - `ai-keiei-shindan/config.seed.json`
+  - `ai-keiei-shindan/docs/ai_keiei_shindan_app_spec.md`
+- Checked Git tree and GitHub API contents for branch `codex/ai-keiei-shindan-setup`.
+- Searched Google Drive for `config.seed.json` and `ai_keiei_shindan_app_spec`.
+
+Result:
+
+- Remote branch still points to commit `102a359`.
+- The two seed/spec files are not yet visible in GitHub, local checkout, or Drive search.
+- Spreadsheet seeding, fallback sync, GAS deploy, and `/config` verification remain blocked until `config.seed.json` is actually available.
