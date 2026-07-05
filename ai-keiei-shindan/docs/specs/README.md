@@ -17,4 +17,4 @@ Do not infer canonical question, choice, result, or result-step copy. Claude con
 
 The spreadsheet exists and has been seeded from `config.seed.json`.
 
-On 2026-07-05, the seeded row counts were confirmed as `questions=9`, `choices=37`, `results=5`, and `result_steps=20`.
+On 2026-07-05, the v1.2.0 seeded row counts were confirmed through `/config` as `questions=10`, `choices=43`, `results=5`, and `result_steps=21`.

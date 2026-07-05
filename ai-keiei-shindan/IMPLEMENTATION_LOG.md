@@ -396,3 +396,35 @@ Verification:
 - `config.seed.json` parsed successfully and matched `FALLBACK_CONFIG` as JSON.
 - Local browser preview confirmed A3 flow shows 5 result pages and inserts the new internal-AI-talent page as result 3/5.
 - Unit test confirms A2 skips the special internal-AI-talent page.
+
+## 2026-07-05 v1.2.0 Sheets and GAS reflection
+
+User instruction:
+
+- Resume work and proceed with the remaining cloud reflection.
+
+Completed:
+
+- Confirmed the public GAS `/config` had been older than Git before reseeding.
+- Seeded the Google Sheets master data from canonical `config.seed.json` v1.2.0 using `seedSheetsFromJson(jsonText, true)` through the Apps Script editor.
+- Confirmed `/config` now returns:
+  - `diagnosis_version`: `1.2.0`
+  - `questions`: 10
+  - `choices`: 43
+  - `results`: 5
+  - `result_steps`: 21
+  - `q5b`: present
+  - internal-AI-talent result step: present
+- Updated the existing GAS Web App deployment to version 3 from the Apps Script editor, preserving the existing `/exec` URL.
+- Verified a UTF-8 test submission returned `ok: true`.
+- Verified `submission_answer_labels` stores Japanese operator-facing answers:
+  - `submission_id`: `codex-gas-utf8-verify-20260705143325`
+  - `company_name`: `Codex_GAS確認_UTF8_20260705`
+  - `q2_answer`: `わからない（担当者に聞かないと不明）`
+  - `q3_answer`: `外部委託先が担当している（相談している）`
+  - `q5b_answer`: `あらゆるAIに関する内容を全面的に委託`
+
+Notes:
+
+- A local `clasp push --force` attempt failed with `No credentials found`, so Apps Script editor deployment remains the confirmed deployment route for this run.
+- One malformed local PowerShell encoding test row was removed from `submission_answer_labels`; the UTF-8 verification row remains as evidence.

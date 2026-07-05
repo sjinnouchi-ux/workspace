@@ -8,10 +8,10 @@ Last updated: 2026-07-05
 - Frontend and GAS code are prepared in Git.
 - `config.seed.json` and `docs/ai_keiei_shindan_app_spec.md` are present in Git.
 - Spreadsheet master data has been seeded from `config.seed.json`.
-- GAS has not been pushed or deployed.
-- GitHub Pages has not been published.
+- GAS Web App v3 is deployed.
+- GitHub Pages is published.
 - `index.html` `FALLBACK_CONFIG` is synced with `config.seed.json`.
-- GAS Web App v2 is deployed and `index.html` `WEBAPP_URL` is set.
+- `index.html` `WEBAPP_URL` is set to the deployed GAS Web App URL.
 
 ## Google Sheets
 
@@ -32,7 +32,7 @@ Tabs:
 - `submission_answer_labels`
 - `_README`
 
-The master data was initially seeded from `config.seed.json` on 2026-07-05. Current canonical `config.seed.json` v1.2.0 has these data-row counts:
+The master data was initially seeded from `config.seed.json` on 2026-07-05. It was reseeded from canonical `config.seed.json` v1.2.0 on 2026-07-05 with these data-row counts:
 
 - `questions`: 10
 - `choices`: 43
@@ -73,13 +73,13 @@ Deployment notes:
 - Project: `AI経営実装度診断WEBアプリ`
 - Script ID: `10iHaJIP8amLrpQsG9xcKwlWlePqMaA6c437ho78gurwOModxur8-mTG7`
 - Deployment ID: `AKfycbxgaX2s8ly7NbotTH3V3Nys23kZKy2j48b6_ACQKPV3phyiXYzsx27RJK3yD6yBjzqfFQ`
-- Version: `2` (`2026-07-05 9:47` in Apps Script UI)
+- Version: `3` (deployed 2026-07-05 from Apps Script UI)
 - Execute as: `s.jinnouchi@yumekango.com`
 - Access: `全員`
 
 Local tooling note:
 
-- This deployment was performed through the Apps Script web editor because local `clasp` is not authenticated and `ai-keiei-shindan/.clasp.json` is not present.
+- This deployment was performed through the Apps Script web editor because local `clasp` is not authenticated. A local `clasp push --force` attempt failed with `No credentials found`.
 
 Source files:
 

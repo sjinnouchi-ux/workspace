@@ -19,21 +19,22 @@ Initial implementation is complete and published.
 - Fetched canonical `config.seed.json` and `docs/ai_keiei_shindan_app_spec.md` from Google Drive.
 - Seeded Google Sheets from `config.seed.json`.
 - Synced `index.html` `FALLBACK_CONFIG` with `config.seed.json`.
-- Deployed GAS Web App v2 from Apps Script editor.
+- Deployed GAS Web App v3 from Apps Script editor.
 - Set frontend `WEBAPP_URL` to the deployed GAS Web App URL.
 - Published GitHub Pages from `main`.
 - Completed one user-operated E2E submission test.
+- Added and verified the operator-facing `submission_answer_labels` tab for Japanese answer labels.
 
 ## Verification Evidence
 
 - `config.seed.json` parsed successfully.
 - Seed counts confirmed:
-  - `questions`: 9
-  - `choices`: 37
+  - `questions`: 10
+  - `choices`: 43
   - `results`: 5
-  - `result_steps`: 20
+  - `result_steps`: 21
 - `/config` returned HTTP `200` and `application/json; charset=utf-8`.
-- `/config` stable JSON comparison against `config.seed.json` passed.
+- `/config` returned `diagnosis_version=1.2.0`, including `q5b` and the internal-AI-talent result step.
 - GitHub Pages returned HTTP `200`.
 - Public HTML contains `<meta name="robots" content="noindex">`.
 - Public HTML contains the GAS Web App URL.
@@ -47,6 +48,12 @@ Initial implementation is complete and published.
   - `result_phase`: `現場利用あり・AI管理者不在フェーズ`
   - `device_type`: `mobile`
   - `raw_payload_json`: present
+- `submission_answer_labels` readback confirmed one UTF-8 test row:
+  - `submission_id`: `codex-gas-utf8-verify-20260705143325`
+  - `company_name`: `Codex_GAS確認_UTF8_20260705`
+  - `q2_answer`: `わからない（担当者に聞かないと不明）`
+  - `q3_answer`: `外部委託先が担当している（相談している）`
+  - `q5b_answer`: `あらゆるAIに関する内容を全面的に委託`
 
 ## Claude Review Result
 
@@ -56,8 +63,7 @@ Optional improvements noted by Claude:
 
 1. Employee-size choices are hard-coded in `renderEmployee()`.
    - Priority: Low
-   - Current behavior is correct because values and labels match `config.seed.json`.
-   - Future improvement: render `q_employee` choices from `config.choices`.
+   - Resolved in the design refresh: `q_employee` choices now render from `config.choices`.
 2. GET `/config` CORS.
    - Priority: Low
    - Current impact is low because the app has identical `FALLBACK_CONFIG` and E2E submission passed.
@@ -80,4 +86,4 @@ Suggested first design pass:
 ## GitHub State
 
 - `main` includes the deployed implementation.
-- Latest recorded E2E commit before this report: `a6ec0ff`
+- Latest recorded deployment code commit before this report: `f3b87fc`

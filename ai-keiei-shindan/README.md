@@ -4,7 +4,7 @@
 
 ## Current State
 
-Project Git shell and structural implementation are ready.
+Initial implementation is published.
 
 Before implementation, read both canonical specs:
 
@@ -13,9 +13,21 @@ Before implementation, read both canonical specs:
 
 The web implementation spec v0.4 has been found. Claude's review answer is recorded in `docs/ANSWERS_FROM_CLAUDE.md`.
 
-`config.seed.json` is now present and is the canonical source for questions, choices, results, result steps, spreadsheet seeding, and `index.html` `FALLBACK_CONFIG`. The Google Sheets master data has been seeded from it and verified for the canonical row counts.
+`config.seed.json` is now present and is the canonical source for questions, choices, results, result steps, spreadsheet seeding, and `index.html` `FALLBACK_CONFIG`. The Google Sheets master data has been seeded from it and verified for the canonical v1.2.0 row counts.
 
-Current blocker: GAS has not been pushed or deployed from this local environment because `clasp` is not authenticated or linked to an Apps Script project here. `WEBAPP_URL` remains blank until the deployed `/exec` URL is available.
+Current public app:
+
+```text
+https://sjinnouchi-ux.github.io/workspace/ai-keiei-shindan/
+```
+
+Current GAS Web App:
+
+```text
+https://script.google.com/macros/s/AKfycbxgaX2s8ly7NbotTH3V3Nys23kZKy2j48b6_ACQKPV3phyiXYzsx27RJK3yD6yBjzqfFQ/exec
+```
+
+Local `clasp` is not authenticated in this environment, so the confirmed GAS deployment route for the latest run was the Apps Script web editor.
 
 ## Planned Structure
 
