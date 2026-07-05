@@ -32,12 +32,12 @@ Tabs:
 - `submission_answer_labels`
 - `_README`
 
-The master data was seeded from `config.seed.json` on 2026-07-05 and verified with these data-row counts:
+The master data was initially seeded from `config.seed.json` on 2026-07-05. Current canonical `config.seed.json` v1.2.0 has these data-row counts:
 
 - `questions`: 10
 - `choices`: 43
 - `results`: 5
-- `result_steps`: 20
+- `result_steps`: 21
 
 `submissions` keeps the raw value-oriented log. `submission_answer_labels` is the operator-facing log tab that expands answer values into Japanese labels.
 
@@ -56,7 +56,7 @@ Recommended reproducible flow:
    - `questions: 10`
    - `choices: 43`
    - `results: 5`
-   - `result_steps: 20`
+   - `result_steps: 21`
 4. Confirm the spreadsheet tabs have the same data-row counts.
 5. Clear or avoid storing the JSON anywhere secret-bearing. The seed is content data, not credentials, but the GitHub copy should still be the durable source.
 

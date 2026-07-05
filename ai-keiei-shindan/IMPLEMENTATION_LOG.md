@@ -369,3 +369,30 @@ Cloud reflection note:
 - Local `clasp` is not configured for this project.
 - Direct Google OAuth API refresh failed with `invalid_grant` / `invalid_rapt`, so spreadsheet seeding and GAS deployment were not completed from this local run.
 - Until GAS and Sheets are updated, the public frontend can still use embedded `FALLBACK_CONFIG` v1.1.0 when the remote `/config` response is older, but the new `submission_answer_labels` tab requires the updated GAS code to be deployed.
+
+## 2026-07-05 External-vendor result page and wording refinement
+
+User instruction:
+
+- For external委託先 answers, split result pages further.
+- For Q5B answers other than A2, add a new result page around `社内のAI人材の教育を進めていくことを検討していませんか？`.
+- Add a `最大10問で簡単診断` nuance to the opening page.
+- Fix awkward result wording where `エージェントやLLMを現場で使える形に整える段階` could appear even when the user did not choose agent/LLM usage.
+
+Implemented in Git:
+
+- Updated `config.seed.json` to diagnosis version `1.2.0`.
+- Updated top subtitle to mention `最大10問・3分ほど`.
+- Added a wildcard result step (`result_code="*"`, `step_order=25`) shown only for `q5b` values `vendor_full_ai`, `vendor_full_internalize`, and `vendor_unknown`.
+- Kept `vendor_ad_hoc_dev` (A2) out of that special page.
+- Replaced D-result wording from `エージェントやLLMを現場で使える形に整える段階` to `AIによる一部業務自動化の整備を進める段階`.
+- Synced `index.html` `FALLBACK_CONFIG` from `config.seed.json`.
+- Updated `docs/ai_keiei_shindan_app_spec.md`, `docs/SETUP.md`, and `tests/logic.test.js`.
+
+Verification:
+
+- `node tests/logic.test.js` passed.
+- JavaScript blocks in `index.html` compiled with `vm.Script`.
+- `config.seed.json` parsed successfully and matched `FALLBACK_CONFIG` as JSON.
+- Local browser preview confirmed A3 flow shows 5 result pages and inserts the new internal-AI-talent page as result 3/5.
+- Unit test confirms A2 skips the special internal-AI-talent page.

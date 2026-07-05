@@ -117,9 +117,18 @@ const steps = core.buildResultSteps("C", {
     { result_code: "C", step_order: 20, type: "text", enabled: true, display_condition_json: "{}" },
     { result_code: "C", step_order: 10, type: "article", url: "", enabled: true, display_condition_json: "{}" },
     { result_code: "C", step_order: 15, type: "article", url: "https://example.com", enabled: true, display_condition_json: "{}" },
+    { result_code: "*", step_order: 25, type: "text", enabled: true, display_condition_json: { q5b: ["vendor_full_ai", "vendor_full_internalize", "vendor_unknown"] } },
     { result_code: "C", step_order: 30, type: "youtube", enabled: true, display_condition_json: "{}" },
   ],
-}, sanitized);
-assert.deepEqual(steps.map((step) => step.step_order), [15, 20], "skip url-less article and unknown type");
+}, { ...sanitized, answers: { ...sanitized.answers, q5b: "vendor_full_ai" } });
+assert.deepEqual(steps.map((step) => step.step_order), [15, 20, 25], "include vendor internal-talent page");
+
+const a2Steps = core.buildResultSteps("C", {
+  result_steps: [
+    { result_code: "C", step_order: 20, type: "text", enabled: true, display_condition_json: "{}" },
+    { result_code: "*", step_order: 25, type: "text", enabled: true, display_condition_json: { q5b: ["vendor_full_ai", "vendor_full_internalize", "vendor_unknown"] } },
+  ],
+}, { ...sanitized, answers: { ...sanitized.answers, q5b: "vendor_ad_hoc_dev" } });
+assert.deepEqual(a2Steps.map((step) => step.step_order), [20], "A2 skips vendor internal-talent page");
 
 console.log("logic tests passed");
