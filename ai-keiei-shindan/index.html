@@ -7,29 +7,35 @@
   <title>AI経営実装度診断</title>
   <style>
     :root {
-      --brand: #1f6feb;
-      --brand-weak: #e8f0fe;
-      --text: #1a1a1a;
-      --text-sub: #6b7280;
-      --bg: #ffffff;
-      --card: #f7f7f5;
-      --border: #e3e3e0;
-      --danger: #c0392b;
-      --radius: 12px;
+      --brand: #1769d2;
+      --brand-deep: #0b356f;
+      --brand-soft: #eaf4ff;
+      --brand-weak: #d8ecff;
+      --accent: #f7b955;
+      --text: #12304f;
+      --text-sub: #58708c;
+      --bg: #f4f9ff;
+      --surface: #ffffff;
+      --card: #eef6ff;
+      --border: #c9ddf2;
+      --danger: #c4493d;
+      --radius: 8px;
       --btn-min-h: 56px;
       --space-1: 8px;
       --space-2: 12px;
       --space-3: 16px;
       --space-4: 24px;
       --space-5: 32px;
-      --font: system-ui, "Hiragino Sans", "Noto Sans JP", sans-serif;
-      --font-voice: Georgia, "Hiragino Mincho ProN", serif;
+      --shadow: 0 18px 50px rgba(26, 88, 148, 0.12);
+      --font: "BIZ UDPGothic", "Yu Gothic", "Hiragino Kaku Gothic ProN", "Noto Sans JP", system-ui, sans-serif;
+      --font-result: "BIZ UDPGothic", "Yu Gothic", "Hiragino Kaku Gothic ProN", "Noto Sans JP", system-ui, sans-serif;
     }
 
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      background: var(--bg);
+      background:
+        linear-gradient(180deg, #e8f4ff 0%, var(--bg) 42%, #ffffff 100%);
       color: var(--text);
       font-family: var(--font);
       line-height: 1.7;
@@ -47,20 +53,22 @@
       padding: var(--space-5);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      background: var(--bg);
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: var(--shadow);
     }
     .eyebrow {
       margin: 0 0 var(--space-2);
-      color: var(--text-sub);
+      color: var(--brand);
       font-size: 0.9rem;
+      font-weight: 800;
     }
     h1, h2 {
       margin: 0 0 var(--space-3);
       line-height: 1.35;
       letter-spacing: 0;
     }
-    h1 { font-size: 1.9rem; }
-    h2 { font-size: 1.45rem; }
+    h1 { font-size: 1.9rem; color: var(--brand-deep); }
+    h2 { font-size: 1.45rem; color: var(--brand-deep); }
     p { margin: 0 0 var(--space-3); }
     label {
       display: block;
@@ -75,7 +83,12 @@
       border-radius: var(--radius);
       font: inherit;
       color: var(--text);
-      background: var(--bg);
+      background: var(--surface);
+    }
+    input:focus {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 4px rgba(23, 105, 210, 0.12);
+      outline: 0;
     }
     .actions {
       display: flex;
@@ -89,7 +102,7 @@
       border-radius: var(--radius);
       padding: 0 var(--space-4);
       background: var(--brand);
-      color: var(--bg);
+      color: #ffffff;
       font: inherit;
       font-weight: 700;
       cursor: pointer;
@@ -99,7 +112,7 @@
       justify-content: center;
     }
     button.secondary {
-      background: var(--bg);
+      background: var(--surface);
       color: var(--brand);
     }
     button:disabled {
@@ -117,13 +130,14 @@
       width: 100%;
       justify-content: flex-start;
       text-align: left;
-      background: var(--bg);
+      background: var(--surface);
       color: var(--text);
       border-color: var(--border);
+      box-shadow: 0 8px 22px rgba(19, 74, 128, 0.06);
     }
     .choice.is-selected {
       background: var(--brand-weak);
-      color: var(--brand);
+      color: var(--brand-deep);
       border-color: var(--brand);
     }
     .notice {
@@ -145,9 +159,65 @@
       display: block;
       height: 100%;
       width: var(--progress, 0%);
-      background: var(--brand);
+      background: linear-gradient(90deg, var(--brand), #55a5ff);
+    }
+    .result-screen {
+      font-family: var(--font-result);
+    }
+    .result-screen h2 {
+      font-size: 1.55rem;
+    }
+    .md p {
+      color: #24425f;
     }
     .md ul { padding-left: var(--space-4); }
+    .voice-intro {
+      color: var(--text-sub);
+      font-weight: 700;
+    }
+    .voice-list {
+      display: grid;
+      gap: var(--space-3);
+      margin: var(--space-4) 0;
+    }
+    .voice-card {
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      gap: var(--space-2);
+      align-items: start;
+    }
+    .voice-card img {
+      width: 58px;
+      height: 58px;
+      border: 3px solid #ffffff;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 10px 24px rgba(11, 53, 111, 0.18);
+    }
+    .voice-bubble {
+      position: relative;
+      margin: 0;
+      padding: var(--space-3);
+      border: 1px solid #bfd9f5;
+      border-radius: var(--radius);
+      background: #f8fbff;
+      color: #173b60;
+      font-weight: 700;
+      line-height: 1.8;
+      box-shadow: 0 10px 26px rgba(19, 74, 128, 0.08);
+    }
+    .voice-bubble::before {
+      content: "";
+      position: absolute;
+      top: 18px;
+      left: -9px;
+      width: 16px;
+      height: 16px;
+      border-left: 1px solid #bfd9f5;
+      border-bottom: 1px solid #bfd9f5;
+      background: #f8fbff;
+      transform: rotate(45deg);
+    }
     .article-card {
       padding: var(--space-4);
       border: 1px solid var(--border);
@@ -161,6 +231,16 @@
       h2 { font-size: 1.25rem; }
       .actions { flex-direction: column; }
       button, .link-button { width: 100%; }
+      .voice-card {
+        grid-template-columns: 48px 1fr;
+      }
+      .voice-card img {
+        width: 48px;
+        height: 48px;
+      }
+      .voice-bubble {
+        padding: var(--space-2) var(--space-3);
+      }
     }
   </style>
 </head>
@@ -399,6 +479,12 @@
     const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxgaX2s8ly7NbotTH3V3Nys23kZKy2j48b6_ACQKPV3phyiXYzsx27RJK3yD6yBjzqfFQ/exec";
     const PENDING_STORAGE_KEY = "ai_keiei_shindan_pending_submissions";
     const SESSION_KEY = "ai_keiei_shindan_session";
+    const VOICE_AVATARS = [
+      "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=160&q=80",
+      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=160&q=80",
+      "https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&w=160&q=80",
+      "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&w=160&q=80",
+    ];
 const FALLBACK_CONFIG =     {
           "diagnosis_version": "1.0.0",
           "app_config": {
@@ -1072,26 +1158,53 @@ const FALLBACK_CONFIG =     {
         .replaceAll("'", "&#039;");
     }
 
+    function isVoiceQuote(text) {
+      return /^「.+」$/.test(text);
+    }
+
+    function renderVoiceQuote(text, index) {
+      const avatar = VOICE_AVATARS[index % VOICE_AVATARS.length];
+      return `
+        <div class="voice-card">
+          <img src="${avatar}" alt="" loading="lazy" referrerpolicy="no-referrer">
+          <p class="voice-bubble">${escapeHtml(text)}</p>
+        </div>
+      `;
+    }
+
     function renderMarkdown(markdown) {
       const lines = String(markdown || "").split(/\r?\n/);
       let html = "";
       let inList = false;
+      let inVoiceList = false;
+      let voiceIndex = 0;
       lines.forEach((line) => {
         const text = line.trim();
         if (!text) {
           if (inList) { html += "</ul>"; inList = false; }
+          if (inVoiceList) { html += "</div>"; inVoiceList = false; }
           return;
         }
         if (text.startsWith("- ") || text.startsWith("* ")) {
+          if (inVoiceList) { html += "</div>"; inVoiceList = false; }
           if (!inList) { html += "<ul>"; inList = true; }
           html += `<li>${escapeHtml(text.slice(2)).replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")}</li>`;
           return;
         }
         if (inList) { html += "</ul>"; inList = false; }
+        if (isVoiceQuote(text)) {
+          if (!inVoiceList) { html += '<div class="voice-list">'; inVoiceList = true; }
+          html += renderVoiceQuote(text, voiceIndex);
+          voiceIndex += 1;
+          return;
+        }
+        if (inVoiceList) { html += "</div>"; inVoiceList = false; }
         const strong = escapeHtml(text).replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-        html += `<p>${strong}</p>`;
+        const voiceIntroClass = text.includes("同じ回答傾向の経営者によくある声です") ? ' class="voice-intro"' : "";
+        html += `<p${voiceIntroClass}>${strong}</p>`;
       });
       if (inList) html += "</ul>";
+      if (inVoiceList) html += "</div>";
       return `<div class="md">${html}</div>`;
     }
 
@@ -1318,19 +1431,15 @@ const FALLBACK_CONFIG =     {
     }
 
     function renderEmployee() {
-      const choices = [
-        ["employee_1_9", "1〜9人"],
-        ["employee_10_29", "10〜29人"],
-        ["employee_30_99", "30〜99人"],
-        ["employee_100_200", "100〜200人"],
-        ["employee_201_plus", "201人以上"],
-      ];
+      const choices = (config.choices || [])
+        .filter((choice) => choice.question_id === "q_employee")
+        .sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
       app.innerHTML = `
         <section class="screen">
           <p class="eyebrow">従業員規模</p>
           <h2>従業員規模を選択してください</h2>
           <div class="choice-list">
-            ${choices.map(([value, label]) => `<button class="choice ${state.employee_size === value ? "is-selected" : ""}" data-size="${value}">${label}</button>`).join("")}
+            ${choices.map((choice) => `<button class="choice ${state.employee_size === choice.value ? "is-selected" : ""}" data-size="${escapeHtml(choice.value)}">${escapeHtml(choice.label)}</button>`).join("")}
           </div>
           <div class="actions">
             <button class="secondary" id="back">戻る</button>
@@ -1383,7 +1492,7 @@ const FALLBACK_CONFIG =     {
 
     function renderResultIntro() {
       app.innerHTML = `
-        <section class="screen">
+        <section class="screen result-screen">
           <p class="eyebrow">${escapeHtml(state.company_name)} さまの結果</p>
           <h2>${escapeHtml(cfg("result_intro_headline", "診断結果がまとまりました。"))}</h2>
           <p>${escapeHtml(cfg("result_intro_sub", "このあと、現在地と次に決めることを表示します。"))}</p>
@@ -1402,7 +1511,7 @@ const FALLBACK_CONFIG =     {
       const step = steps[state.resultStepIndex];
       if (!step) {
         app.innerHTML = `
-          <section class="screen">
+          <section class="screen result-screen">
             <p class="eyebrow">結果 ${escapeHtml(state.result.result_code || "")}</p>
             <h2>${escapeHtml(state.result.headline || "結果ステップの確認が必要です")}</h2>
             <div class="notice">result_steps に表示可能なステップがありません。</div>
@@ -1415,7 +1524,7 @@ const FALLBACK_CONFIG =     {
       const isLast = state.resultStepIndex >= steps.length - 1;
       const body = step.type === "article" ? renderArticle(step) : renderMarkdown(step.body_md);
       app.innerHTML = `
-        <section class="screen">
+        <section class="screen result-screen">
           <div class="progress" aria-hidden="true"><span style="--progress:${Math.round(((state.resultStepIndex + 1) / steps.length) * 100)}%"></span></div>
           <p class="eyebrow">結果 ${state.resultStepIndex + 1} / ${steps.length}</p>
           <h2>${escapeHtml(step.headline || state.result.headline || "")}</h2>

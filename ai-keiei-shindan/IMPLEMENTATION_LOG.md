@@ -304,3 +304,26 @@ Optional improvements reported by Claude:
 Recorded summary:
 
 - Added `docs/reports/2026-07-05-implementation-completion-summary.md`.
+
+## 2026-07-05 Design refresh
+
+User instruction:
+
+- Refresh the app design before the next design-revision phase.
+- Use a blue-based overall color direction.
+- Make other presidents' comments easier to read by showing them as speech bubbles with free images.
+- Use a friendly gothic-style font for result screens.
+
+Implemented:
+
+- Updated `index.html` with a blue UI palette, lighter blue page background, darker blue headings, refined buttons, choice cards, progress bars, and input focus states.
+- Updated result screens to use a friendly gothic-family font stack.
+- Rendered quote-only result paragraphs as president voice cards with free Unsplash portrait images and speech-bubble styling.
+- Rendered employee-size choices from `config.choices` `q_employee` instead of hard-coded labels, resolving Claude's low-priority optional note about employee labels.
+
+Verification:
+
+- `node tests/logic.test.js` passed.
+- JavaScript blocks in `index.html` compiled with `vm.Script`.
+- Local browser preview at `http://127.0.0.1:8765/ai-keiei-shindan/` showed the refreshed blue design.
+- Result preview displayed 3 voice cards; all 3 portrait images loaded.
