@@ -31,7 +31,7 @@ A new Google Sheets master/log spreadsheet was created on 2026-07-04 with the re
 
 Claude's review answer was found on 2026-07-05 and confirms that `config.seed.json` is the single source for question, choice, result, and result-step data. On 2026-07-05, `config.seed.json` and `docs/ai_keiei_shindan_app_spec.md` were fetched from Google Drive, committed to the branch, and the spreadsheet master data was seeded from `config.seed.json`.
 
-GAS deploy and `/config` live verification remain pending because this local environment does not have an authenticated/linked `clasp` setup.
+GAS Web App v2 was deployed from the Apps Script web editor on 2026-07-05, and `/config` was verified against `config.seed.json` with stable object-key ordering.
 
 ## Source Links
 
@@ -41,6 +41,7 @@ GAS deploy and `/config` live verification remain pending because this local env
 - Config seed: `config.seed.json`
 - Logic spec: `docs/ai_keiei_shindan_app_spec.md`
 - Google Sheets master/log spreadsheet: https://docs.google.com/spreadsheets/d/1wYT01OGL1-lKzzytLDJi8QIVimq61aVFrS88RIiCR0I
+- GAS Web App: https://script.google.com/macros/s/AKfycbxgaX2s8ly7NbotTH3V3Nys23kZKy2j48b6_ACQKPV3phyiXYzsx27RJK3yD6yBjzqfFQ/exec
 
 ## Current Implementation Artifacts
 

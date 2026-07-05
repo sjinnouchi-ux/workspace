@@ -51,14 +51,17 @@ function getConfig() {
   if (cached) return JSON.parse(cached);
 
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  const appConfig = rowsToKeyValue_(readRows_(ss, SHEETS.appConfig));
+  const appConfigWithVersion = rowsToKeyValue_(readRows_(ss, SHEETS.appConfig));
+  const diagnosisVersion = appConfigWithVersion.diagnosis_version || '1.0.0';
+  const appConfig = Object.assign({}, appConfigWithVersion);
+  delete appConfig.diagnosis_version;
   const config = {
-    diagnosis_version: appConfig.diagnosis_version || '1.0.0',
+    diagnosis_version: diagnosisVersion,
     app_config: appConfig,
-    questions: rowsToObjects_(readRows_(ss, SHEETS.questions)).map(normalizeObject_),
-    choices: rowsToObjects_(readRows_(ss, SHEETS.choices)).map(normalizeObject_).filter(row => row.question_id && row.value),
-    results: rowsToObjects_(readRows_(ss, SHEETS.results)).map(normalizeObject_).filter(row => row.result_code),
-    result_steps: rowsToObjects_(readRows_(ss, SHEETS.resultSteps)).map(normalizeObject_).filter(row => row.result_code && row.type),
+    questions: rowsToObjects_(readRows_(ss, SHEETS.questions)).map(normalizeQuestion_),
+    choices: rowsToObjects_(readRows_(ss, SHEETS.choices)).map(normalizeChoice_).filter(row => row.question_id && row.value),
+    results: rowsToObjects_(readRows_(ss, SHEETS.results)).map(normalizeRow_).filter(row => row.result_code),
+    result_steps: rowsToObjects_(readRows_(ss, SHEETS.resultSteps)).map(normalizeResultStep_).filter(row => row.result_code && row.type),
   };
   cache.put('config', JSON.stringify(config), CACHE_SECONDS);
   return config;
@@ -193,21 +196,46 @@ function rowsToKeyValue_(rows) {
   return result;
 }
 
-function normalizeObject_(obj) {
+function normalizeRow_(obj) {
   const normalized = {};
-  Object.keys(obj).forEach(key => {
-    const value = obj[key];
-    if (value === '') {
-      normalized[key] = null;
-    } else if (value === 'TRUE') {
-      normalized[key] = true;
-    } else if (value === 'FALSE') {
-      normalized[key] = false;
-    } else {
-      normalized[key] = value;
-    }
+  Object.keys(obj).forEach(key => { normalized[key] = normalizeCell_(obj[key]); });
+  return normalized;
+}
+
+function normalizeQuestion_(obj) {
+  const normalized = normalizeRow_(obj);
+  normalized.display_condition_json = parseJsonCell_(normalized.display_condition_json, {});
+  return normalized;
+}
+
+function normalizeChoice_(obj) {
+  const normalized = normalizeRow_(obj);
+  Object.keys(normalized).forEach(key => {
+    if (normalized[key] === '') delete normalized[key];
   });
   return normalized;
+}
+
+function normalizeResultStep_(obj) {
+  const normalized = normalizeRow_(obj);
+  normalized.display_condition_json = parseJsonCell_(normalized.display_condition_json, {});
+  return normalized;
+}
+
+function normalizeCell_(value) {
+  if (value === 'TRUE') return true;
+  if (value === 'FALSE') return false;
+  return value;
+}
+
+function parseJsonCell_(value, fallback) {
+  if (value === '' || value === null || value === undefined) return fallback;
+  if (typeof value === 'object') return value;
+  try {
+    return JSON.parse(value);
+  } catch (error) {
+    return fallback;
+  }
 }
 
 function getHeaders_(sheet) {

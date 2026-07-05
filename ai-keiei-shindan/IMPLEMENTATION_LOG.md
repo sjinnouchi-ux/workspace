@@ -206,6 +206,45 @@ Local verification:
 
 Still blocked:
 
-- GAS push/deploy was not completed because this local environment has no authenticated `clasp` setup and no `ai-keiei-shindan/.clasp.json` project link.
+- GAS push/deploy was not completed in this pass because this local environment has no authenticated `clasp` setup and no `ai-keiei-shindan/.clasp.json` project link.
 - `/config` live verification and `WEBAPP_URL` setup remain pending until GAS deploy provides a Web App `/exec` URL.
 - GitHub Pages publication remains pending until GAS deploy and `WEBAPP_URL` setup are complete.
+
+## 2026-07-05 GAS editor deployment and `/config` verification
+
+User instruction:
+
+- Proceed with Apps Script editor input and deployment through the sub-browser.
+
+Apps Script editor work:
+
+- Confirmed the active Google account was `s.jinnouchi@yumekango.com`.
+- Created a new Apps Script project and renamed it to `AI経営実装度診断WEBアプリ`.
+- Script ID: `10iHaJIP8amLrpQsG9xcKwlWlePqMaA6c437ho78gurwOModxur8-mTG7`
+- Pasted `gas/Code.gs` into the editor.
+- Authorized spreadsheet access for the project.
+- Ran `doGet`; the execution log showed completion.
+
+Deployment:
+
+- Deployed Web App v1, then revised `gas/Code.gs` so `/config` matches `config.seed.json` shape:
+  - `app_config.diagnosis_version` is not included in the nested `app_config` object.
+  - `display_condition_json` cells are parsed back to JSON objects.
+  - choice rows omit empty level fields, matching `config.seed.json`.
+- Ran `clearConfigCache`.
+- Deployed Web App v2.
+
+Web App:
+
+- URL: https://script.google.com/macros/s/AKfycbxgaX2s8ly7NbotTH3V3Nys23kZKy2j48b6_ACQKPV3phyiXYzsx27RJK3yD6yBjzqfFQ/exec
+- Deployment ID: `AKfycbxgaX2s8ly7NbotTH3V3Nys23kZKy2j48b6_ACQKPV3phyiXYzsx27RJK3yD6yBjzqfFQ`
+- Version: `2` (`2026-07-05 9:47` in Apps Script UI)
+- Execute as: `s.jinnouchi@yumekango.com`
+- Access: `全員`
+
+Verification:
+
+- `curl.exe -L -s ".../exec?action=config"` returned HTTP `200` and `application/json; charset=utf-8`.
+- `/config` stable JSON comparison against `config.seed.json` passed.
+- Counts confirmed from `/config`: `questions=9`, `choices=37`, `results=5`, `result_steps=20`.
+- `index.html` `WEBAPP_URL` was set to the v2 Web App URL.

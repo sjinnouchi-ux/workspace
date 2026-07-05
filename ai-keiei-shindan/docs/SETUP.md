@@ -11,6 +11,7 @@ Last updated: 2026-07-05
 - GAS has not been pushed or deployed.
 - GitHub Pages has not been published.
 - `index.html` `FALLBACK_CONFIG` is synced with `config.seed.json`.
+- GAS Web App v2 is deployed and `index.html` `WEBAPP_URL` is set.
 
 ## Google Sheets
 
@@ -60,11 +61,24 @@ Recommended reproducible flow:
 
 ## GAS
 
-Current local blocker:
+Deployed Web App:
 
-- `clasp` is not authenticated in this Windows environment.
-- `ai-keiei-shindan/.clasp.json` is not present, so the local checkout is not linked to an Apps Script project.
-- GAS push/deploy and live `/config` verification must be completed after authenticating/linking `clasp` with `s.jinnouchi@yumekango.com`, or by using another authenticated Apps Script deployment route.
+```text
+https://script.google.com/macros/s/AKfycbxgaX2s8ly7NbotTH3V3Nys23kZKy2j48b6_ACQKPV3phyiXYzsx27RJK3yD6yBjzqfFQ/exec
+```
+
+Deployment notes:
+
+- Project: `AI経営実装度診断WEBアプリ`
+- Script ID: `10iHaJIP8amLrpQsG9xcKwlWlePqMaA6c437ho78gurwOModxur8-mTG7`
+- Deployment ID: `AKfycbxgaX2s8ly7NbotTH3V3Nys23kZKy2j48b6_ACQKPV3phyiXYzsx27RJK3yD6yBjzqfFQ`
+- Version: `2` (`2026-07-05 9:47` in Apps Script UI)
+- Execute as: `s.jinnouchi@yumekango.com`
+- Access: `全員`
+
+Local tooling note:
+
+- This deployment was performed through the Apps Script web editor because local `clasp` is not authenticated and `ai-keiei-shindan/.clasp.json` is not present.
 
 Source files:
 
