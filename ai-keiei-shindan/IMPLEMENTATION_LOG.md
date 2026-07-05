@@ -320,6 +320,7 @@ Implemented:
 - Updated result screens to use a friendly gothic-family font stack.
 - Rendered quote-only result paragraphs as president voice cards with free Unsplash portrait images and speech-bubble styling.
 - Rendered employee-size choices from `config.choices` `q_employee` instead of hard-coded labels, resolving Claude's low-priority optional note about employee labels.
+- Changed the top status label from English (`ready`/`draft`) to Japanese (`公開中`/`下書き`) for a cleaner public screen.
 
 Verification:
 
