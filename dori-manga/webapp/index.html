@@ -58,6 +58,9 @@
   table { width:100%; border-collapse:collapse; min-width:1060px; font-size:13px; }
   th, td { border-bottom:1px solid var(--line); padding:7px; vertical-align:top; }
   th { background:var(--pink-3); color:#59434c; position:sticky; top:0; z-index:1; text-align:left; }
+  tr.working-row { background:#fff8d8; box-shadow:inset 4px 0 0 #d8a417; }
+  tr.working-row td { border-bottom-color:#ead391; }
+  tr.working-row input, tr.working-row select, tr.working-row textarea { border-color:#d8b64f; background:#fffdf5; }
   td textarea { min-height:54px; min-width:145px; font-size:12px; line-height:1.45; }
   td input { min-width:150px; }
   .title-cell { min-width:180px; font-weight:700; }
@@ -286,7 +289,7 @@ const SUPABASE_ANON = "sb_publishable_b8a4K90d5R6S5RZReLa-HA_G6nNwKKW";
 const LOGIN_EMAIL   = "s.jinnouchi@yumekango.com";
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-const STATUSES = ["完成", "未完成", "不採用"];
+const STATUSES = ["完成", "制作中", "未完成", "不採用"];
 const CSV_STATUSES = ["新規作成", ...STATUSES];
 const EVAL_STATUSES = ["OK", "NG", "CLOSE"];
 const DUPLICATE_REPAIR_WINDOW_MS = 10 * 60 * 1000;
@@ -466,9 +469,12 @@ async function loadStats() {
   $("system-status").innerHTML = `<div class="alert ok">Supabase疎通OK</div>` +
     `<div class="compact">最終DB登録日時: ${last ? last.toLocaleString("ja-JP") : "未登録"} / keepaliveはGitHub Actionsで定期実行</div>`;
   $("stats").innerHTML = [
-    ["作品数", counts[0].count], ["完成", counts[1].count], ["未完成", counts[2].count],
-    ["不採用", counts[3].count], ["画像評価数", counts[4].count], ["改善ルール数", counts[5].count],
-    ["JSON補修対象", counts[6].count], ["近接重複疑い", duplicateRepairCount],
+    ["作品数", counts[0].count],
+    ...STATUSES.map((status, index) => [status, counts[index + 1].count]),
+    ["画像評価数", counts[STATUSES.length + 1].count],
+    ["改善ルール数", counts[STATUSES.length + 2].count],
+    ["JSON補修対象", counts[STATUSES.length + 3].count],
+    ["近接重複疑い", duplicateRepairCount],
   ].map(([label, count]) => `<div class="stat"><div class="num">${count ?? "-"}</div><div class="lbl">${label}</div></div>`).join("");
 }
 
@@ -516,7 +522,7 @@ function renderProduction() {
   renderFilters();
   const episodes = state.filter === "すべて" ? state.episodes : state.episodes.filter(ep => ep.status === state.filter);
   $("episode-rows").innerHTML = episodes.map(ep => `
-    <tr data-episode-id="${ep.id}">
+    <tr data-episode-id="${ep.id}" class="${ep.is_working ? "working-row" : ""}">
       <td><input type="checkbox" data-action="working" ${ep.is_working ? "checked" : ""}></td>
       <td class="title-cell">${esc(ep.title)}${ep.drive_folder_url ? `<a class="folder-link" href="${esc(ep.drive_folder_url)}" target="_blank">Driveフォルダ</a>` : `<button class="small secondary" data-action="create-folder">フォルダ作成</button>`}<div class="save-state" id="save-${ep.id}-title"></div></td>
       <td><select data-episode-field="status">${STATUSES.map(s => `<option value="${s}" ${ep.status === s ? "selected" : ""}>${s}</option>`).join("")}</select></td>
