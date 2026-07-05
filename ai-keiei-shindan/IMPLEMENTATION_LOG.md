@@ -248,3 +248,38 @@ Verification:
 - `/config` stable JSON comparison against `config.seed.json` passed.
 - Counts confirmed from `/config`: `questions=9`, `choices=37`, `results=5`, `result_steps=20`.
 - `index.html` `WEBAPP_URL` was set to the v2 Web App URL.
+
+## 2026-07-05 GitHub Pages publication and E2E submission test
+
+User instruction:
+
+- Proceed to the next task. The user will operate the sub-browser and register one test submission.
+
+GitHub Pages:
+
+- Fast-forwarded `main` to `codex/ai-keiei-shindan-setup` and pushed `main`.
+- Enabled GitHub Pages for `sjinnouchi-ux/workspace` from `main` and root path.
+- Public URL: https://sjinnouchi-ux.github.io/workspace/ai-keiei-shindan/
+- Pages API status: `built`.
+- Public HTML checks:
+  - HTTP `200`
+  - `<meta name="robots" content="noindex">` present
+  - GAS Web App URL present in `index.html`
+
+Sub-browser:
+
+- Opened the public URL for user-operated E2E input.
+- The page loaded with title `AI経営実装度診断` and showed the start button.
+
+Submission readback:
+
+- Confirmed one row in `submissions`.
+- `submission_id`: `d5ba2ef3-1db7-439d-a014-e88ad256aaf8`
+- `company_name`: `ゆめ看護`
+- `industry`: `卸売り`
+- `employee_size`: `employee_1_9`
+- `result_code`: `C`
+- `result_phase`: `現場利用あり・AI管理者不在フェーズ`
+- `result_headline`: `社員がAIを使い始めているのに、誰が管理するかが曖昧になっていませんか？`
+- `device_type`: `mobile`
+- `raw_payload_json` was present.
