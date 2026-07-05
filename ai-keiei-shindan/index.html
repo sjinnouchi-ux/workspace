@@ -1404,7 +1404,7 @@ const FALLBACK_CONFIG =     {
       const blocked = !hasUsableConfig();
       app.innerHTML = `
         <section class="screen">
-          <p class="eyebrow">${escapeHtml(configSource === "remote" ? "ready" : "draft")}</p>
+          <p class="eyebrow">${escapeHtml(configSource === "remote" ? "公開中" : "下書き")}</p>
           <h1>${escapeHtml(cfg("app_title", "AI経営実装度診断"))}</h1>
           <p>${escapeHtml(cfg("top_subtitle", ""))}</p>
           ${blocked ? `<div class="notice">質問・選択肢・結果文言の正本データが未投入です。Claude確認後にスプレッドシートを埋めると、この画面から診断を開始できます。</div>` : ""}
