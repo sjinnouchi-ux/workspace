@@ -6,6 +6,12 @@
 - 制作タブの作業チェック済み行に `working-row` 表示を追加。
   - チェックした行は薄い黄色背景と左ラインで強調し、行単位で作業対象を把握しやすくした。
 - マニュアル `dori-manga-admin-user-manual.md` を更新し、状態4値とチェック行の色付き表示を追記。
+- 検証:
+  - `index.html` 内インラインJavaScriptの構文チェック成功。
+  - `git diff --check` 成功。
+  - ローカル確認URL `http://127.0.0.1:8765/work/dori-manga-status-preview.html` をサブブラウザで表示し、`制作中` フィルター/選択肢とチェック済み行の色付き表示を確認。
+  - Cloudflare Pagesへデプロイし、デプロイURL `https://eceaf4ee.dori-manga-admin.pages.dev` を確認。
+  - 本番URL `https://dori-manga-admin.pages.dev/?v=ca90b07-deployed` で `working-row` と `STATUSES = ["完成", "制作中", "未完成", "不採用"]` の反映を確認。
 
 ## 2026-07-03（v3.1 プロンプトタブ追加）
 - Claude設計書 `codex-handoff-v3-1-prompt-tab.md` に基づき、管理画面へ「プロンプト」タブを追加。
