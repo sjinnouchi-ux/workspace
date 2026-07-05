@@ -10,7 +10,7 @@ Last updated: 2026-07-05
 
 - Frontend: single `index.html` with embedded HTML/CSS/Vanilla JS.
 - Backend: Google Apps Script Web App.
-- Data: Google Sheets with `app_config`, `questions`, `choices`, `results`, `result_steps`, `submissions`.
+- Data: Google Sheets with `app_config`, `questions`, `choices`, `results`, `result_steps`, `submissions`, `submission_answer_labels`.
 - Hosting: GitHub Pages with `<meta name="robots" content="noindex">`.
 - Account for Google-side work: `s.jinnouchi@yumekango.com`.
 

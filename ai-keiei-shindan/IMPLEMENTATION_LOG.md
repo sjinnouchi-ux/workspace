@@ -328,3 +328,44 @@ Verification:
 - JavaScript blocks in `index.html` compiled with `vm.Script`.
 - Local browser preview at `http://127.0.0.1:8765/ai-keiei-shindan/` showed the refreshed blue design.
 - Result preview displayed 3 voice cards; all 3 portrait images loaded.
+
+## 2026-07-05 Branching, label log, and result readability update
+
+User instruction:
+
+- Add an operator-friendly log tab where each company's answers are visible as Japanese answer text, instead of requiring value lookups.
+- Improve result pages from step 2 onward with more readable typography, bold emphasis, and red point callouts.
+- Add `分からない（担当者に聞かないと不明）` to Q2.
+- Split the AI-management-role question into internal 담당者 and external委託先 choices.
+- When an external委託先 is selected, ask about vendor dependency with A1〜A4 choices.
+- For A1/A3/A4, let the result land on the need to develop internal AI talent.
+
+Implemented in Git:
+
+- Updated `config.seed.json` from diagnosis version `1.0.0` to `1.1.0`.
+- Added `q5b` for external vendor dependency.
+- Updated canonical counts to `questions=10`, `choices=43`, `results=5`, `result_steps=20`.
+- Synced `index.html` `FALLBACK_CONFIG` from `config.seed.json` and verified JSON equivalence.
+- Added frontend fallback selection so old remote `/config` data does not hide the new Q2/Q5/Q5B flow.
+- Added `answer_labels` to the submitted payload.
+- Updated result detail rendering with red point callouts and stronger readable typography from step 2 onward.
+- Updated `gas/Code.gs` to add `submission_answer_labels`, append `q5b_value`, and save Japanese answer labels per submission.
+- Updated `docs/ai_keiei_shindan_app_spec.md`, `docs/SETUP.md`, and `PROJECT_BRIEF.md`.
+
+Verification:
+
+- `node tests/logic.test.js` passed.
+- JavaScript blocks in `index.html` compiled with `vm.Script`.
+- `gas/Code.gs` compiled with `vm.Script`.
+- `config.seed.json` parsed successfully and matched `FALLBACK_CONFIG` as JSON.
+- Local browser preview confirmed:
+  - Q2 includes `分からない（担当者に聞かないと不明）`.
+  - Q5 separates internal担当者 and external委託先 choices.
+  - Selecting `admin_external` displays Q5B with A1〜A4.
+  - Result step 2 displays a red callout point.
+
+Cloud reflection note:
+
+- Local `clasp` is not configured for this project.
+- Direct Google OAuth API refresh failed with `invalid_grant` / `invalid_rapt`, so spreadsheet seeding and GAS deployment were not completed from this local run.
+- Until GAS and Sheets are updated, the public frontend can still use embedded `FALLBACK_CONFIG` v1.1.0 when the remote `/config` response is older, but the new `submission_answer_labels` tab requires the updated GAS code to be deployed.

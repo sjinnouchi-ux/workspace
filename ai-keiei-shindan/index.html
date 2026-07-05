@@ -170,6 +170,33 @@
     .md p {
       color: #24425f;
     }
+    .result-detail-screen .md {
+      display: grid;
+      gap: var(--space-3);
+    }
+    .result-detail-screen .md p {
+      margin: 0;
+      font-size: 1.05rem;
+      line-height: 1.95;
+    }
+    .result-detail-screen .md strong {
+      color: var(--danger);
+      font-weight: 800;
+      background: #fff2f0;
+      padding: 0 0.18em;
+      border-radius: 4px;
+    }
+    .result-point {
+      padding: var(--space-3);
+      border-left: 5px solid var(--danger);
+      border-radius: var(--radius);
+      background: #fff8f7;
+      color: #96352d;
+      font-weight: 800;
+    }
+    .result-detail-screen .md .result-point strong {
+      background: #ffffff;
+    }
     .md ul { padding-left: var(--space-4); }
     .voice-intro {
       color: var(--text-sub);
@@ -486,7 +513,7 @@
       "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&w=160&q=80",
     ];
 const FALLBACK_CONFIG =     {
-          "diagnosis_version": "1.0.0",
+          "diagnosis_version": "1.1.0",
           "app_config": {
                 "app_title": "AI経営実装度診断",
                 "top_subtitle": "会社としてAIを管理・実装できる状態にあるかを確認する簡易診断です。",
@@ -523,7 +550,7 @@ const FALLBACK_CONFIG =     {
                       "question_id": "q2",
                       "page_type": "diagnosis",
                       "question_text": "社長ご自身がよく使うAIは、どれに近いですか？",
-                      "description": "",
+                      "description": "分からない場合は、担当者に確認が必要な状態として選択してください。",
                       "is_required": true,
                       "display_condition_json": {
                             "q1": [
@@ -585,10 +612,23 @@ const FALLBACK_CONFIG =     {
                       "question_id": "q5",
                       "page_type": "diagnosis",
                       "question_text": "AIを管理する役割は、社内外で決まっていますか？",
-                      "description": "",
+                      "description": "社内担当者がいる場合と、外部委託先が担当・相談先になっている場合を分けて選択してください。",
                       "is_required": true,
                       "display_condition_json": {},
                       "order": 7
+                },
+                {
+                      "question_id": "q5b",
+                      "page_type": "diagnosis",
+                      "question_text": "委託先とのAIに関する関係は、どれに近いですか？",
+                      "description": "外部委託先がAIの担当・相談先になっている場合に、社内側の判断や人材育成の必要度を見る質問です。",
+                      "is_required": true,
+                      "display_condition_json": {
+                            "q5": [
+                                  "admin_external"
+                            ]
+                      },
+                      "order": 8
                 },
                 {
                       "question_id": "q6",
@@ -599,7 +639,7 @@ const FALLBACK_CONFIG =     {
                       "display_condition_json": {
                             "e_candidate": true
                       },
-                      "order": 8
+                      "order": 9
                 },
                 {
                       "question_id": "q7",
@@ -610,7 +650,7 @@ const FALLBACK_CONFIG =     {
                       "display_condition_json": {
                             "e_candidate": true
                       },
-                      "order": 9
+                      "order": 10
                 }
           ],
           "choices": [
@@ -699,6 +739,13 @@ const FALLBACK_CONFIG =     {
                       "label": "複数を使い分けている",
                       "ceo_tool_level": 3,
                       "order": 4
+                },
+                {
+                      "question_id": "q2",
+                      "value": "ceo_tool_unknown",
+                      "label": "分からない（担当者に聞かないと不明）",
+                      "ceo_tool_level": 0,
+                      "order": 5
                 },
                 {
                       "question_id": "q3",
@@ -793,23 +840,62 @@ const FALLBACK_CONFIG =     {
                 },
                 {
                       "question_id": "q5",
-                      "value": "admin_personal",
-                      "label": "総務・管理部門、または詳しい個人が兼任している",
+                      "value": "admin_internal_ops",
+                      "label": "総務・管理部門など社内で担当者がいる",
                       "admin_level": 1,
                       "order": 2
                 },
                 {
                       "question_id": "q5",
-                      "value": "admin_it_external",
-                      "label": "システム開発・IT担当が兼任、または外部委託先に相談している",
+                      "value": "admin_internal_it",
+                      "label": "IT担当・システム開発担当など社内で担当者がいる",
                       "admin_level": 2,
                       "order": 3
+                },
+                {
+                      "question_id": "q5",
+                      "value": "admin_external",
+                      "label": "外部委託先が担当している（相談している）",
+                      "admin_level": 1,
+                      "order": 4
                 },
                 {
                       "question_id": "q5",
                       "value": "admin_agent_manager",
                       "label": "AIエージェントマネージャーのような管理役を置いている",
                       "admin_level": 3,
+                      "order": 5
+                },
+                {
+                      "question_id": "q5b",
+                      "value": "vendor_full_ai",
+                      "label": "A1：あらゆるAIに関する内容を全面的に委託",
+                      "admin_role_level": 0,
+                      "knowledge_spread_level": 0,
+                      "order": 1
+                },
+                {
+                      "question_id": "q5b",
+                      "value": "vendor_ad_hoc_dev",
+                      "label": "A2：AIを含めたシステム開発などで都度都度の委託",
+                      "admin_role_level": 1,
+                      "knowledge_spread_level": 1,
+                      "order": 2
+                },
+                {
+                      "question_id": "q5b",
+                      "value": "vendor_full_internalize",
+                      "label": "A3：全面を委託しているが内製を進めたい",
+                      "admin_role_level": 1,
+                      "knowledge_spread_level": 0,
+                      "order": 3
+                },
+                {
+                      "question_id": "q5b",
+                      "value": "vendor_unknown",
+                      "label": "A4：詳細は分からない",
+                      "admin_role_level": 0,
+                      "knowledge_spread_level": 0,
                       "order": 4
                 },
                 {
@@ -1082,7 +1168,7 @@ const FALLBACK_CONFIG =     {
                       "step_order": 40,
                       "type": "text",
                       "headline": "最初に決めるべきこと",
-                      "body_md": "まず決めるべきことは、AI管理者の守備範囲です。\n\n具体的には、AIエージェントを誰が管理するか、LLM/APIや従量課金の利用判断を誰がするか、社員からのAI相談を誰が受けるか、外部委託先やツール会社の提案を誰が判断するかを決めます。",
+                      "body_md": "まず決めるべきことは、AI管理者の守備範囲です。\n\n具体的には、AIエージェントを誰が管理するか、LLM/APIや従量課金の利用判断を誰がするか、社員からのAI相談を誰が受けるか、外部委託先やツール会社の提案を誰が判断するかを決めます。\n\n**外部委託先に任せている場合でも、社内側で判断できるAI人材を育てることが次の焦点になります。**",
                       "url": "",
                       "link_label": "",
                       "next_label": "",
@@ -1200,8 +1286,11 @@ const FALLBACK_CONFIG =     {
         }
         if (inVoiceList) { html += "</div>"; inVoiceList = false; }
         const strong = escapeHtml(text).replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-        const voiceIntroClass = text.includes("同じ回答傾向の経営者によくある声です") ? ' class="voice-intro"' : "";
-        html += `<p${voiceIntroClass}>${strong}</p>`;
+        const classes = [];
+        if (text.includes("同じ回答傾向の経営者によくある声です")) classes.push("voice-intro");
+        if (/^(ただし|一方で|ここで大事なのは|まず決めるべきことは|御社にとって数少ないリスクは)/.test(text)) classes.push("result-point");
+        const className = classes.length ? ` class="${classes.join(" ")}"` : "";
+        html += `<p${className}>${strong}</p>`;
       });
       if (inList) html += "</ul>";
       if (inVoiceList) html += "</div>";
@@ -1211,6 +1300,15 @@ const FALLBACK_CONFIG =     {
     function hasUsableConfig() {
       const visible = buildVisibleQuestions(state, config);
       return visible.length > 0 && (config.choices || []).some((choice) => choice.question_id === visible[0].question_id);
+    }
+
+    function hasCurrentConfigShape(candidate) {
+      return (
+        candidate &&
+        candidate.diagnosis_version === FALLBACK_CONFIG.diagnosis_version &&
+        (candidate.questions || []).some((question) => question.question_id === "q5b") &&
+        (candidate.choices || []).some((choice) => choice.question_id === "q2" && choice.value === "ceo_tool_unknown")
+      );
     }
 
     function saveState() {
@@ -1250,9 +1348,9 @@ const FALLBACK_CONFIG =     {
         clearTimeout(timer);
         if (!response.ok) throw new Error("config response was not ok");
         const loaded = await response.json();
-        config = loaded;
-        configSource = "remote";
-        state = { ...state, diagnosisVersion: loaded.diagnosis_version || state.diagnosisVersion };
+        config = hasCurrentConfigShape(loaded) ? loaded : FALLBACK_CONFIG;
+        configSource = hasCurrentConfigShape(loaded) ? "remote" : "embedded";
+        state = { ...state, diagnosisVersion: config.diagnosis_version || state.diagnosisVersion };
         state.computed = computeValues(state, config);
         await retryPendingSubmissions();
         render();
@@ -1322,10 +1420,24 @@ const FALLBACK_CONFIG =     {
         industry: submitState.industry,
         employee_size: submitState.employee_size,
         answers: submitState.answers,
+        answer_labels: buildAnswerLabels(submitState),
         computed: submitState.computed,
         result: submitState.result,
         meta: { device_type: inferDeviceType(), user_agent: navigator.userAgent },
       };
+    }
+
+    function buildAnswerLabels(submitState) {
+      const labels = {};
+      const choices = config.choices || [];
+      const employeeChoice = choices.find((choice) => choice.question_id === "q_employee" && choice.value === submitState.employee_size);
+      labels.employee_size = employeeChoice ? employeeChoice.label : submitState.employee_size;
+      Object.entries(submitState.answers || {}).forEach(([questionId, value]) => {
+        if (!value) return;
+        const choice = choices.find((candidate) => candidate.question_id === questionId && candidate.value === value);
+        labels[questionId] = choice ? choice.label : value;
+      });
+      return labels;
     }
 
     function inferDeviceType() {
@@ -1404,7 +1516,7 @@ const FALLBACK_CONFIG =     {
       const blocked = !hasUsableConfig();
       app.innerHTML = `
         <section class="screen">
-          <p class="eyebrow">${escapeHtml(configSource === "remote" ? "公開中" : "下書き")}</p>
+          <p class="eyebrow">${escapeHtml(configSource === "fallback" ? "下書き" : "公開中")}</p>
           <h1>${escapeHtml(cfg("app_title", "AI経営実装度診断"))}</h1>
           <p>${escapeHtml(cfg("top_subtitle", ""))}</p>
           ${blocked ? `<div class="notice">質問・選択肢・結果文言の正本データが未投入です。Claude確認後にスプレッドシートを埋めると、この画面から診断を開始できます。</div>` : ""}
@@ -1492,7 +1604,7 @@ const FALLBACK_CONFIG =     {
 
     function renderResultIntro() {
       app.innerHTML = `
-        <section class="screen result-screen">
+        <section class="screen result-screen ${state.resultStepIndex > 0 ? "result-detail-screen" : ""}">
           <p class="eyebrow">${escapeHtml(state.company_name)} さまの結果</p>
           <h2>${escapeHtml(cfg("result_intro_headline", "診断結果がまとまりました。"))}</h2>
           <p>${escapeHtml(cfg("result_intro_sub", "このあと、現在地と次に決めることを表示します。"))}</p>
@@ -1524,7 +1636,7 @@ const FALLBACK_CONFIG =     {
       const isLast = state.resultStepIndex >= steps.length - 1;
       const body = step.type === "article" ? renderArticle(step) : renderMarkdown(step.body_md);
       app.innerHTML = `
-        <section class="screen result-screen">
+        <section class="screen result-screen ${state.resultStepIndex > 0 ? "result-detail-screen" : ""}">
           <div class="progress" aria-hidden="true"><span style="--progress:${Math.round(((state.resultStepIndex + 1) / steps.length) * 100)}%"></span></div>
           <p class="eyebrow">結果 ${state.resultStepIndex + 1} / ${steps.length}</p>
           <h2>${escapeHtml(step.headline || state.result.headline || "")}</h2>

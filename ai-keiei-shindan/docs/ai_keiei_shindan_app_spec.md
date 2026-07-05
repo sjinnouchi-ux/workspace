@@ -66,7 +66,9 @@
 - ceo_tool_agent Codex、Cowork、Claude CodeなどのAIエージェントが中心（ceo_tool_level=3）
 - ceo_tool_api LLM/APIを使った業務システムや自動化（ceo_tool_level=4）
 - ceo_tool_mix 複数を使い分けている（ceo_tool_level=3）
+- ceo_tool_unknown 分からない（担当者に聞かないと不明）（ceo_tool_level=0）
 分岐：ceo_tool_chat→Q3。ceo_tool_agent/ceo_tool_api/ceo_tool_mix→Q3B。
+ceo_tool_unknown→Q4。
 
 ### Q3. AIエージェント利用状況（Q2でチャットAI中心のとき表示）
 質問：AIエージェントは使っていますか？
@@ -96,10 +98,19 @@
 ### Q5. AI管理者・AI推進役・社内窓口（全員表示）
 質問：AIを管理する役割は、社内外で決まっていますか？
 - admin_none まだ決まっていない、または社長が都度判断している（admin_level=0）
-- admin_personal 総務・管理部門、または詳しい個人が兼任している（admin_level=1）
-- admin_it_external システム開発・IT担当が兼任、または外部委託先に相談している（admin_level=2）
+- admin_internal_ops 総務・管理部門など社内で担当者がいる（admin_level=1）
+- admin_internal_it IT担当・システム開発担当など社内で担当者がいる（admin_level=2）
+- admin_external 外部委託先が担当している（相談している）（admin_level=1）
 - admin_agent_manager AIエージェントマネージャーのような管理役を置いている（admin_level=3）
-分岐：E候補に該当ならQ6・Q7を表示。該当しなければ結果判定へ。
+分岐：admin_external→Q5B。E候補に該当ならQ6・Q7を表示。該当しなければ結果判定へ。
+
+### Q5B. 外部委託先への依存度（Q5で外部委託先を選んだとき表示）
+質問：委託先とのAIに関する関係は、どれに近いですか？
+- vendor_full_ai A1：あらゆるAIに関する内容を全面的に委託（admin_role_level=0 / knowledge_spread_level=0）
+- vendor_ad_hoc_dev A2：AIを含めたシステム開発などで都度都度の委託（admin_role_level=1 / knowledge_spread_level=1）
+- vendor_full_internalize A3：全面を委託しているが内製を進めたい（admin_role_level=1 / knowledge_spread_level=0）
+- vendor_unknown A4：詳細は分からない（admin_role_level=0 / knowledge_spread_level=0）
+分岐：A1/A3/A4は、結果上は社内AI人材の育成が次の焦点になる方向へ寄せる。A2は外部活用をしながら社内窓口を整える方向へ寄せる。
 
 ## 7. D/E判定用の追加質問
 
@@ -178,7 +189,8 @@ else:                                                                result="A"
 Googleスプレッドシートで、診断回答の保存・質問文/選択肢の管理・結果文言の管理・診断バージョン管理を行う。反映方式は案A（GASをAPI化）：GET /config で質問・選択肢・結果文言を返し、POST /submit で回答を保存する。
 
 推奨シート：app_config / questions / choices / results / result_steps / submissions。
-submissions の列は timestamp, submission_id, diagnosis_version, company_name, industry, employee_size, q1..q7_value, 各内部計算値, advanced_ai_usage, result_code, result_headline, result_phase, raw_payload_json（＋任意 device_type, user_agent）。
+運用確認用に、回答valueを日本語ラベルへ展開した `submission_answer_labels` シートを併用する。
+submissions の列は timestamp, submission_id, diagnosis_version, company_name, industry, employee_size, q1..q7_value（外部委託先依存度の q5b_value を含む）, 各内部計算値, advanced_ai_usage, result_code, result_headline, result_phase, raw_payload_json（＋任意 device_type, user_agent）。
 
 ## 17. 実装時の注意点
 

@@ -29,16 +29,17 @@ Tabs:
 - `results`
 - `result_steps`
 - `submissions`
+- `submission_answer_labels`
 - `_README`
 
 The master data was seeded from `config.seed.json` on 2026-07-05 and verified with these data-row counts:
 
-- `questions`: 9
-- `choices`: 37
+- `questions`: 10
+- `choices`: 43
 - `results`: 5
 - `result_steps`: 20
 
-`submissions` has the Claude-confirmed header order and no data rows were present before reseeding.
+`submissions` keeps the raw value-oriented log. `submission_answer_labels` is the operator-facing log tab that expands answer values into Japanese labels.
 
 ## Seeding From `config.seed.json`
 
@@ -52,8 +53,8 @@ Recommended reproducible flow:
 1. Paste the JSON body into Apps Script project property `CONFIG_SEED_JSON`.
 2. Run `seedSheetsFromScriptProperty()`.
 3. Confirm returned counts:
-   - `questions: 9`
-   - `choices: 37`
+   - `questions: 10`
+   - `choices: 43`
    - `results: 5`
    - `result_steps: 20`
 4. Confirm the spreadsheet tabs have the same data-row counts.

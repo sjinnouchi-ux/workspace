@@ -57,6 +57,8 @@ const branchConfig = {
     { question_id: "q3b", value: "api_partial", api_level: 1 },
     { question_id: "q4", value: "field_none", field_level: 0 },
     { question_id: "q5", value: "admin_none", admin_level: 0 },
+    { question_id: "q5", value: "admin_external", admin_level: 1 },
+    { question_id: "q5b", value: "vendor_full_ai", admin_role_level: 0, knowledge_spread_level: 0 },
   ],
   questions: [
     { question_id: "q1", page_type: "diagnosis", question_text: "q1", display_condition_json: "{}", order: 1 },
@@ -65,7 +67,8 @@ const branchConfig = {
     { question_id: "q3b", page_type: "diagnosis", question_text: "q3b", display_condition_json: { $or: [{ q2: ["ceo_tool_agent", "ceo_tool_api", "ceo_tool_mix"] }, { q3: ["agent_work", "agent_api"] }] }, order: 4 },
     { question_id: "q4", page_type: "diagnosis", question_text: "q4", display_condition_json: "{}", order: 5 },
     { question_id: "q5", page_type: "diagnosis", question_text: "q5", display_condition_json: "{}", order: 6 },
-    { question_id: "q6", page_type: "diagnosis", question_text: "q6", display_condition_json: { e_candidate: true }, order: 7 },
+    { question_id: "q5b", page_type: "diagnosis", question_text: "q5b", display_condition_json: { q5: ["admin_external"] }, order: 7 },
+    { question_id: "q6", page_type: "diagnosis", question_text: "q6", display_condition_json: { e_candidate: true }, order: 8 },
   ],
 };
 
@@ -94,6 +97,20 @@ const sanitized = core.sanitizeHiddenAnswers(state, branchConfig);
 assert.strictEqual(sanitized.answers.q2, null, "q2 reset after q1 hides it");
 assert.strictEqual(sanitized.answers.q3b, null, "q3b reset after q1 hides it");
 assert.deepEqual(core.buildVisibleQuestions(sanitized, branchConfig).map((q) => q.question_id), ["q1", "q4", "q5"]);
+
+const externalState = {
+  employee_size: "employee_30_99",
+  answers: { q1: "ceo_agent", q2: "ceo_tool_agent", q3: null, q3b: "api_partial", q4: "field_none", q5: "admin_external", q5b: null, q6: null },
+  computed: core.defaultComputed(),
+};
+assert.deepEqual(core.buildVisibleQuestions(externalState, branchConfig).map((q) => q.question_id), ["q1", "q2", "q3b", "q4", "q5", "q5b", "q6"]);
+
+const externalComputed = core.computeValues({
+  ...externalState,
+  answers: { ...externalState.answers, q5b: "vendor_full_ai" },
+}, branchConfig);
+assert.strictEqual(externalComputed.admin_level, 1, "external vendor is an admin candidate");
+assert.strictEqual(externalComputed.admin_role_level, 0, "full external delegation keeps internal role weak");
 
 const steps = core.buildResultSteps("C", {
   result_steps: [

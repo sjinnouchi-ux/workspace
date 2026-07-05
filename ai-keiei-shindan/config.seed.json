@@ -1,5 +1,5 @@
 {
-  "diagnosis_version": "1.0.0",
+  "diagnosis_version": "1.1.0",
   "app_config": {
     "app_title": "AI経営実装度診断",
     "top_subtitle": "会社としてAIを管理・実装できる状態にあるかを確認する簡易診断です。",
@@ -16,13 +16,14 @@
   "questions": [
     { "question_id": "q_employee", "page_type": "employee", "question_text": "御社の従業員規模を教えてください。", "description": "", "is_required": true, "display_condition_json": {}, "order": 1 },
     { "question_id": "q1", "page_type": "diagnosis", "question_text": "社長ご自身は、AIをどの程度使っていますか？", "description": "", "is_required": true, "display_condition_json": {}, "order": 2 },
-    { "question_id": "q2", "page_type": "diagnosis", "question_text": "社長ご自身がよく使うAIは、どれに近いですか？", "description": "", "is_required": true, "display_condition_json": { "q1": ["ceo_light", "ceo_daily", "ceo_agent"] }, "order": 3 },
+    { "question_id": "q2", "page_type": "diagnosis", "question_text": "社長ご自身がよく使うAIは、どれに近いですか？", "description": "分からない場合は、担当者に確認が必要な状態として選択してください。", "is_required": true, "display_condition_json": { "q1": ["ceo_light", "ceo_daily", "ceo_agent"] }, "order": 3 },
     { "question_id": "q3", "page_type": "diagnosis", "question_text": "AIエージェントは使っていますか？", "description": "ここでいうAIエージェントとは、単に回答するだけでなく、調査・資料作成・コード作成・ファイル編集などの作業を任せられるAIを指します。", "is_required": true, "display_condition_json": { "q2": ["ceo_tool_chat"] }, "order": 4 },
     { "question_id": "q3b", "page_type": "diagnosis", "question_text": "LLM/APIを使った業務システム化は進んでいますか？", "description": "", "is_required": true, "display_condition_json": { "$or": [ { "q2": ["ceo_tool_agent", "ceo_tool_api", "ceo_tool_mix"] }, { "q3": ["agent_work", "agent_api"] } ] }, "order": 5 },
     { "question_id": "q4", "page_type": "diagnosis", "question_text": "現場や社員の方は、AIをどの程度使っていますか？", "description": "", "is_required": true, "display_condition_json": {}, "order": 6 },
-    { "question_id": "q5", "page_type": "diagnosis", "question_text": "AIを管理する役割は、社内外で決まっていますか？", "description": "", "is_required": true, "display_condition_json": {}, "order": 7 },
-    { "question_id": "q6", "page_type": "diagnosis", "question_text": "AI管理者・AI推進役の役割は、現在どの状態に近いですか？", "description": "", "is_required": true, "display_condition_json": { "e_candidate": true }, "order": 8 },
-    { "question_id": "q7", "page_type": "diagnosis", "question_text": "AI活用の知見は、社内外にどこまで広がっていますか？", "description": "", "is_required": true, "display_condition_json": { "e_candidate": true }, "order": 9 }
+    { "question_id": "q5", "page_type": "diagnosis", "question_text": "AIを管理する役割は、社内外で決まっていますか？", "description": "社内担当者がいる場合と、外部委託先が担当・相談先になっている場合を分けて選択してください。", "is_required": true, "display_condition_json": {}, "order": 7 },
+    { "question_id": "q5b", "page_type": "diagnosis", "question_text": "委託先とのAIに関する関係は、どれに近いですか？", "description": "外部委託先がAIの担当・相談先になっている場合に、社内側の判断や人材育成の必要度を見る質問です。", "is_required": true, "display_condition_json": { "q5": ["admin_external"] }, "order": 8 },
+    { "question_id": "q6", "page_type": "diagnosis", "question_text": "AI管理者・AI推進役の役割は、現在どの状態に近いですか？", "description": "", "is_required": true, "display_condition_json": { "e_candidate": true }, "order": 9 },
+    { "question_id": "q7", "page_type": "diagnosis", "question_text": "AI活用の知見は、社内外にどこまで広がっていますか？", "description": "", "is_required": true, "display_condition_json": { "e_candidate": true }, "order": 10 }
   ],
   "choices": [
     { "question_id": "q_employee", "value": "employee_1_9", "label": "1〜9人", "order": 1 },
@@ -40,6 +41,7 @@
     { "question_id": "q2", "value": "ceo_tool_agent", "label": "Codex、Cowork、Claude CodeなどのAIエージェントが中心", "ceo_tool_level": 3, "order": 2 },
     { "question_id": "q2", "value": "ceo_tool_api", "label": "LLM/APIを使った業務システムや自動化", "ceo_tool_level": 4, "order": 3 },
     { "question_id": "q2", "value": "ceo_tool_mix", "label": "複数を使い分けている", "ceo_tool_level": 3, "order": 4 },
+    { "question_id": "q2", "value": "ceo_tool_unknown", "label": "分からない（担当者に聞かないと不明）", "ceo_tool_level": 0, "order": 5 },
 
     { "question_id": "q3", "value": "agent_none", "label": "まだ使っていない", "agent_level": 0, "order": 1 },
     { "question_id": "q3", "value": "agent_trial", "label": "試したことはあるが、業務には入っていない", "agent_level": 1, "order": 2 },
@@ -57,9 +59,15 @@
     { "question_id": "q4", "value": "field_api", "label": "社内システムや業務フローにLLM/APIが組み込まれている", "field_level": 4, "order": 4 },
 
     { "question_id": "q5", "value": "admin_none", "label": "まだ決まっていない、または社長が都度判断している", "admin_level": 0, "order": 1 },
-    { "question_id": "q5", "value": "admin_personal", "label": "総務・管理部門、または詳しい個人が兼任している", "admin_level": 1, "order": 2 },
-    { "question_id": "q5", "value": "admin_it_external", "label": "システム開発・IT担当が兼任、または外部委託先に相談している", "admin_level": 2, "order": 3 },
-    { "question_id": "q5", "value": "admin_agent_manager", "label": "AIエージェントマネージャーのような管理役を置いている", "admin_level": 3, "order": 4 },
+    { "question_id": "q5", "value": "admin_internal_ops", "label": "総務・管理部門など社内で担当者がいる", "admin_level": 1, "order": 2 },
+    { "question_id": "q5", "value": "admin_internal_it", "label": "IT担当・システム開発担当など社内で担当者がいる", "admin_level": 2, "order": 3 },
+    { "question_id": "q5", "value": "admin_external", "label": "外部委託先が担当している（相談している）", "admin_level": 1, "order": 4 },
+    { "question_id": "q5", "value": "admin_agent_manager", "label": "AIエージェントマネージャーのような管理役を置いている", "admin_level": 3, "order": 5 },
+
+    { "question_id": "q5b", "value": "vendor_full_ai", "label": "A1：あらゆるAIに関する内容を全面的に委託", "admin_role_level": 0, "knowledge_spread_level": 0, "order": 1 },
+    { "question_id": "q5b", "value": "vendor_ad_hoc_dev", "label": "A2：AIを含めたシステム開発などで都度都度の委託", "admin_role_level": 1, "knowledge_spread_level": 1, "order": 2 },
+    { "question_id": "q5b", "value": "vendor_full_internalize", "label": "A3：全面を委託しているが内製を進めたい", "admin_role_level": 1, "knowledge_spread_level": 0, "order": 3 },
+    { "question_id": "q5b", "value": "vendor_unknown", "label": "A4：詳細は分からない", "admin_role_level": 0, "knowledge_spread_level": 0, "order": 4 },
 
     { "question_id": "q6", "value": "role_unclear", "label": "AIに詳しい人や相談先はいるが、正式な役割はまだ決まっていない", "admin_role_level": 0, "order": 1 },
     { "question_id": "q6", "value": "role_window", "label": "社内窓口は決まっており、社員からの相談やツール選定を受けている", "admin_role_level": 1, "order": 2 },
@@ -97,7 +105,7 @@
     { "result_code": "D", "step_order": 10, "type": "text", "headline": "AIの窓口が見えてきています。エージェントやLLMを現場で使える形に整える段階ではありませんか？", "body_md": "同じ回答傾向の経営者によくある声です。\n\n「社内体制を整えている間に、他社はAIエージェントで業務を前に進めていたかもしれない。」\n\n「AIに詳しい担当者はいるが、その人にどこまで任せていいか判断しきれない。」\n\n「APIやLLMの従量課金を使うと便利そうだが、管理できる人がいないと少し怖い。」\n\n「外部委託先に相談はしているが、社内側で判断できる人を育てたい。」", "url": "", "link_label": "", "next_label": "", "display_condition_json": {}, "enabled": true },
     { "result_code": "D", "step_order": 20, "type": "text", "headline": "現在の状態", "body_md": "御社は、AI活用に向けた土台ができ始めている可能性があります。\n\n社長自身や一部社員がAIを使っている。\nAIに詳しい人や相談先も見えてきている。\n社内でAIの話を進める窓口も、少しずつ形になっている。\n\nこれはかなり前向きな状態です。\n\n一方で、次の段階に進むには、AIエージェントやLLM/APIを、現場で使える形に整えることが必要になります。", "url": "", "link_label": "", "next_label": "", "display_condition_json": {}, "enabled": true },
     { "result_code": "D", "step_order": 30, "type": "text", "headline": "このまま進むと起きやすいこと", "body_md": "このまま進むと、AIに詳しい個人に判断が集中したり、Codex、Cowork、Claude Codeなどのエージェント活用が個人利用で止まったりする可能性があります。\n\nまた、LLM/APIを使いたくても、従量課金や管理の不安で前に進みにくくなることがあります。\n\nこれは遅れているという話ではありません。\nここまで来ている会社だからこそ、AI管理者の役割を明確にすることで、一気に現場展開しやすくなる状態です。", "url": "", "link_label": "", "next_label": "", "display_condition_json": {}, "enabled": true },
-    { "result_code": "D", "step_order": 40, "type": "text", "headline": "最初に決めるべきこと", "body_md": "まず決めるべきことは、AI管理者の守備範囲です。\n\n具体的には、AIエージェントを誰が管理するか、LLM/APIや従量課金の利用判断を誰がするか、社員からのAI相談を誰が受けるか、外部委託先やツール会社の提案を誰が判断するかを決めます。", "url": "", "link_label": "", "next_label": "", "display_condition_json": {}, "enabled": true },
+    { "result_code": "D", "step_order": 40, "type": "text", "headline": "最初に決めるべきこと", "body_md": "まず決めるべきことは、AI管理者の守備範囲です。\n\n具体的には、AIエージェントを誰が管理するか、LLM/APIや従量課金の利用判断を誰がするか、社員からのAI相談を誰が受けるか、外部委託先やツール会社の提案を誰が判断するかを決めます。\n\n**外部委託先に任せている場合でも、社内側で判断できるAI人材を育てることが次の焦点になります。**", "url": "", "link_label": "", "next_label": "", "display_condition_json": {}, "enabled": true },
 
     { "result_code": "E", "step_order": 10, "type": "text", "headline": "最もAI導入が進んだ経営をされています。社外や市場が追いついていないことが、数少ないリスクではありませんか？", "body_md": "同じ回答傾向の経営者によくある声です。\n\n「社内ではAI活用が進んでいるが、取引先や外部専門家の理解が追いついていない。」\n\n「付き合いのある社労士事務所のAI知見が浅く、就業規則や社内ルールの改定が進まない。」\n\n「AIに詳しい人材をもっと育てたいが、全社員のAI理解を短期間で底上げする方法を探している。」\n\n「AIエージェントやAPI活用が進むほど、社内のAI管理者に求められる役割が大きくなっている。」", "url": "", "link_label": "", "next_label": "", "display_condition_json": {}, "enabled": true },
     { "result_code": "E", "step_order": 20, "type": "text", "headline": "現在の状態", "body_md": "御社は、最もAI導入が進んだ経営をされている可能性が高いです。\n\n社長自身がAIを理解している。\n現場でもAI活用が始まっている。\nAIエージェントやLLM/APIの活用も視野に入っている。\nさらに、AI管理者や推進役の役割も見えている。\n\nここまで進んでいる会社は多くありません。\nこの段階では、単にAIを導入するかどうかではなく、AIを会社の標準能力として広げていく段階に入っています。", "url": "", "link_label": "", "next_label": "", "display_condition_json": {}, "enabled": true },

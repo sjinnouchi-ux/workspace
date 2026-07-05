@@ -8,6 +8,7 @@ const SHEETS = {
   results: 'results',
   resultSteps: 'result_steps',
   submissions: 'submissions',
+  submissionAnswerLabels: 'submission_answer_labels',
 };
 
 const SHEET_HEADERS = {
@@ -18,11 +19,16 @@ const SHEET_HEADERS = {
   result_steps: ['result_code', 'step_order', 'type', 'headline', 'body_md', 'url', 'link_label', 'next_label', 'display_condition_json', 'enabled'],
   submissions: [
     'timestamp', 'submission_id', 'diagnosis_version', 'company_name', 'industry', 'employee_size',
-    'q1_value', 'q2_value', 'q3_value', 'q3b_value', 'q4_value', 'q5_value', 'q6_value', 'q7_value',
+    'q1_value', 'q2_value', 'q3_value', 'q3b_value', 'q4_value', 'q5_value', 'q5b_value', 'q6_value', 'q7_value',
     'ceo_level', 'ceo_tool_level', 'agent_level', 'api_level', 'field_level', 'admin_level',
     'admin_role_level', 'knowledge_spread_level', 'advanced_ai_usage',
     'result_code', 'result_headline', 'result_phase', 'raw_payload_json',
     'device_type', 'user_agent',
+  ],
+  submission_answer_labels: [
+    'timestamp', 'submission_id', 'company_name', 'industry', 'employee_size_value', 'employee_size_label',
+    'q1_answer', 'q2_answer', 'q3_answer', 'q3b_answer', 'q4_answer', 'q5_answer', 'q5b_answer', 'q6_answer', 'q7_answer',
+    'result_code', 'result_phase', 'result_headline',
   ],
 };
 
@@ -75,7 +81,7 @@ function saveSubmission(payload) {
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName(SHEETS.submissions);
     if (!sheet) throw new Error('submissions sheet not found');
-    const headers = getHeaders_(sheet);
+    const headers = ensureHeaders_(sheet, SHEET_HEADERS.submissions);
     const idColumn = headers.indexOf('submission_id') + 1;
     if (idColumn < 1) throw new Error('submission_id header not found');
     const lastRow = sheet.getLastRow();
@@ -98,6 +104,7 @@ function saveSubmission(payload) {
       q3b_value: payload.answers && payload.answers.q3b || '',
       q4_value: payload.answers && payload.answers.q4 || '',
       q5_value: payload.answers && payload.answers.q5 || '',
+      q5b_value: payload.answers && payload.answers.q5b || '',
       q6_value: payload.answers && payload.answers.q6 || '',
       q7_value: payload.answers && payload.answers.q7 || '',
       ceo_level: payload.computed && payload.computed.ceo_level || 0,
@@ -121,6 +128,7 @@ function saveSubmission(payload) {
       created_at: new Date().toISOString(),
     };
     sheet.appendRow(headers.map(header => rowObject[header] !== undefined ? rowObject[header] : ''));
+    appendSubmissionAnswerLabels_(ss, payload, rowObject);
     return { ok: true, submission_id: payload.submission_id };
   } finally {
     lock.releaseLock();
@@ -140,8 +148,10 @@ function seedSheetsFromJson(jsonText, preserveSubmissions) {
   writeSheet_(ss, SHEETS.resultSteps, SHEET_HEADERS.result_steps, objectRows_(seed.result_steps || [], SHEET_HEADERS.result_steps));
   if (keepSubmissions) {
     ensureSubmissionsHeader_(ss);
+    ensureSubmissionAnswerLabelsHeader_(ss);
   } else {
     writeSheet_(ss, SHEETS.submissions, SHEET_HEADERS.submissions, []);
+    writeSheet_(ss, SHEETS.submissionAnswerLabels, SHEET_HEADERS.submission_answer_labels, []);
   }
   clearConfigCache();
 
@@ -153,6 +163,50 @@ function seedSheetsFromJson(jsonText, preserveSubmissions) {
     result_steps: (seed.result_steps || []).length,
     preserve_submissions: keepSubmissions,
   };
+}
+
+function appendSubmissionAnswerLabels_(ss, payload, rowObject) {
+  const sheet = ss.getSheetByName(SHEETS.submissionAnswerLabels) || ss.insertSheet(SHEETS.submissionAnswerLabels);
+  const headers = ensureHeaders_(sheet, SHEET_HEADERS.submission_answer_labels);
+  const labelContext = buildLabelContext_(payload.answer_labels || {});
+  const answers = payload.answers || {};
+  const row = {
+    timestamp: rowObject.timestamp,
+    submission_id: rowObject.submission_id,
+    company_name: rowObject.company_name,
+    industry: rowObject.industry,
+    employee_size_value: rowObject.employee_size,
+    employee_size_label: labelForChoice_(labelContext, 'q_employee', rowObject.employee_size),
+    q1_answer: labelForChoice_(labelContext, 'q1', answers.q1),
+    q2_answer: labelForChoice_(labelContext, 'q2', answers.q2),
+    q3_answer: labelForChoice_(labelContext, 'q3', answers.q3),
+    q3b_answer: labelForChoice_(labelContext, 'q3b', answers.q3b),
+    q4_answer: labelForChoice_(labelContext, 'q4', answers.q4),
+    q5_answer: labelForChoice_(labelContext, 'q5', answers.q5),
+    q5b_answer: labelForChoice_(labelContext, 'q5b', answers.q5b),
+    q6_answer: labelForChoice_(labelContext, 'q6', answers.q6),
+    q7_answer: labelForChoice_(labelContext, 'q7', answers.q7),
+    result_code: rowObject.result_code,
+    result_phase: rowObject.result_phase,
+    result_headline: rowObject.result_headline,
+  };
+  sheet.appendRow(headers.map(header => row[header] !== undefined ? row[header] : ''));
+}
+
+function buildLabelContext_(fallbackLabels) {
+  const config = getConfig();
+  const labels = {};
+  (config.choices || []).forEach(choice => {
+    labels[choice.question_id + '\u0000' + choice.value] = choice.label || choice.value;
+  });
+  return { labels: labels, fallbackLabels: fallbackLabels || {} };
+}
+
+function labelForChoice_(context, questionId, value) {
+  if (!value) return '';
+  if (questionId === 'q_employee' && context.fallbackLabels && context.fallbackLabels.employee_size) return context.fallbackLabels.employee_size;
+  if (context.fallbackLabels && context.fallbackLabels[questionId]) return context.fallbackLabels[questionId];
+  return context.labels[questionId + '\u0000' + value] || value;
 }
 
 function seedSheetsFromScriptProperty() {
@@ -242,6 +296,21 @@ function getHeaders_(sheet) {
   return sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(String);
 }
 
+function ensureHeaders_(sheet, requiredHeaders) {
+  if (sheet.getLastRow() < 1 || sheet.getLastColumn() < 1) {
+    sheet.getRange(1, 1, 1, requiredHeaders.length).setValues([requiredHeaders]);
+    sheet.setFrozenRows(1);
+    return requiredHeaders.slice();
+  }
+  const headers = getHeaders_(sheet);
+  const missing = requiredHeaders.filter(header => headers.indexOf(header) === -1);
+  if (missing.length > 0) {
+    sheet.getRange(1, headers.length + 1, 1, missing.length).setValues([missing]);
+    sheet.setFrozenRows(1);
+  }
+  return headers.concat(missing);
+}
+
 function buildAppConfigRows_(seed) {
   const rows = [];
   rows.push(['diagnosis_version', seed.diagnosis_version || '', 'seed']);
@@ -274,8 +343,23 @@ function writeSheet_(ss, sheetName, headers, rows) {
 function ensureSubmissionsHeader_(ss) {
   const sheet = ss.getSheetByName(SHEETS.submissions) || ss.insertSheet(SHEETS.submissions);
   const hasData = sheet.getLastRow() > 1;
-  if (hasData) return;
+  if (hasData) {
+    ensureHeaders_(sheet, SHEET_HEADERS.submissions);
+    return;
+  }
   sheet.clearContents();
   sheet.getRange(1, 1, 1, SHEET_HEADERS.submissions.length).setValues([SHEET_HEADERS.submissions]);
+  sheet.setFrozenRows(1);
+}
+
+function ensureSubmissionAnswerLabelsHeader_(ss) {
+  const sheet = ss.getSheetByName(SHEETS.submissionAnswerLabels) || ss.insertSheet(SHEETS.submissionAnswerLabels);
+  const hasData = sheet.getLastRow() > 1;
+  if (hasData) {
+    ensureHeaders_(sheet, SHEET_HEADERS.submission_answer_labels);
+    return;
+  }
+  sheet.clearContents();
+  sheet.getRange(1, 1, 1, SHEET_HEADERS.submission_answer_labels.length).setValues([SHEET_HEADERS.submission_answer_labels]);
   sheet.setFrozenRows(1);
 }
