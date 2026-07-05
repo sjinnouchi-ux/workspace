@@ -54,3 +54,4 @@ GAS Web App v2 was deployed from the Apps Script web editor on 2026-07-05, and `
 - `docs/ANSWERS_FROM_CLAUDE.md`: Claude answer pointer and implementation summary.
 - `config.seed.json`: canonical data source.
 - `docs/ai_keiei_shindan_app_spec.md`: human-readable logic spec.
+- `docs/reports/2026-07-05-implementation-completion-summary.md`: initial implementation completion summary and next-task notes.

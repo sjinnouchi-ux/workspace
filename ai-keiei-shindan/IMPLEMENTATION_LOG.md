@@ -283,3 +283,24 @@ Submission readback:
 - `result_headline`: `社員がAIを使い始めているのに、誰が管理するかが曖昧になっていませんか？`
 - `device_type`: `mobile`
 - `raw_payload_json` was present.
+
+## 2026-07-05 Claude completion review
+
+User report:
+
+- Claude confirmed implementation review is OK.
+- No required blocker was reported.
+
+Optional improvements reported by Claude:
+
+- Employee-size choices are hard-coded in `renderEmployee()` instead of rendered from `config.choices` `q_employee`.
+  - Priority: low.
+  - Current values and labels match the canonical seed, so behavior is correct.
+- GET `/config` CORS may remain a low-priority concern.
+  - Current practical impact is low because `FALLBACK_CONFIG` is identical and E2E passed.
+- Add an optional sample `article` row after operation starts or when a sample is desired.
+  - Current `article` implementation is correct as external-link card rendering.
+
+Recorded summary:
+
+- Added `docs/reports/2026-07-05-implementation-completion-summary.md`.
