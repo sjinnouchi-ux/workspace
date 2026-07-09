@@ -38,4 +38,10 @@ dori-manga/
 1. `docs/concept.md` でキャラクター・世界観を確認
 2. `docs/episode_list.md` で制作状況・ネタを確認
 3. DB連携や画像評価フローは `docs/supabase/` を確認
-4. 作業後は `docs/work_log.md` に記録して git push
+4. 秘密値が必要な作業では `docs/secret-management.md` を確認
+5. 作業後は `docs/work_log.md` に記録して git push
+
+## 秘密値管理
+- 実シークレットの正本はGoogle Secret ManagerまたはSupabase/Cloudflare等の各サービス側secret store。
+- `C:\Users\irodo\.codex\.sandbox-secrets\global.env` は移行前の互換ファイルであり、新PCへコピーしない。
+- 秘密値はGitHub、Markdown、チャット、ログ、DB、Drive資料に保存しない。

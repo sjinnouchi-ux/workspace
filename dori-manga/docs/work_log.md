@@ -1,5 +1,10 @@
 # 作業ログ
 
+## 2026-07-09（Secret Manager参照方針の明文化）
+- `docs/secret-management.md` を追加し、dori-manga関連の作業PC・AIエージェント用secretはGoogle Secret Managerを正本として扱う方針を明文化。
+- `C:\Users\irodo\.codex\.sandbox-secrets\global.env` は移行前の互換ファイルであり、新PCへコピーしない旨をREADME/CLAUDE文脈から辿れるようにした。
+- 過去ログ内の `global.env` 記載は当時の実施記録として残し、現在の参照手順ではないことを新方針に記載。
+
 ## 2026-07-09（UI固定・操作ログ・NG/CLOSE理由）
 - 状態変更時の保存メッセージに対象作品タイトルと変更後ステータスを表示するようにした。
   - 例: `人工呼吸器のモード（CPAP・A/C・SIMV）の状態を「制作中」で保存しました。`
