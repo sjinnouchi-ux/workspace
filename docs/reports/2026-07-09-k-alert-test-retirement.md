@@ -19,3 +19,5 @@
 テスト版のGoogle Sheets、Apps Script、Drive上の詳細ハンドオフは破棄対象。
 Google Driveコネクタでは、対象のGoogle Sheets、Apps Script、Drive上の詳細ハンドオフの読み取りはできたが削除権限が不足していた。
 ローカルGoogle Drive同期フォルダ内の詳細ハンドオフMDと一時確認用リッチメニュー画像は削除済み。
+
+2026-07-09、`s.jinnouchi@yumekango.com` のApps Script画面で、過去テスト版のApps Scriptプロジェクト2件を削除した。うち1件はゴミ箱から完全削除し、Apps Scriptの自分のプロジェクト一覧とゴミ箱に `Kアラート` を含むプロジェクトが残っていないことを確認した。
