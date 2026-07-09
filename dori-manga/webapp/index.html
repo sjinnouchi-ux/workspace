@@ -290,6 +290,12 @@ const LOGIN_EMAIL   = "s.jinnouchi@yumekango.com";
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 const STATUSES = ["完成", "制作中", "未完成", "不採用"];
+const STATUS_ALIASES = {
+  completed:"完成",
+  in_progress:"制作中",
+  draft:"未完成",
+  rejected:"不採用",
+};
 const CSV_STATUSES = ["新規作成", ...STATUSES];
 const EVAL_STATUSES = ["OK", "NG", "CLOSE"];
 const DUPLICATE_REPAIR_WINDOW_MS = 10 * 60 * 1000;
@@ -306,6 +312,9 @@ const saveTimers = new Map();
 const $ = id => document.getElementById(id);
 const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
 const msg = (id, type, text) => { $(id).innerHTML = text ? `<div class="alert ${type}">${esc(text)}</div>` : ""; };
+const normalizeStatus = status => STATUS_ALIASES[String(status ?? "").trim()] || String(status ?? "").trim();
+const statusMatches = (value, status) => normalizeStatus(value) === status;
+const statusDbValues = status => [status, ...Object.entries(STATUS_ALIASES).filter(([, label]) => label === status).map(([alias]) => alias)];
 
 async function init() {
   renderTabs();
@@ -419,6 +428,7 @@ async function loadEpisodes() {
   if (error) throwUi("production-msg", error);
   state.episodes = (data || []).map(ep => ({
     ...ep,
+    status: normalizeStatus(ep.status),
     panels: [1,2,3,4].map(n => (ep.manga_panels || []).find(p => p.panel_number === n) || { panel_number:n, scene_text:"" }),
   }));
 }
@@ -458,7 +468,7 @@ async function loadStats() {
   const latest = await sb.from("generation_attempts").select("created_at").order("created_at", { ascending:false }).limit(1);
   const counts = await Promise.all([
     sb.from("manga_episodes").select("id", { count:"exact", head:true }),
-    ...STATUSES.map(status => sb.from("manga_episodes").select("id", { count:"exact", head:true }).eq("status", status)),
+    ...STATUSES.map(status => sb.from("manga_episodes").select("id", { count:"exact", head:true }).in("status", statusDbValues(status))),
     sb.from("generation_attempts").select("id", { count:"exact", head:true }),
     sb.from("prompt_lessons").select("id", { count:"exact", head:true }).eq("is_active", true),
     sb.from("generation_attempts").select("id", { count:"exact", head:true }).contains("evaluation_json", { repair_needed:true }),
@@ -520,7 +530,7 @@ async function loadHistory() {
 
 function renderProduction() {
   renderFilters();
-  const episodes = state.filter === "すべて" ? state.episodes : state.episodes.filter(ep => ep.status === state.filter);
+  const episodes = state.filter === "すべて" ? state.episodes : state.episodes.filter(ep => statusMatches(ep.status, state.filter));
   $("episode-rows").innerHTML = episodes.map(ep => `
     <tr data-episode-id="${ep.id}" class="${ep.is_working ? "working-row" : ""}">
       <td><input type="checkbox" data-action="working" ${ep.is_working ? "checked" : ""}></td>
@@ -535,7 +545,7 @@ function renderProduction() {
 function renderFilters() {
   const items = ["すべて", ...STATUSES];
   $("status-filters").innerHTML = items.map(status => {
-    const count = status === "すべて" ? state.episodes.length : state.episodes.filter(ep => ep.status === status).length;
+    const count = status === "すべて" ? state.episodes.length : state.episodes.filter(ep => statusMatches(ep.status, status)).length;
     return `<button class="${state.filter === status ? "" : "secondary"} small" data-filter="${status}">${status} (${count})</button>`;
   }).join("");
   $("status-filters").querySelectorAll("[data-filter]").forEach(button => {
@@ -607,7 +617,8 @@ function schedulePanelSave(episodeId, panelNumber, value) {
 }
 
 async function saveEpisodeField(id, field, value) {
-  const patch = { [field]: value || null };
+  const normalizedValue = field === "status" ? normalizeStatus(value) : value;
+  const patch = { [field]: normalizedValue || null };
   const { error } = await sb.from("manga_episodes").update(patch).eq("id", id);
   if (error) return msg("production-msg", "err", error.message);
   const ep = state.episodes.find(e => e.id === id);
