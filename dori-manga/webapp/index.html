@@ -13,7 +13,7 @@
   }
   * { box-sizing:border-box; }
   body { margin:0; font-family:"Hiragino Sans","Yu Gothic",Meiryo,sans-serif; background:var(--bg); color:var(--text); }
-  header { background:var(--pink); color:#fff; padding:12px 18px; display:flex; justify-content:space-between; gap:12px; align-items:center; }
+  header { background:var(--pink); color:#fff; padding:12px 18px; display:flex; justify-content:space-between; gap:12px; align-items:center; position:sticky; top:0; z-index:30; box-shadow:0 2px 10px rgba(120, 64, 88, .14); }
   header h1 { font-size:18px; margin:0; letter-spacing:0; }
   .header-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
   .manual-download { color:#fff; border:1px solid rgba(255,255,255,.65); border-radius:7px; padding:6px 10px; text-decoration:none; font-size:12px; font-weight:700; }
@@ -33,7 +33,7 @@
   a { color:var(--pink); }
   .hidden { display:none !important; }
   .login { max-width:360px; margin:64px auto; background:#fff; border:1px solid var(--line); border-radius:8px; padding:20px; }
-  .tabs { display:flex; gap:8px; border-bottom:1px solid var(--line); margin-bottom:14px; overflow:auto; }
+  .tabs { display:flex; gap:8px; border-bottom:1px solid var(--line); margin:0 0 14px; overflow:auto; position:sticky; top:50px; z-index:25; background:var(--bg); padding-top:10px; }
   .tab-btn { border-radius:7px 7px 0 0; background:#fff; color:var(--muted); border:1px solid var(--line); border-bottom:0; min-width:110px; }
   .tab-btn.active { background:var(--pink); color:#fff; border-color:var(--pink); }
   .toolbar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:10px 0; }
@@ -81,6 +81,10 @@
   .gallery-body textarea { min-height:128px; line-height:1.5; }
   .gallery-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:8px; }
   .history table { min-width:760px; }
+  .log-list { display:grid; gap:8px; }
+  .log-item { border:1px solid var(--line); border-radius:8px; background:#fff; padding:10px; }
+  .log-meta { display:flex; gap:8px; flex-wrap:wrap; color:var(--muted); font-size:12px; margin-top:4px; }
+  .log-main { font-weight:700; }
   .compact { font-size:12px; color:var(--muted); }
   .file-line { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
   @media (max-width:760px) {
@@ -89,6 +93,7 @@
     .gallery-card { grid-template-columns:1fr; }
     .gallery-image, .gallery-placeholder { width:100%; height:220px; }
     header { align-items:flex-start; flex-direction:column; }
+    .tabs { top:92px; }
   }
 </style>
 </head>
@@ -193,6 +198,10 @@
             </select>
           </div>
         </div>
+        <div class="hidden" id="import-reason-wrap">
+          <label for="import-failure-reason">NG/CLOSE理由</label>
+          <textarea id="import-failure-reason" placeholder="例：聴診器が描かれていない、文字が読みにくい、構図が近すぎる"></textarea>
+        </div>
         <label for="import-file">画像ファイル</label>
         <input type="file" id="import-file" accept="image/*">
         <label for="import-json">ChatGPT JSON</label>
@@ -237,6 +246,16 @@
         <input id="gallery-search" placeholder="タイトルの一部で検索">
         <div id="gallery-msg"></div>
         <div class="gallery-list" id="gallery-list"></div>
+      </div>
+    </section>
+
+    <section id="tab-logs" class="panel">
+      <div class="section">
+        <h2>操作ログ</h2>
+        <div class="toolbar">
+          <button class="ghost" id="reload-logs-btn" onclick="renderOperationLogs()">再読込</button>
+        </div>
+        <div id="operation-logs" class="log-list"></div>
       </div>
     </section>
 
@@ -297,6 +316,8 @@ const STATUS_ALIASES = {
   rejected:"不採用",
 };
 const EPISODE_STATUS_OVERRIDES_KEY = "episode_status_overrides";
+const OPERATION_LOGS_KEY = "operation_logs";
+const MAX_OPERATION_LOGS = 200;
 const CSV_STATUSES = ["新規作成", ...STATUSES];
 const EVAL_STATUSES = ["OK", "NG", "CLOSE"];
 const DUPLICATE_REPAIR_WINDOW_MS = 10 * 60 * 1000;
@@ -306,6 +327,7 @@ const TABS = [
   { id:"production", label:"制作" },
   { id:"import", label:"インポート" },
   { id:"prompts", label:"プロンプト" },
+  { id:"logs", label:"ログ" },
   { id:"admin", label:"管理" },
 ];
 const state = { session:null, episodes:[], prompts:{}, promptGallery:[], settings:{}, filter:"すべて", gallerySearch:"", activeTab:"production" };
@@ -316,6 +338,7 @@ const msg = (id, type, text) => { $(id).innerHTML = text ? `<div class="alert ${
 const normalizeStatus = status => STATUS_ALIASES[String(status ?? "").trim()] || String(status ?? "").trim();
 const statusMatches = (value, status) => normalizeStatus(value) === status;
 const statusDbValues = status => [status, ...Object.entries(STATUS_ALIASES).filter(([, label]) => label === status).map(([alias]) => alias)];
+const episodeTitle = id => state.episodes.find(ep => ep.id === id)?.title || "対象作品";
 function episodeStatusOverrides() {
   try {
     return JSON.parse(state.settings[EPISODE_STATUS_OVERRIDES_KEY] || "{}") || {};
@@ -324,6 +347,15 @@ function episodeStatusOverrides() {
   }
 }
 const episodeStatus = ep => normalizeStatus(episodeStatusOverrides()[ep.id] || ep.status);
+
+function operationLogs() {
+  try {
+    const parsed = JSON.parse(state.settings[OPERATION_LOGS_KEY] || "[]");
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
 
 async function init() {
   renderTabs();
@@ -342,8 +374,12 @@ function setTab(tabId) {
   state.activeTab = tabId;
   document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.tab === tabId));
   document.querySelectorAll(".panel").forEach(panel => panel.classList.toggle("active", panel.id === `tab-${tabId}`));
-  if (tabId === "import") renderImportEpisodeOptions();
+  if (tabId === "import") {
+    renderImportEpisodeOptions();
+    renderImportReason();
+  }
   if (tabId === "prompts") renderPromptGallery();
+  if (tabId === "logs") renderOperationLogs();
 }
 window.setTab = setTab;
 
@@ -384,6 +420,7 @@ function bindEvents() {
   $("csv-template-btn").onclick = downloadTemplate;
   $("csv-import-btn").onclick = importCsv;
   $("image-import-btn").onclick = importImage;
+  $("import-status").addEventListener("change", renderImportReason);
   $("save-drive-root-btn").onclick = saveDriveRoot;
   $("save-prompts-btn").onclick = savePrompts;
   $("copy-prompt-OK").onclick = () => copyPrompt("OK");
@@ -396,6 +433,7 @@ function bindEvents() {
     renderPromptGallery();
   });
   bindPromptGalleryDelegates();
+  renderImportReason();
 }
 
 function showLogin() {
@@ -474,6 +512,47 @@ async function loadSettings() {
   if (error) throwUi("drive-root-msg", error);
   state.settings = Object.fromEntries((data || []).map(row => [row.key, row.value || ""]));
 }
+
+async function addOperationLog(action, detail = {}) {
+  const entry = {
+    id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+    created_at:new Date().toISOString(),
+    action,
+    title:detail.title || "",
+    status:detail.status || "",
+    result:detail.result || "成功",
+    message:detail.message || "",
+  };
+  const existingLogs = operationLogs();
+  const recentDuplicate = existingLogs.find(log =>
+    log.action === entry.action &&
+    log.title === entry.title &&
+    log.status === entry.status &&
+    log.message === entry.message &&
+    Math.abs(new Date(log.created_at).getTime() - new Date(entry.created_at).getTime()) < 3000
+  );
+  if (recentDuplicate) return;
+  const logs = [entry, ...existingLogs].slice(0, MAX_OPERATION_LOGS);
+  const value = JSON.stringify(logs);
+  const { error } = await sb.from("app_settings").upsert([{ key:OPERATION_LOGS_KEY, value }], { onConflict:"key" });
+  if (error) {
+    console.warn("操作ログの保存に失敗しました", error.message);
+    return;
+  }
+  state.settings[OPERATION_LOGS_KEY] = value;
+  if (state.activeTab === "logs") renderOperationLogs();
+}
+window.addOperationLog = addOperationLog;
+
+function renderOperationLogs() {
+  const logs = operationLogs();
+  $("operation-logs").innerHTML = logs.map(log => {
+    const date = log.created_at ? new Date(log.created_at).toLocaleString("ja-JP") : "-";
+    const meta = [date, log.title, log.status, log.result].filter(Boolean).map(item => `<span>${esc(item)}</span>`).join("");
+    return `<div class="log-item"><div class="log-main">${esc(log.action || "操作")}</div><div class="log-meta">${meta}</div>${log.message ? `<div class="compact">${esc(log.message)}</div>` : ""}</div>`;
+  }).join("") || `<div class="compact">まだ操作ログはありません。</div>`;
+}
+window.renderOperationLogs = renderOperationLogs;
 
 async function loadStats() {
   const latest = await sb.from("generation_attempts").select("created_at").order("created_at", { ascending:false }).limit(1);
@@ -588,6 +667,7 @@ function bindProductionDelegates() {
   body.addEventListener("focusout", event => {
     const row = event.target.closest("tr[data-episode-id]");
     if (!row) return;
+    if (event.target.matches('select[data-episode-field="status"]')) return;
     if (event.target.matches("[data-episode-field]")) {
       saveEpisodeField(row.dataset.episodeId, event.target.dataset.episodeField, event.target.value);
       return;
@@ -633,7 +713,8 @@ async function saveEpisodeField(id, field, value) {
   if (error) return msg("production-msg", "err", error.message);
   const ep = state.episodes.find(e => e.id === id);
   if (ep) ep[field] = patch[field];
-  msg("production-msg", "ok", "保存しました。");
+  msg("production-msg", "ok", `${episodeTitle(id)} を保存しました。`);
+  await addOperationLog("作品情報を保存しました", { title:episodeTitle(id), message:`項目: ${field}` });
   renderFilters();
 }
 window.saveEpisodeField = saveEpisodeField;
@@ -654,7 +735,8 @@ async function saveEpisodeStatus(id, value) {
     ep.status = status;
     if (status !== "制作中") ep.rawStatus = status;
   }
-  msg("production-msg", "ok", "保存しました。");
+  msg("production-msg", "ok", `${episodeTitle(id)}の状態を「${status}」で保存しました。`);
+  await addOperationLog("状態を変更しました", { title:episodeTitle(id), status, message:`状態: ${status}` });
   renderProduction();
   renderImportEpisodeOptions();
   await loadStats();
@@ -679,7 +761,8 @@ async function savePanelScene(episodeId, panelNumber, value) {
   const { error } = await sb.from("manga_panels").update({ scene_text:value || null }).eq("id", panel.id);
   if (error) return msg("production-msg", "err", error.message);
   panel.scene_text = value || null;
-  msg("production-msg", "ok", "保存しました。");
+  msg("production-msg", "ok", `${episodeTitle(episodeId)} の${panelNumber}コマ案を保存しました。`);
+  await addOperationLog("コマ案を保存しました", { title:episodeTitle(episodeId), message:`${panelNumber}コマ目` });
 }
 window.savePanelScene = savePanelScene;
 
@@ -696,6 +779,7 @@ async function setWorking(id, checked) {
   await loadEpisodes();
   renderProduction();
   renderImportEpisodeOptions();
+  await addOperationLog(checked ? "作業中に設定しました" : "作業中を解除しました", { title:episodeTitle(id) });
 }
 window.setWorking = setWorking;
 
@@ -712,6 +796,7 @@ async function createEpisodeFromForm() {
     $("new-episode-section").classList.add("hidden");
     await loadAll();
     msg("production-msg", "ok", "作品とDriveフォルダを作成しました。");
+    await addOperationLog("新しい漫画を作成しました", { title:ep.title, message:"Driveフォルダ作成済み" });
   } catch (error) {
     msg("production-msg", "err", error.message);
   } finally {
@@ -737,6 +822,7 @@ window.createFolderForEpisodeId = async id => {
     renderProduction();
     renderImportEpisodeOptions();
     msg("production-msg", "ok", "Driveフォルダを作成しました。");
+    await addOperationLog("Driveフォルダを作成しました", { title:ep.title });
   } catch (error) {
     msg("production-msg", "err", error.message);
   }
@@ -917,6 +1003,7 @@ async function createPromptGalleryItem() {
     await loadPromptGallery();
     renderPromptGallery();
     msg("gallery-form-msg", "ok", "プロンプトを登録しました。");
+    await addOperationLog("プロンプトを登録しました", { title });
   } catch (error) {
     msg("gallery-form-msg", "err", error.message);
   } finally {
@@ -990,6 +1077,7 @@ async function savePromptGalleryField(id, field, value) {
   if (item) item[field] = patch[field];
   const save = $("gallery-save-" + id);
   if (save) save.textContent = "保存しました";
+  await addOperationLog("プロンプトを編集しました", { title:item?.title || "プロンプト", message:`項目: ${field}` });
 }
 
 async function deletePromptGalleryItem(id) {
@@ -1005,7 +1093,16 @@ async function deletePromptGalleryItem(id) {
   state.promptGallery = state.promptGallery.filter(row => row.id !== id);
   renderPromptGallery();
   msg("gallery-msg", "ok", "削除しました。");
+  await addOperationLog("プロンプトを削除しました", { title:item.title || "無題" });
 }
+
+function renderImportReason() {
+  const status = $("import-status").value;
+  const needsReason = status === "NG" || status === "CLOSE";
+  $("import-reason-wrap").classList.toggle("hidden", !needsReason);
+  if (!needsReason) $("import-failure-reason").value = "";
+}
+window.renderImportReason = renderImportReason;
 
 async function importImage() {
   const episodeId = $("import-episode").value;
@@ -1015,6 +1112,7 @@ async function importImage() {
   if (!file) return msg("image-import-msg", "err", "画像ファイルを選択してください。");
   if (file.size > 10 * 1024 * 1024) return msg("image-import-msg", "err", "画像サイズが10MBを超えています。画像を圧縮してください。");
   const resultStatus = $("import-status").value;
+  const failureReason = $("import-failure-reason").value.trim();
   const jsonText = $("import-json").value.trim();
   const parsedInfo = parseImportJson(jsonText, resultStatus);
   if (parsedInfo.ok) {
@@ -1047,7 +1145,7 @@ async function importImage() {
       Number($("import-panel").value),
     );
     const payload = {
-      ...parsedInfo.payload,
+      ...applyFailureReason(parsedInfo.payload, resultStatus, failureReason),
       attempt_number:attemptNumber,
       result_status:resultStatus,
       panel_number:Number($("import-panel").value),
@@ -1065,6 +1163,8 @@ async function importImage() {
       msg("image-import-msg", "ok", `画像アップロードとDB登録が完了しました。\n${jsonNote}`);
       $("import-json").value = "";
       $("import-file").value = "";
+      $("import-failure-reason").value = "";
+      await addOperationLog("画像評価を登録しました", { title:ep.title, status:resultStatus, message:failureReason ? `理由: ${failureReason}` : `コマ: ${$("import-panel").value}` });
     }
     await Promise.all([loadHistory(), loadStats()]);
   } catch (error) {
@@ -1074,6 +1174,20 @@ async function importImage() {
   }
 }
 window.importImage = importImage;
+
+function applyFailureReason(payload, resultStatus, failureReason) {
+  if (!failureReason || (resultStatus !== "NG" && resultStatus !== "CLOSE")) return payload;
+  const label = resultStatus === "NG" ? "NG理由" : "CLOSE理由";
+  return {
+    ...payload,
+    evaluation_summary:`${label}: ${failureReason}\n${payload.evaluation_summary || ""}`.trim(),
+    evaluation_json:{
+      ...(payload.evaluation_json || {}),
+      manual_failure_reason:failureReason,
+      manual_failure_reason_label:label,
+    },
+  };
+}
 
 function parseImportJson(text, resultStatus) {
   if (!text) {
@@ -1195,6 +1309,7 @@ async function saveDriveRoot() {
   await loadSettings();
   renderAdmin();
   msg("drive-root-msg", "ok", "Drive親フォルダ設定を保存しました。");
+  await addOperationLog("Drive親フォルダ設定を保存しました", { message:id || url });
 }
 window.saveDriveRoot = saveDriveRoot;
 
@@ -1209,6 +1324,7 @@ async function savePrompts() {
   }
   await loadPrompts();
   msg("prompt-save-msg", "ok", "評価プロンプトを保存しました。");
+  await addOperationLog("評価プロンプトを保存しました");
 }
 window.savePrompts = savePrompts;
 
@@ -1238,6 +1354,7 @@ function exportCsv() {
     rows.push([ep.title, episodeStatus(ep), ...ep.panels.map(p => p.scene_text || ""), ep.post_text || "", ep.pdf_url || ""]);
   }
   csvDownload("dori-manga-export.csv", rows);
+  addOperationLog("CSVをエクスポートしました", { message:`${state.episodes.length}件` });
 }
 window.exportCsv = exportCsv;
 
@@ -1246,6 +1363,7 @@ function downloadTemplate() {
     ["タイトル","状態","1コマ案","2コマ案","3コマ案","4コマ案","投稿案","PDF URL"],
     ["記入例：酸素マスクの使い方","新規作成","導入の場面","説明の場面","実践の場面","まとめの場面","投稿文をここに記入",""],
   ]);
+  addOperationLog("CSVテンプレートをダウンロードしました");
 }
 window.downloadTemplate = downloadTemplate;
 
@@ -1311,6 +1429,7 @@ async function importCsv() {
     }
     await loadAll();
     msg("csv-msg", "ok", `取込完了\n新規作成 ${summary.created}件（フォルダ作成済み）\n更新 ${summary.updated}件\nスキップ ${summary.skipped.length}件${summary.skipped.length ? "\n" + summary.skipped.join("\n") : ""}`);
+    await addOperationLog("CSVをインポートしました", { message:`新規作成 ${summary.created}件 / 更新 ${summary.updated}件 / スキップ ${summary.skipped.length}件` });
   } catch (error) {
     msg("csv-msg", "err", error.message);
   } finally {
