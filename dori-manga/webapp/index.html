@@ -296,6 +296,7 @@ const STATUS_ALIASES = {
   draft:"未完成",
   rejected:"不採用",
 };
+const EPISODE_STATUS_OVERRIDES_KEY = "episode_status_overrides";
 const CSV_STATUSES = ["新規作成", ...STATUSES];
 const EVAL_STATUSES = ["OK", "NG", "CLOSE"];
 const DUPLICATE_REPAIR_WINDOW_MS = 10 * 60 * 1000;
@@ -315,6 +316,14 @@ const msg = (id, type, text) => { $(id).innerHTML = text ? `<div class="alert ${
 const normalizeStatus = status => STATUS_ALIASES[String(status ?? "").trim()] || String(status ?? "").trim();
 const statusMatches = (value, status) => normalizeStatus(value) === status;
 const statusDbValues = status => [status, ...Object.entries(STATUS_ALIASES).filter(([, label]) => label === status).map(([alias]) => alias)];
+function episodeStatusOverrides() {
+  try {
+    return JSON.parse(state.settings[EPISODE_STATUS_OVERRIDES_KEY] || "{}") || {};
+  } catch {
+    return {};
+  }
+}
+const episodeStatus = ep => normalizeStatus(episodeStatusOverrides()[ep.id] || ep.status);
 
 async function init() {
   renderTabs();
@@ -413,11 +422,12 @@ async function login() {
 }
 
 async function loadAll() {
-  await Promise.all([loadEpisodes(), loadPrompts(), loadPromptGallery(), loadSettings(), loadHistory(), loadStats()]);
+  await Promise.all([loadEpisodes(), loadPrompts(), loadPromptGallery(), loadSettings(), loadHistory()]);
   renderProduction();
   renderImportEpisodeOptions();
   renderPromptGallery();
   renderAdmin();
+  await loadStats();
 }
 window.loadAll = loadAll;
 
@@ -428,6 +438,7 @@ async function loadEpisodes() {
   if (error) throwUi("production-msg", error);
   state.episodes = (data || []).map(ep => ({
     ...ep,
+    rawStatus: ep.status,
     status: normalizeStatus(ep.status),
     panels: [1,2,3,4].map(n => (ep.manga_panels || []).find(p => p.panel_number === n) || { panel_number:n, scene_text:"" }),
   }));
@@ -467,8 +478,6 @@ async function loadSettings() {
 async function loadStats() {
   const latest = await sb.from("generation_attempts").select("created_at").order("created_at", { ascending:false }).limit(1);
   const counts = await Promise.all([
-    sb.from("manga_episodes").select("id", { count:"exact", head:true }),
-    ...STATUSES.map(status => sb.from("manga_episodes").select("id", { count:"exact", head:true }).in("status", statusDbValues(status))),
     sb.from("generation_attempts").select("id", { count:"exact", head:true }),
     sb.from("prompt_lessons").select("id", { count:"exact", head:true }).eq("is_active", true),
     sb.from("generation_attempts").select("id", { count:"exact", head:true }).contains("evaluation_json", { repair_needed:true }),
@@ -479,11 +488,11 @@ async function loadStats() {
   $("system-status").innerHTML = `<div class="alert ok">Supabase疎通OK</div>` +
     `<div class="compact">最終DB登録日時: ${last ? last.toLocaleString("ja-JP") : "未登録"} / keepaliveはGitHub Actionsで定期実行</div>`;
   $("stats").innerHTML = [
-    ["作品数", counts[0].count],
-    ...STATUSES.map((status, index) => [status, counts[index + 1].count]),
-    ["画像評価数", counts[STATUSES.length + 1].count],
-    ["改善ルール数", counts[STATUSES.length + 2].count],
-    ["JSON補修対象", counts[STATUSES.length + 3].count],
+    ["作品数", state.episodes.length],
+    ...STATUSES.map(status => [status, state.episodes.filter(ep => statusMatches(episodeStatus(ep), status)).length]),
+    ["画像評価数", counts[0].count],
+    ["改善ルール数", counts[1].count],
+    ["JSON補修対象", counts[2].count],
     ["近接重複疑い", duplicateRepairCount],
   ].map(([label, count]) => `<div class="stat"><div class="num">${count ?? "-"}</div><div class="lbl">${label}</div></div>`).join("");
 }
@@ -530,12 +539,12 @@ async function loadHistory() {
 
 function renderProduction() {
   renderFilters();
-  const episodes = state.filter === "すべて" ? state.episodes : state.episodes.filter(ep => statusMatches(ep.status, state.filter));
+  const episodes = state.filter === "すべて" ? state.episodes : state.episodes.filter(ep => statusMatches(episodeStatus(ep), state.filter));
   $("episode-rows").innerHTML = episodes.map(ep => `
     <tr data-episode-id="${ep.id}" class="${ep.is_working ? "working-row" : ""}">
       <td><input type="checkbox" data-action="working" ${ep.is_working ? "checked" : ""}></td>
       <td class="title-cell">${esc(ep.title)}${ep.drive_folder_url ? `<a class="folder-link" href="${esc(ep.drive_folder_url)}" target="_blank">Driveフォルダ</a>` : `<button class="small secondary" data-action="create-folder">フォルダ作成</button>`}<div class="save-state" id="save-${ep.id}-title"></div></td>
-      <td><select data-episode-field="status">${STATUSES.map(s => `<option value="${s}" ${ep.status === s ? "selected" : ""}>${s}</option>`).join("")}</select></td>
+      <td><select data-episode-field="status">${STATUSES.map(s => `<option value="${s}" ${episodeStatus(ep) === s ? "selected" : ""}>${s}</option>`).join("")}</select></td>
       ${ep.panels.map(panel => `<td><textarea data-panel-number="${panel.panel_number}">${esc(panel.scene_text || "")}</textarea></td>`).join("")}
       <td><textarea data-episode-field="post_text">${esc(ep.post_text || "")}</textarea></td>
       <td><input data-episode-field="pdf_url" value="${esc(ep.pdf_url || "")}"></td>
@@ -545,7 +554,7 @@ function renderProduction() {
 function renderFilters() {
   const items = ["すべて", ...STATUSES];
   $("status-filters").innerHTML = items.map(status => {
-    const count = status === "すべて" ? state.episodes.length : state.episodes.filter(ep => statusMatches(ep.status, status)).length;
+    const count = status === "すべて" ? state.episodes.length : state.episodes.filter(ep => statusMatches(episodeStatus(ep), status)).length;
     return `<button class="${state.filter === status ? "" : "secondary"} small" data-filter="${status}">${status} (${count})</button>`;
   }).join("");
   $("status-filters").querySelectorAll("[data-filter]").forEach(button => {
@@ -617,6 +626,7 @@ function schedulePanelSave(episodeId, panelNumber, value) {
 }
 
 async function saveEpisodeField(id, field, value) {
+  if (field === "status") return saveEpisodeStatus(id, value);
   const normalizedValue = field === "status" ? normalizeStatus(value) : value;
   const patch = { [field]: normalizedValue || null };
   const { error } = await sb.from("manga_episodes").update(patch).eq("id", id);
@@ -627,6 +637,40 @@ async function saveEpisodeField(id, field, value) {
   renderFilters();
 }
 window.saveEpisodeField = saveEpisodeField;
+
+async function saveEpisodeStatus(id, value) {
+  const status = normalizeStatus(value);
+  if (status === "制作中") {
+    const overrideError = await setEpisodeStatusOverride(id, status);
+    if (overrideError) return msg("production-msg", "err", overrideError.message);
+  } else {
+    const overrideError = await setEpisodeStatusOverride(id, null);
+    if (overrideError) return msg("production-msg", "err", overrideError.message);
+    const { error } = await sb.from("manga_episodes").update({ status }).eq("id", id);
+    if (error) return msg("production-msg", "err", error.message);
+  }
+  const ep = state.episodes.find(e => e.id === id);
+  if (ep) {
+    ep.status = status;
+    if (status !== "制作中") ep.rawStatus = status;
+  }
+  msg("production-msg", "ok", "保存しました。");
+  renderProduction();
+  renderImportEpisodeOptions();
+  await loadStats();
+}
+window.saveEpisodeStatus = saveEpisodeStatus;
+
+async function setEpisodeStatusOverride(id, status) {
+  const overrides = episodeStatusOverrides();
+  if (status) overrides[id] = status;
+  else delete overrides[id];
+  const value = JSON.stringify(overrides);
+  const { error } = await sb.from("app_settings").upsert([{ key:EPISODE_STATUS_OVERRIDES_KEY, value }], { onConflict:"key" });
+  if (!error) state.settings[EPISODE_STATUS_OVERRIDES_KEY] = value;
+  return error;
+}
+window.setEpisodeStatusOverride = setEpisodeStatusOverride;
 
 async function savePanelScene(episodeId, panelNumber, value) {
   const ep = state.episodes.find(e => e.id === episodeId);
@@ -1191,7 +1235,7 @@ function csvDownload(name, rows) {
 function exportCsv() {
   const rows = [["タイトル","状態","1コマ案","2コマ案","3コマ案","4コマ案","投稿案","PDF URL"]];
   for (const ep of state.episodes) {
-    rows.push([ep.title, ep.status, ...ep.panels.map(p => p.scene_text || ""), ep.post_text || "", ep.pdf_url || ""]);
+    rows.push([ep.title, episodeStatus(ep), ...ep.panels.map(p => p.scene_text || ""), ep.post_text || "", ep.pdf_url || ""]);
   }
   csvDownload("dori-manga-export.csv", rows);
 }
@@ -1259,7 +1303,9 @@ async function importCsv() {
         summary.created++;
       } else {
         if (!existing) { summary.skipped.push(`${line}行目: 未知タイトルのため更新をスキップ`); continue; }
-        await updateEpisodeAndPanels(existing.id, { status, post_text:postText || null, pdf_url:pdfUrl || null }, [p1,p2,p3,p4]);
+        await updateEpisodeAndPanels(existing.id, { status:status === "制作中" ? "未完成" : status, post_text:postText || null, pdf_url:pdfUrl || null }, [p1,p2,p3,p4]);
+        const overrideError = await setEpisodeStatusOverride(existing.id, status === "制作中" ? "制作中" : null);
+        if (overrideError) throw new Error(overrideError.message);
         summary.updated++;
       }
     }
