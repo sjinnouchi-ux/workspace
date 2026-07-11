@@ -1,5 +1,17 @@
 # 作業ログ
 
+## 2026-07-11（新PC Cloudflare secret consumer実装）
+
+- `mgmt-terminal` に `dori-manga.deploy` manifestを追加し、Cloudflare TokenとAccount IDだけを子プロセスへ渡す構成にした。
+- `codex-agent` へ対象2 Secretだけの `secretAccessor` を付与し、project-levelの包括権限は付与していない。
+- manifestに業務用gcloud accountを明記し、別のactive accountが選択された親processからでも正しいアカウントで取得できることを確認した。
+- helperの `PrintPlan`、service account impersonation、`dori-manga-admin` Pages projectの読取確認が成功した。秘密値は表示していない。
+- 初回疎通で見つかったhelperの `-ArgumentList` 転送不具合を修正し、回帰テストを追加した。
+- 新PC用手順 `docs/cloudflare-pages-deploy.md` を追加した。
+- 現行Cloudflare Tokenのpermission詳細はAPIから確認できないため、専用Pages Edit tokenへのrotationまでは `ready_with_rotation_pending` とする。
+- Pages Write確認用の一時previewをdeployし、HTTP 200確認後にdeploymentを削除した。削除後previewはHTTP 404、productionはHTTP 200のまま。
+- 対象コード変更がないためproduction deployは実施していない。
+
 ## 2026-07-11（新PC secret consumer監査）
 
 - `GLOBAL__CLOUDFLARE__API_TOKEN` と `GLOBAL__CLOUDFLARE__ACCOUNT_ID` がSecret Managerに存在し、有効versionがあることを値なしで確認。
