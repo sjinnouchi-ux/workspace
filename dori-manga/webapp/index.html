@@ -1139,32 +1139,27 @@ async function importImage() {
       }
       throw error;
     }
-    const attemptNumber = await resolveAttemptNumber(
-      parsedInfo.payload.attempt_number,
-      episodeId,
-      Number($("import-panel").value),
+    const panelNumber = Number($("import-panel").value);
+    const importPayload = preserveReportedAttemptNumber(
+      applyFailureReason(parsedInfo.payload, resultStatus, failureReason),
     );
     const payload = {
-      ...applyFailureReason(parsedInfo.payload, resultStatus, failureReason),
-      attempt_number:attemptNumber,
+      ...importPayload,
       result_status:resultStatus,
-      panel_number:Number($("import-panel").value),
+      panel_number:panelNumber,
       episode_title:ep.title,
       image_url:uploaded.web_view_link,
       drive_file_id:uploaded.file_id,
       file_name:file.name,
     };
-    const { data, error } = await sb.rpc("import_generation_attempt", { payload });
-    if (error) throw new Error(error.message);
-    if (data?.status === "duplicate") {
-      msg("image-import-msg", "warn", `同じコマ・試行回数は登録済みです。画像はDriveに残っています。\n${data.message || ""}`);
-    } else {
+    const data = await registerGenerationAttempt(payload, episodeId, panelNumber);
+    if (data?.status === "ok") {
       const jsonNote = parsedInfo.ok ? "JSON読取: OK" : "JSON読取: NG（DBに原文とエラーを保存）";
-      msg("image-import-msg", "ok", `画像アップロードとDB登録が完了しました。\n${jsonNote}`);
+      msg("image-import-msg", "ok", `画像アップロードとDB登録が完了しました（試行 ${data.attempt_number}）。\n${jsonNote}`);
       $("import-json").value = "";
       $("import-file").value = "";
       $("import-failure-reason").value = "";
-      await addOperationLog("画像評価を登録しました", { title:ep.title, status:resultStatus, message:failureReason ? `理由: ${failureReason}` : `コマ: ${$("import-panel").value}` });
+      await addOperationLog("画像評価を登録しました", { title:ep.title, status:resultStatus, message:failureReason ? `試行 ${data.attempt_number} / 理由: ${failureReason}` : `コマ: ${panelNumber} / 試行: ${data.attempt_number}` });
     }
     await Promise.all([loadHistory(), loadStats()]);
   } catch (error) {
@@ -1238,9 +1233,30 @@ function buildFallbackJsonPayload(rawText, errorMessage, resultStatus) {
   };
 }
 
-async function resolveAttemptNumber(value, episodeId, panelNumber) {
-  const parsed = Number(value);
-  if (Number.isInteger(parsed) && parsed > 0 && parsed < 2147483647) return parsed;
+function preserveReportedAttemptNumber(payload) {
+  const reported = Number(payload.attempt_number);
+  const evaluationJson = { ...(payload.evaluation_json || {}) };
+  if (Number.isInteger(reported) && reported > 0 && reported < 2147483647) {
+    evaluationJson.reported_attempt_number = reported;
+  }
+  const result = { ...payload, evaluation_json:evaluationJson };
+  delete result.attempt_number;
+  return result;
+}
+
+async function registerGenerationAttempt(payload, episodeId, panelNumber) {
+  for (let retry = 0; retry < 3; retry += 1) {
+    const attemptNumber = await nextAttemptNumber(episodeId, panelNumber);
+    const { data, error } = await sb.rpc("import_generation_attempt", {
+      payload:{ ...payload, attempt_number:attemptNumber },
+    });
+    if (error) throw new Error(error.message);
+    if (data?.status !== "duplicate") return { ...data, attempt_number:attemptNumber };
+  }
+  throw new Error("同時登録が重なったため試行番号を確保できませんでした。もう一度登録してください。");
+}
+
+async function nextAttemptNumber(episodeId, panelNumber) {
   const ep = state.episodes.find(item => item.id === episodeId);
   let panelId = ep?.panels?.find(panel => panel.panel_number === panelNumber)?.id;
   if (!panelId) {

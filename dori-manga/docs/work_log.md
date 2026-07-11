@@ -1,5 +1,16 @@
 # 作業ログ
 
+## 2026-07-11（同一コマへのOK・NG・CLOSE複数登録）
+- インポート登録時、ChatGPT JSON内の `attempt_number` をDBの一意な試行番号としてそのまま使わず、同一コマの既存最大値+1を毎回自動採番するようにした。
+- JSONに含まれていた元の試行番号は `evaluation_json.reported_attempt_number` に参考値として保存する。
+- 同時操作で採番が競合してRPCが `duplicate` を返した場合は、最大3回まで再採番して登録を再試行する。
+- これにより、同一コマへ `OK` / `NG` / `CLOSE` の各判定をそれぞれ複数回登録できる。
+- 成功メッセージと操作ログへ、実際に登録された試行番号を表示するようにした。
+- 検証:
+  - `index.html` 内インラインJavaScriptの構文チェック成功。
+  - 採番競合を模擬し、既存最大値5に対して試行6が重複した場合に試行7へ再採番して登録成功することを自動テストで確認。
+  - `git diff --check` 成功。
+
 ## 2026-07-09（Secret Manager参照方針の明文化）
 - `docs/secret-management.md` を追加し、dori-manga関連の作業PC・AIエージェント用secretはGoogle Secret Managerを正本として扱う方針を明文化。
 - `C:\Users\irodo\.codex\.sandbox-secrets\global.env` は移行前の互換ファイルであり、新PCへコピーしない旨をREADME/CLAUDE文脈から辿れるようにした。
