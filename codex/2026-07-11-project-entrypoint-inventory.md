@@ -264,3 +264,13 @@ GitHubまたは指定保存先へ残すもの:
 - 読み取りと `git fetch origin --prune` によりremote refsを更新した。
 - 公式Codex仕様確認のため、`C:\Users\irodo\.codex\config.toml` に `openaiDeveloperDocs` MCPを追加した。現在のCodexアプリでツール一覧へ反映するにはアプリ再起動が必要。
 - プロジェクトファイルの削除、移動、マージ、未同期内容の書換えは行っていない。
+
+## Traffic Control Decision
+
+棚卸し後、ユーザーは次の運用を採用した。
+
+- Codex Desktopのパーソナライズには、GitHub上の共通起動手順と `PROJECTS.md` を毎回取得する短いbootstrapだけを置く。
+- 全プロジェクトの正本はオンラインGitHubとし、ローカルclone/worktreeはタスク単位の作業場として扱う。
+- タスク完了時はcommit、push、ログ更新、必要なlive確認を終えてからローカルを整理する。
+- ShogunはWSL2 Linuxで起動しWebUIから利用する。Codex Desktop設定完了後、同じGitHub pushとcleanup規則へ改修する。
+- Shogun実装・WSL2・WebUIの変更は今回行わない。

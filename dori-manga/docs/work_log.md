@@ -270,6 +270,19 @@
 - GitHub mainへGAS keepaliveコードを反映。コミット: `b7d32a3 Add dori manga Supabase keepalive`。
 - ユーザー報告により、Apps Script側のコード反映と `installSupabaseKeepaliveTrigger()` の実行完了を確認。NotionのNext Actionを「3日ごとのSupabase keepalive初回自動実行後に、Supabase側で更新履歴またはREST疎通を確認する。」へ更新し、`docs/notion/projects.csv` に同期。
 
+## 2026-06-16（Supabase OK格納確認）
+- 添付画像 `C:\Users\irodo\Downloads\2.png` の作画タッチを確認。
+  - 白背景、鉛筆スケッチ風、淡い着色、右側のどり看護師に紫の聴診器あり。
+  - 「深夜のICU」文脈の医療漫画タッチとして、既存OK基準（手描き感、余白、聴診器あり）に近い。
+- Supabase `generation_attempts` を確認。
+  - `result_status=OK` かつ `folder_status=OK` のレコードは9件。
+  - OKレコードの `image_url` は共通のDrive格納フォルダURL `https://drive.google.com/drive/folders/1QnEYY4DShAFVa0Lq9znQWuwoD1NEhTFW?usp=drive_link`。
+  - 添付画像と同一セリフ（「ふぅ。やっと記録できるよ〜」「やっと座れた…」）を含むレコードは確認できなかった。
+- Google Driveメタデータを確認。
+  - `1QnEYY4DShAFVa0Lq9znQWuwoD1NEhTFW` は `漫画格納` フォルダ。
+  - OK画像の個別ファイルは `drive_file_id` で参照され、上位に `どり看護師_漫画格納フォルダ`、テーマ別フォルダを持つ。
+  - 例として `ChatGPT Image 2026年5月28日 09_56_27.png` はDriveファイル `1XaiNjLt1QKiDrRVC-jkI_tlCwxdeHW0Z`、Supabase上はOKだった。
+
 ## 2026-06-11
 - Windows-Codex から `DORI_MANGA_SUPABASE_URL` / `DORI_MANGA_SUPABASE_SERVICE_ROLE_KEY` を `C:\Users\irodo\.codex\.sandbox-secrets\global.env` から一時読み込みし、Supabase REST API への接続を確認。
 - 接続先ホストは `vdntqwtywxyjxelycavx.supabase.co` で、設計書の REST API URL と一致。
