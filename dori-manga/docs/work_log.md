@@ -1,5 +1,13 @@
 # 作業ログ
 
+## 2026-07-11（新PC secret consumer監査）
+
+- `GLOBAL__CLOUDFLARE__API_TOKEN` と `GLOBAL__CLOUDFLARE__ACCOUNT_ID` がSecret Managerに存在し、有効versionがあることを値なしで確認。
+- `dori-manga.deploy` 用manifestがなく、`codex-agent` に2 Secretのaccessor権限がないため、新PCからのPages deployはblockedと確定。
+- `dori-manga-admin.pages.dev` はHTTP 200、GitHub Actions `Supabase keepalive` 最新確認runはsuccessで、本番停止ではないことを確認。
+- 旧 `global.env` のコピー、Secret値の表示、IAM変更、deployは実施していない。
+- 全projectの詳細監査は `mgmt-terminal/docs/reports/2026-07-11-cross-project-secret-consumer-audit.md` を正本とする。
+
 ## 2026-07-11（同一コマへのOK・NG・CLOSE複数登録）
 - インポート登録時、ChatGPT JSON内の `attempt_number` をDBの一意な試行番号としてそのまま使わず、同一コマの既存最大値+1を毎回自動採番するようにした。
 - JSONに含まれていた元の試行番号は `evaluation_json.reported_attempt_number` に参考値として保存する。
