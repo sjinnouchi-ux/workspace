@@ -19,13 +19,17 @@ Codex専用の作業ルール、操作メモ、引き継ぎ情報を管理する
 
 | ファイル | 内容 |
 |---------|------|
+| [CODEX_DESKTOP_STARTUP.md](./CODEX_DESKTOP_STARTUP.md) | 全PC共通のオンライン起動手順とローカル作業場の完了条件 |
+| [CODEX_DESKTOP_CUSTOM_INSTRUCTIONS.md](./CODEX_DESKTOP_CUSTOM_INSTRUCTIONS.md) | Codex Desktopのパーソナライズへ設定する共通bootstrap文面 |
 | [gas_browser_operation.md](./gas_browser_operation.md) | CodexでGASをブラウザ操作する手順 |
 | [official_line_ai_integration.md](./official_line_ai_integration.md) | 公式LINE AI連携の現状整理・テスト環境方針 |
+| [2026-07-11-project-entrypoint-inventory.md](./2026-07-11-project-entrypoint-inventory.md) | GitHub・ローカルGit・Codex trusted path・AGENTS入口の全棚卸し |
 | [work_log.md](./work_log.md) | Codex専用作業ログ |
 
 ## 運用ルール
 
-1. Codex固有の操作方針はこのフォルダに記録する
-2. 実作業の結果は `codex/work_log.md` に追記する
-3. ワークスペース全体に関わる作業はルートの `claude_log.md` にも記録する
-4. 作業後は必ずGitHubへpushする
+1. 各PCのカスタム指示はオンライン起動手順へのbootstrapだけを持つ
+2. Codex固有の共通操作方針はこのフォルダに記録する
+3. 実作業の結果は `codex/work_log.md` に追記する
+4. ワークスペース全体に関わる作業はルートの `claude_log.md` にも記録する
+5. 作業後は必ずGitHubへpushし、ローカルだけの記録を残さない

@@ -837,3 +837,12 @@ dori-manga/
 
 ---
 
+## 2026-07-11｜Codex Desktopオンライン入口の統一
+
+- `PROJECTS.md` を全プロジェクトのCanonical EntryとPrimary Docsを持つオンラインルーターへ更新。
+- Codex Desktop共通起動手順とパーソナライズ用bootstrapを `codex/` に追加。
+- ローカルはタスク単位の作業場、GitHub `main` と各project repoを正本とするcleanup gateを明文化。
+- ShogunはWSL2 Linux + WebUIとして後日同じGitHub push運用へ改修し、今回は実装・設定を変更しない。
+
+---
+
