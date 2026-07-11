@@ -306,3 +306,15 @@ GitHubまたは指定保存先へ残すもの:
 | Codex trusted path | `config.toml` の31件 | `trust_level` はルーティングではなくproject設定の信頼境界であり、一括削除対象ではない |
 
 Shogunは将来のWSL2 Linux + WebUI改修方針だけを共通文書へ記録した。実装、WSL2設定、WebUI設定は変更していない。
+
+## Shogun Final Decision v1.1
+
+この文書内の「ShogunをCodex Desktopと同じGitHub pushとcleanup規則へ改修する」という以前の判断は、2026-07-11 JSTの最終決定でsupersededとなった。
+
+確定方式は `GitHub境界連携方式`、設計書は `2026-07-11-shogun-cross-pc-operating-plan-v1.1.md`、状態は `1.1 lightweight approved` である。
+
+- ShogunはWSL2 Linux + WebUI上で独立運用する。
+- Codex DesktopとShogunは設定、認証、session、memory、database、worktree/cleanup方式、Drive領域を共有しない。
+- GitHubのcommit、branch、PR、既存worklog、handoffと、必要なDrive成果物だけを境界として連携する。
+- Shogunは専用branchを使用し、mainへ直接pushせず、対象repoの既存規則を優先する。
+- Codex Desktopの既存PC間運用と各projectのAGENTSは変更しない。
