@@ -274,3 +274,35 @@ GitHubまたは指定保存先へ残すもの:
 - タスク完了時はcommit、push、ログ更新、必要なlive確認を終えてからローカルを整理する。
 - ShogunはWSL2 Linuxで起動しWebUIから利用する。Codex Desktop設定完了後、同じGitHub pushとcleanup規則へ改修する。
 - Shogun実装・WSL2・WebUIの変更は今回行わない。
+
+## Traffic Control Execution Result
+
+前節までのローカル一覧は交通整理実施前のスナップショットである。2026-07-11 JSTに次を実施した。
+
+### Resolved
+
+| Item | Result |
+|---|---|
+| 共通ルーターと起動手順 | `workspace` PR #4をmerge。`main` は `e976f29352eaf08f996c1182e7509233e11ed99f` |
+| stale workspaceのdori-mangaログ | 確認済み2026-06-16記録を `workspace/main` へ救出 |
+| stale workspaceの看護まもりSTUDIOメモ | 現行repoへ整理し、`kango-mamori-studio-requests` PR #2、`44c676065d37a2e95493ae22275544ef50e309bf` へ反映 |
+| 台湾プロジェクトの確認済みログ | `taiwan-outreach` PR #1、`dc02db8cd879f7e4f7dba96dc9ffc42d1e9d489d` へ反映 |
+| 台湾プロジェクトの生成物 | `outputs/` をignore対象として保持。OAuth関連を読まず、commitしていない |
+| このPCの共通入口 | `C:\Users\irodo\.codex\AGENTS.md` をオンラインbootstrapへ切替。変更前ファイルを `C:\Users\irodo\.codex\backups` へ保存 |
+| 安定workspace clone | `C:\Users\irodo\Documents\workspace` を更新後の `origin/main` へfast-forward |
+| 今回作成した一時clone | PR反映とclean状態を確認後、`C:\Users\irodo\Documents\Codex\2026-07-11\traffic-control` を削除 |
+
+共通起動文書、`PROJECTS.md`、パーソナライズ用文面のraw URLはHTTP 200を確認した。`PROJECTS.md` に記載したPrimary Docsと起動文書の参照先も解決できることを確認した。
+
+### Preserved Pending Explicit Approval
+
+| Category | Preserved item | Reason |
+|---|---|---|
+| 空または誤誘導Git入口 | `APIモニター`、`どり看護師マンガプロジェクト`、`家計簿`、`Freee`、`Kアラート`、`Kアラート・テスト開発` | 既存資産の破壊的削除には明示承認が必要 |
+| 空 `.git` | `C:\Users\irodo\Documents\Codex\.git` ほか棚卸し済み3件 | 親フォルダの用途を維持したまま削除判断が必要 |
+| stale / duplicate clone | 旧workspace clone、重複business-management clone、入れ子の一時clone | 救出済み内容と残存差分を最終照合してから削除する |
+| 未統合branch | `kakeibo-liff`、`k-alert-production-workspace-push` | `main` にないcommitを保持している |
+| ローカル生成物 | `Kアラート・テスト開発` の `.wrangler/` と `outputs/`、台湾のignored `outputs/` | 内容確認または安全な廃棄判断が未完了 |
+| Codex trusted path | `config.toml` の31件 | `trust_level` はルーティングではなくproject設定の信頼境界であり、一括削除対象ではない |
+
+Shogunは将来のWSL2 Linux + WebUI改修方針だけを共通文書へ記録した。実装、WSL2設定、WebUI設定は変更していない。
