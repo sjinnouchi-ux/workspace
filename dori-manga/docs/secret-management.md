@@ -28,6 +28,26 @@ GLOBAL__GOOGLE_OAUTH__CLIENT_SECRET
 GLOBAL__GOOGLE_OAUTH__REFRESH_TOKEN
 ```
 
+## Cloudflare Pages Deploy
+
+Cloudflare Pages deployでWranglerが要求するenv名と保管済みSecret ID:
+
+```text
+CLOUDFLARE_API_TOKEN  <- GLOBAL__CLOUDFLARE__API_TOKEN
+CLOUDFLARE_ACCOUNT_ID <- GLOBAL__CLOUDFLARE__ACCOUNT_ID
+```
+
+2026-07-11監査時点:
+
+- 上記2 Secret IDは `kakeibo-liff-prod` に存在し、有効versionがある。
+- `dori-manga.deploy` 用manifestは存在しない。
+- `codex-agent` に上記2 Secretのaccessor権限はない。
+- したがって、新PCからのCloudflare Pages deployは現在 `blocked` である。
+
+この状態で旧 `global.env` をコピーしたり、値を直接表示して回避しない。project/role manifest、必要最小限IAM、helper経由のWrangler疎通を整備してから `ready` へ変更する。
+
+なお、`https://dori-manga-admin.pages.dev/` のlive配信とGitHub Actions `Supabase keepalive` は監査時点で正常であり、このblockerは新PCからのdeploy credential取得に限定される。
+
 ## Supabase Edge Functions
 
 Edge Functionsの実行時secretはSupabase側のFunction secretsとして管理する。代表例:
