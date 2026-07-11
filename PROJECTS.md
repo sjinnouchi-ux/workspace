@@ -24,7 +24,7 @@ https://raw.githubusercontent.com/sjinnouchi-ux/workspace/main/codex/CODEX_DESKT
 | 管理ターミナル | management-terminal, mgmt-terminal | Support / Workflow | Claude | Codex | `https://github.com/sjinnouchi-ux/mgmt-terminal` | `2026-07-06-management-terminal-design-brief.md`; `2026-07-06-management-terminal-opus-handoff.md` | 管理ターミナルAPI・運用資料。 |
 | 議事録システム | meeting-minutes, 議事録 | Active | Claude | Codex | `https://github.com/sjinnouchi-ux/meeting-minutes-system` | `README.md` | リアルタイム文字起こし、Google Docs/Calendar出力、DB/API参照チャット。 |
 | ゆめ看護 事業管理 | yumekango-business-management, 看護守事業, 事業振り返り | Active | Claude | Codex | `https://github.com/sjinnouchi-ux/yumekango-business-management` | `README.md` | 事業全体管理、月次振り返り、KPI、派生プロジェクト連携。 |
-| Shogun | Shogun Lab, multi-agent-shogun, FABLE5, 要件定義 | Support / Workflow | FABLE 5 / Claude | Shogun / Codex | `https://github.com/sjinnouchi-ux/multi-agent-shogun` | `README_ja.md`; `AGENTS.md`; `CLAUDE.md` | WSL2 Linux環境で起動しWebUIから利用する予定。Codex Desktopのパーソナライズ完了後、同じGitHub正本・push・cleanup規則へ改修する。現時点ではShogun実装を変更しない。 |
+| Shogun | Shogun Lab, multi-agent-shogun, FABLE5, 要件定義 | Support / Workflow | FABLE 5 / Claude | Shogun / Codex | `https://github.com/sjinnouchi-ux/multi-agent-shogun` | `README_ja.md`; `AGENTS.md`; `CLAUDE.md` | WSL2 Linux + WebUI上でGitHub境界連携方式として独立運用する。専用branchを使用してmainへ直接pushせず、対象repoの既存規則を優先する。Codex Desktopの設定・認証・session・worktree/cleanup方式・Drive領域は共有しない。実装方針はv1.1 lightweight approved。 |
 
 ## 凍結・参照
 

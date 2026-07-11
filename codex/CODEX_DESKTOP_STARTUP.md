@@ -110,6 +110,8 @@ https://drive.google.com/drive/folders/1yrWHPFuE7yHZGhs_MLeVZPiifpfsDVQX
 
 ## Shogun
 
-Shogunは、WSL2 Linux環境で起動しWebUIから利用する予定です。Codex Desktopのパーソナライズとオンラインルーティング確立後に、ShogunもこのGitHub正本、commit/push、作業ログ、cleanup gateへ適合させます。
+Shogunは、WSL2 Linux + WebUI上で「GitHub境界連携方式」としてCodex Desktopから独立運用します。GitHubのcommit、branch、PRと必要なDrive成果物だけを境界として共有します。
 
-その改修が完了するまでは、Codex Desktop側の交通整理でShogun実装、WSL2設定、WebUI設定を変更しません。
+Codex Desktopの設定、認証、session、ローカルworktree・cleanup方式、成果物保存領域はShogunと共有せず、この文書のCodex Desktop用規則をShogunへ一律適用しません。Shogunは専用branchを使用してmainへ直接pushせず、対象repoの既存規則を優先します。
+
+Shogun実装、WSL2設定、WebUI設定は、ユーザーが明示的にShogun作業を依頼した場合だけ対象とします。通常のCodex Desktop交通整理では変更しません。
