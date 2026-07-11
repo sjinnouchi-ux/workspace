@@ -61,3 +61,28 @@ Codex専用フォルダ内の作業記録です。ワークスペース全体に
 
 ---
 
+## 2026-07-11｜全プロジェクト入口の棚卸し
+
+### 対応内容
+
+- GitHubアカウント `sjinnouchi-ux` の12リポジトリと `PROJECTS.md` を照合した。
+- Windowsローカルで22個の成立したGitルート、3個の空 `.git`、31個のCodex trusted pathを確認した。
+- 正式clone、タスク用clone、重複・退役候補、空の危険入口、未同期情報あり、Shogun対象外に分類した。
+- 未同期Markdown、未統合commit、生成物が残る場所を特定し、削除禁止対象として記録した。
+- Codexが各runで読む共通入口は `~/.codex/AGENTS.md` であり、repo側 `AGENTS.md` が追加適用されることを公式仕様で確認した。
+
+### 成果物
+
+- `codex/2026-07-11-project-entrypoint-inventory.md`
+
+### 未実施
+
+- ローカル固有情報のGitHubへの移送
+- `PROJECTS.md` のURL・未登録repo修正
+- グローバル `AGENTS.md` テンプレートの作成と各PCへの配布
+- 空入口、重複clone、古いtrusted pathの削除
+
+Shogun関連はユーザー指定により別デスクトップで扱うため変更していない。
+
+---
+
