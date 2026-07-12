@@ -123,3 +123,11 @@ Shogunは、WSL2 Linux + WebUI上で「GitHub境界連携方式」としてCodex
 Codex Desktopの設定、認証、session、ローカルworktree・cleanup方式、成果物保存領域はShogunと共有せず、この文書のCodex Desktop用規則をShogunへ一律適用しません。Shogunは専用branchを使用してmainへ直接pushせず、対象repoの既存規則を優先します。
 
 Shogun実装、WSL2設定、WebUI設定は、ユーザーが明示的にShogun作業を依頼した場合だけ対象とします。通常のCodex Desktop交通整理では変更しません。
+
+### Runtime discovery
+
+- `NUCBOX_K8_PLUS` はShogunのメインホストです。実Windowsユーザー `jinnouchi` のWSL2ディストリビューション `Ubuntu` に `/home/jinnouchi/multi-agent-shogun` があります。`ShogunUbuntu` は使用しません。
+- Codexの隔離ユーザー（例: `codexsandboxoffline`）では、ユーザー単位のWSL登録が見えず `wsl.exe --list` が空になる場合があります。この結果だけで「WSL/Shogunが未インストール」と判定してはいけません。
+- `NUCBOX_K8_PLUS` でShogun作業を依頼された場合は、実ユーザー環境でのコマンド実行許可を取得し、`Ubuntu`、repo、必要なtmux sessionの存在だけを確認してから作業します。秘密設定、tmux pane、生queue、生report、生ログは読み取り・出力しません。
+- 標準確認入口は `wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun` です。tmux sessionは将軍用 `shogun` と各役職用 `multiagent`、WebUIのローカル入口は `http://127.0.0.1:8790/` です。
+- 別PCでローカルWSLが見つからない場合は「そのPCにShogun実体がない」と報告し、Shogun全体が未導入・消失したとは判定しません。メインホストへの接続経路が未確認なら、推測で代替環境を作らず停止します。
