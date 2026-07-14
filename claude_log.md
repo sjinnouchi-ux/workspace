@@ -855,3 +855,14 @@ dori-manga/
 
 ---
 
+## 2026-07-14｜Codex接続・認証境界監査
+
+- Windows隔離userによるGitHub CLIのfalse negativeを正式に`INCONCLUSIVE`扱いとし、実userだけでread-only検証するguard scriptを追加。
+- GitHub/Google Drive Apps、local CLI/sync、MCP、browser/Chrome、Remote/SSHを別の認証境界として共通runbookと起動手順へ反映。
+- `gcloud`は隔離userで未検出、実userでactive account確認済みとなり、PATH/credential判定もuser境界で分ける必要を確認。
+- Google Drive connectorとGSC MCPの疎通を確認。ローカルDrive path、GA4 MCP、browser/Chromeは別境界またはtool未露出のため未接続と断定していない。
+- Custom instructionsへ、別経路の失敗だけでlogout、disconnect、credential削除、OAuth/token再発行を行わない規則を追加。
+- 秘密情報やprivate contentは監査・記録していない。
+
+---
+
