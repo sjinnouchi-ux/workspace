@@ -846,3 +846,12 @@ dori-manga/
 
 ---
 
+## 2026-07-14｜Codex共有frontend-designスキル追加
+
+- Anthropic公式`frontend-design`を固定commitから取得し、ライセンスと出典記録付きで`codex/skills/frontend-design/`へ収録。
+- 複数PCがGitHub上の同じ正本から導入できる運用を`codex/skills/README.md`へ追加。
+- GitHub CLI認証は実Windowsユーザーのkeyringで有効であり、Codex隔離ユーザーとの境界が失敗表示の原因と確認。実ユーザー側へGit credential helper設定を再適用した。
+- 秘密値、OAuthコード、tokenはGitHubや作業ログへ記録していない。
+
+---
+
