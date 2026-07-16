@@ -75,4 +75,3 @@
 - [ ] **Step 4: Report the safe SUUMO continuation**
 
   State whether Codex may resume Shogun orchestration for `shogun/implementation-mvp`.
-

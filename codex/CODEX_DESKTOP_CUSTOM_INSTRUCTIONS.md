@@ -89,4 +89,3 @@ deployment task and is not part of this exception.
 - The complete command exits 0, returns one fully schema-valid version-1 ASCII JSON object, has empty stderr, and finishes in under 10 seconds; `overall=degraded|unavailable` is not a process failure.
 - Free text, pane/YAML/log bodies, paths, PID, command line, remote URL, exact runtime sizes, and runtime hashes are absent.
 - Provenance/process failure never triggers a raw fallback, repo-script execution, shorter WSL permission, or direct runtime read.
-
