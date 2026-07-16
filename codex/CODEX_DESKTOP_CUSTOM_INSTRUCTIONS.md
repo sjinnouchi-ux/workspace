@@ -36,7 +36,7 @@ NUCBOX_K8_PLUSでは、Shogunは実Windowsユーザー jinnouchi のWSL2 Ubuntu�
 
 The preceding prohibition remains in force. Immediately before each diagnostic
 invocation, Codex must fetch GitHub `main` raw
-`docs/superpowers/plans/2026-07-14-codex-readonly-diagnostics-work-log.md`,
+`https://raw.githubusercontent.com/sjinnouchi-ux/multi-agent-shogun/main/docs/superpowers/plans/2026-07-14-codex-readonly-diagnostics-work-log.md`,
 validate its single marked schema-version-1 JSON registry and exactly one active
 deployment, then compare that record's source SHA-256 with the returned
 `tool.source_sha256`.
@@ -89,3 +89,4 @@ deployment task and is not part of this exception.
 - The complete command exits 0, returns one fully schema-valid version-1 ASCII JSON object, has empty stderr, and finishes in under 10 seconds; `overall=degraded|unavailable` is not a process failure.
 - Free text, pane/YAML/log bodies, paths, PID, command line, remote URL, exact runtime sizes, and runtime hashes are absent.
 - Provenance/process failure never triggers a raw fallback, repo-script execution, shorter WSL permission, or direct runtime read.
+
