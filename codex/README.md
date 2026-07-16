@@ -21,6 +21,9 @@ Codex専用の作業ルール、操作メモ、引き継ぎ情報を管理する
 |---------|------|
 | [CODEX_DESKTOP_STARTUP.md](./CODEX_DESKTOP_STARTUP.md) | 全PC共通のオンライン起動手順とローカル作業場の完了条件 |
 | [CODEX_DESKTOP_CUSTOM_INSTRUCTIONS.md](./CODEX_DESKTOP_CUSTOM_INSTRUCTIONS.md) | Codex Desktopのパーソナライズへ設定する共通bootstrap文面 |
+| [connection-authentication-boundaries.md](./connection-authentication-boundaries.md) | connector、CLI、MCP、browser、Remoteの認証境界と誤判定防止手順 |
+| [scripts/Test-GitHubConnection.ps1](./scripts/Test-GitHubConnection.ps1) | 隔離userのGitHub認証誤判定を拒否するread-only確認script |
+| [skills/](./skills/) | 複数PCで共有するCodexスキルのGit正本、ライセンス、取得元 |
 | [gas_browser_operation.md](./gas_browser_operation.md) | CodexでGASをブラウザ操作する手順 |
 | [official_line_ai_integration.md](./official_line_ai_integration.md) | 公式LINE AI連携の現状整理・テスト環境方針 |
 | [2026-07-11-project-entrypoint-inventory.md](./2026-07-11-project-entrypoint-inventory.md) | GitHub・ローカルGit・Codex trusted path・AGENTS入口の全棚卸し |

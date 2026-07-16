@@ -846,3 +846,24 @@ dori-manga/
 
 ---
 
+## 2026-07-14｜Codex共有frontend-designスキル追加
+
+- Anthropic公式`frontend-design`を固定commitから取得し、ライセンスと出典記録付きで`codex/skills/frontend-design/`へ収録。
+- 複数PCがGitHub上の同じ正本から導入できる運用を`codex/skills/README.md`へ追加。
+- GitHub CLI認証は実Windowsユーザーのkeyringで有効であり、Codex隔離ユーザーとの境界が失敗表示の原因と確認。実ユーザー側へGit credential helper設定を再適用した。
+- 秘密値、OAuthコード、tokenはGitHubや作業ログへ記録していない。
+
+---
+
+## 2026-07-14｜Codex接続・認証境界監査
+
+- Windows隔離userによるGitHub CLIのfalse negativeを正式に`INCONCLUSIVE`扱いとし、実userだけでread-only検証するguard scriptを追加。
+- GitHub/Google Drive Apps、local CLI/sync、MCP、browser/Chrome、Remote/SSHを別の認証境界として共通runbookと起動手順へ反映。
+- `gcloud`は隔離userで未検出、実userでactive account確認済みとなり、PATH/credential判定もuser境界で分ける必要を確認。
+- Google Drive connectorとGSC MCPの疎通を確認。ローカルDrive path、GA4 MCP、browser/Chromeは別境界またはtool未露出のため未接続と断定していない。
+- Custom instructionsへ、別経路の失敗だけでlogout、disconnect、credential削除、OAuth/token再発行を行わない規則を追加。
+- このPCのグローバル`AGENTS.md`を同じbootstrap文面へ同期し、更新前backupと更新後hashを`codex/work_log.md`へ記録。
+- 秘密情報やprivate contentは監査・記録していない。
+
+---
+
