@@ -130,7 +130,9 @@ Content-Type: application/json
 
 - 専用Codex Desktop notifier service accountだけを許可する。
 - OIDC issuer、audience、email/subを検証する。
-- Cloud Run Invokerも同じprincipalへ限定する。
+- 既存のLIFF・Webhook・公開routeを維持するため、`kakeibo-api` Cloud Run serviceの公開IAMとInvoker設定は変更しない。
+- 新しいendpointだけをアプリケーション層のOIDC検証で保護し、匿名・誤audience・誤issuer・誤principalを拒否する。
+- Windows実ユーザーには専用notifier service accountのID tokenをmintするための最小impersonation権限だけを付与する。
 - 既存の管理ターミナル送信元service accountと認可設定を共有しない。
 - LINE tokenをこのendpointのcallerへ返さない。
 
@@ -190,7 +192,7 @@ Codexのターンが終了しました
 
 ### 11.3 Live
 
-1. production deploy前に専用service account、IAM、audienceをread-only確認する。
+1. production deploy前に専用service account、実ユーザーのimpersonation権限、audienceをread-only確認し、`kakeibo-api` の公開IAMが変更されないことを確認する。
 2. hookを無効のままendpointへ認証済みsmoke requestを送り、対象subscriberへの1件受信を確認する。
 3. event ID再送で重複除外を確認する。
 4. Windows実ユーザーのCodex Desktopへhookを追加する。
@@ -203,7 +205,7 @@ Codexのターンが終了しました
 ### Rollout
 
 1. kakeibo-liffにendpoint、service、testを実装する。
-2. 専用service accountと最小IAMを設定する。
+2. 専用service accountを作成し、Windows実ユーザーへID token mint用の最小impersonation権限だけを設定する。`kakeibo-api` の公開IAMとInvoker設定は変更しない。
 3. 家計簿APIをdeployし、hookなしでlive検証する。
 4. workspaceにPython hook scriptとWindows installerを実装する。
 5. Windows実ユーザー境界でhook定義を追加し、1ターンだけE2E確認する。
@@ -212,7 +214,7 @@ Codexのターンが終了しました
 
 1. `~/.codex/hooks.json` から追加した `Stop` handlerだけを除外する。
 2. 既存 `notify` 設定と他hookは保持する。
-3. 専用Cloud Run Invoker権限を除外する。
+3. 専用sender設定と実ユーザーのimpersonation権限を除外する。`kakeibo-api` の公開IAMとInvoker設定は変更しない。
 4. endpoint codeとdispatch sheetは監査証跡として残し、LINE tokenや購読情報を移動しない。
 
 ## 13. 完了条件
