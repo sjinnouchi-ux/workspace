@@ -26,7 +26,7 @@ PowerShellでrepository rootから実行します。
 $Installer = Join-Path (git rev-parse --show-toplevel) 'codex\hooks\install_codex_turn_line_hook.ps1'
 $CodexUserDir = Join-Path $env:USERPROFILE '.codex'
 $PythonPath = (Get-Command python -ErrorAction Stop).Source
-$GcloudPath = (Get-Command gcloud -ErrorAction Stop).Source
+$GcloudPath = (Get-Command gcloud.cmd -CommandType Application -ErrorAction Stop).Source
 
 & $Installer -DryRun `
   -CodexUserDir $CodexUserDir `
@@ -62,7 +62,7 @@ if ($SourceHash -cne $InstalledHash) { throw 'Installed notifier hash mismatch' 
 "notifier_sha256=$InstalledHash"
 ```
 
-次のread-only確認はraw hook JSONやcommand全文を表示せず、owned handlerの件数と信頼判断に必要な非秘密leafだけを出します。
+次のread-only確認はraw hook JSONやcommand全文を表示せず、owned handlerの件数と信頼判断に必要な非秘密leafだけを出します。Codexのcommand-hook schemaでは `command` が必須で、Windowsでは `commandWindows` がoverrideとして使われるため、installerは両方へ同一の安全なcommandを設定します。
 
 ```powershell
 $Endpoint = 'https://kakeibo-api-570965759130.asia-northeast1.run.app/internal/codex/turn-ended/notify'
@@ -73,6 +73,9 @@ $Owned = @($Document.hooks.Stop | ForEach-Object { $_.hooks } | Where-Object {
   $_.commandWindows.Contains($Endpoint)
 })
 if ($Owned.Count -ne 1) { throw "Unexpected owned handler count: $($Owned.Count)" }
+if ($Owned[0].command -isnot [string] -or $Owned[0].command -cne $Owned[0].commandWindows) {
+  throw 'Required base command and Windows override differ'
+}
 $Tokens = @([regex]::Matches($Owned[0].commandWindows, '"[^"]*"|\S+') | ForEach-Object { $_.Value.Trim('"') })
 [pscustomobject]@{
   owned_handler_count = $Owned.Count
@@ -84,7 +87,7 @@ $Tokens = @([regex]::Matches($Owned[0].commandWindows, '"[^"]*"|\S+') | ForEach-
 }
 ```
 
-期待値はhandler 1件、`type=command`、`timeout=10`、status message `Sending LINE turn notification`、script leaf `codex_turn_line_notify.py` です。Codex Desktopがhookの信頼確認を表示した場合は、上記確認後にそのexact hookだけを承認し、警告を迂回しません。
+期待値はhandler 1件、同一内容の必須 `command` とWindows override `commandWindows`、`type=command`、`timeout=10`、status message `Sending LINE turn notification`、script leaf `codex_turn_line_notify.py` です。`GcloudPath` はPythonから直接起動できる `gcloud.cmd` に限定します。Codex Desktopがhookの信頼確認を表示した場合は、上記確認後にそのexact hookだけを承認し、警告を迂回しません。
 
 ## Diagnostics
 

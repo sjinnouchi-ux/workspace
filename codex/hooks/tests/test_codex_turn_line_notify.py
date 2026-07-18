@@ -1,6 +1,7 @@
 import hashlib
 import io
 import json
+import os
 import subprocess
 import tempfile
 import unittest
@@ -167,6 +168,20 @@ class MintIdTokenTests(unittest.TestCase):
 
         with self.assertRaisesRegex(ValueError, "empty identity token"):
             notifier.mint_id_token("gcloud", "notifier@example.com", "https://example")
+
+    @unittest.skipUnless(os.name == "nt", "Windows command-wrapper integration")
+    def test_mints_through_a_real_cmd_wrapper(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            wrapper = Path(temp_dir) / "gcloud.cmd"
+            wrapper.write_text("@echo synthetic-id-token\n", encoding="ascii")
+
+            token = notifier.mint_id_token(
+                str(wrapper),
+                "codex-turn-notifier@example.iam.gserviceaccount.com",
+                "https://service.example",
+            )
+
+        self.assertEqual(token, "synthetic-id-token")
 
 
 class PostNotificationTests(unittest.TestCase):

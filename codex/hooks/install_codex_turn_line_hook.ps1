@@ -44,6 +44,9 @@ if (-not [IO.Path]::IsPathRooted($PythonPath) -or -not (Test-Path -LiteralPath $
 if (-not [IO.Path]::IsPathRooted($GcloudPath) -or -not (Test-Path -LiteralPath $GcloudPath -PathType Leaf)) {
     throw 'GcloudPath must be an existing absolute file path.'
 }
+if ([IO.Path]::GetFileName($GcloudPath) -ine 'gcloud.cmd') {
+    throw 'GcloudPath must resolve to gcloud.cmd for direct Python subprocess execution.'
+}
 if (-not (Test-Path -LiteralPath $SourceNotifier -PathType Leaf)) {
     throw 'The notifier source file is missing beside the installer.'
 }
@@ -157,6 +160,7 @@ function New-OwnedHandlerGroup {
         type = 'command'
         timeout = 10
         statusMessage = 'Sending LINE turn notification'
+        command = $CommandWindows
         commandWindows = $CommandWindows
     }
     return [pscustomobject][ordered]@{ hooks = @($Handler) }

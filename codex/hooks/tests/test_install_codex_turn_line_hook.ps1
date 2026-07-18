@@ -115,9 +115,10 @@ Invoke-Test 'Apply creates the exact Stop handler and installed notifier' {
         $LogPath = Join-Path $Fixture.CodexUserDir 'logs\codex_turn_line_notify.log'
         $ExpectedCommand = ('"{0}" "{1}" --endpoint "{2}" --audience "{3}" --service-account "{4}" --host-label "{5}" --gcloud "{6}" --log-path "{7}"' -f
             $Fixture.PythonPath, $InstalledScript, $Endpoint, $Audience, $ServiceAccount, $HostLabel, $Fixture.GcloudPath, $LogPath)
+        Assert-Equal $ExpectedCommand $Handler.command 'Wrong required base command'
         Assert-Equal $ExpectedCommand $Handler.commandWindows 'Wrong commandWindows'
         Assert-True (Test-Path -LiteralPath $InstalledScript -PathType Leaf) 'Notifier was not installed'
-        Assert-True (-not ($Handler.PSObject.Properties.Name -contains 'command')) 'Unexpected command property was added'
+        Assert-Equal 5 @($Handler.PSObject.Properties.Name).Count 'Handler property count does not match the command-hook schema'
     }
     finally { Remove-Item -LiteralPath $Fixture.Root -Recurse -Force }
 }
@@ -245,6 +246,22 @@ Invoke-Test 'Modes are mutually exclusive' {
         catch { $Rejected = $true }
         Assert-True $Rejected 'Installer accepted multiple modes'
         Assert-True (-not (Test-Path -LiteralPath $Fixture.CodexUserDir)) 'Rejected mode combination performed writes'
+    }
+    finally { Remove-Item -LiteralPath $Fixture.Root -Recurse -Force }
+}
+
+Invoke-Test 'PowerShell gcloud wrappers are rejected' {
+    $Fixture = New-Fixture
+    try {
+        $PowerShellWrapper = Join-Path (Split-Path -Parent $Fixture.GcloudPath) 'gcloud.ps1'
+        [IO.File]::WriteAllText($PowerShellWrapper, 'Write-Output unsafe-for-direct-subprocess')
+        $Rejected = $false
+        try {
+            & $Installer -DryRun -CodexUserDir $Fixture.CodexUserDir -PythonPath $Fixture.PythonPath -GcloudPath $PowerShellWrapper | Out-Null
+        }
+        catch { $Rejected = $true }
+        Assert-True $Rejected 'Installer accepted gcloud.ps1 for direct Python subprocess execution'
+        Assert-True (-not (Test-Path -LiteralPath $Fixture.CodexUserDir)) 'Rejected gcloud wrapper performed writes'
     }
     finally { Remove-Item -LiteralPath $Fixture.Root -Recurse -Force }
 }
