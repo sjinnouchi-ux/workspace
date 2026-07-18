@@ -81,7 +81,7 @@ def build_payload(event, now, host_label):
 - [ ] **Step 1: Write isolated tests** using an explicit temporary `-CodexUserDir` without changing `$HOME`, `$home`, or `$CODEX_HOME`. Cover dry-run no-write, apply, second apply idempotency, unrelated handler preservation, remove-only-owned-handler, and no `config.toml` modification.
 - [ ] **Step 2: Verify RED** by running the PowerShell test file.
 - [ ] **Step 3: Implement mutually exclusive `-DryRun`, `-Apply`, `-Remove` plus required CodexUserDir/PythonPath/GcloudPath and exact non-secret defaults. Reject filesystem-root targets.
-- [ ] **Step 4: Merge safely.** The handler is `type=command`, `timeout=10`, `statusMessage="Sending LINE turn notification"`, and `commandWindows` invokes the installed script with exact endpoint/audience/SA/host. Match ownership only by exact script filename plus endpoint. Preserve unrelated events/groups/handlers. Backup only for Apply/Remove; write same-directory temp then atomic rename.
+- [ ] **Step 4: Merge safely.** The handler is `type=command`, `timeout=10`, `statusMessage="Sending LINE turn notification"`, required `command`, and Windows override `commandWindows`. Set `command` and `commandWindows` to the same safe invocation of the installed script with exact endpoint/audience/SA/host. Match ownership only by exact script filename plus endpoint. Preserve unrelated events/groups/handlers. Backup only for Apply/Remove; write same-directory temp then atomic rename. Resolve and accept `gcloud.cmd`, not the PowerShell `gcloud.ps1` wrapper, because the notifier launches it directly with Python `subprocess`.
 - [ ] **Step 5: Run installer tests twice**, expecting both pass and no temporary residue.
 - [ ] **Step 6: Commit:** `git commit -m "feat(codex): install turn notification hook safely"`.
 
@@ -107,7 +107,7 @@ def build_payload(event, now, host_label):
 if($env:USERNAME -ne "jinnouchi"){throw "Wrong Windows user"}
 if($env:COMPUTERNAME -ne "NUCBOX_K8_PLUS"){throw "Wrong host"}
 $PythonPath=(Get-Command python -ErrorAction Stop).Source
-$GcloudPath=(Get-Command gcloud -ErrorAction Stop).Source
+$GcloudPath=(Get-Command gcloud.cmd -CommandType Application -ErrorAction Stop).Source
 $CodexUserDir=Join-Path $env:USERPROFILE ".codex"
 gcloud auth list --filter="status:ACTIVE" --format="value(account)"
 ```
