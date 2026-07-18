@@ -18,7 +18,7 @@ from zoneinfo import ZoneInfo
 MAX_STDIN_BYTES = 65_536
 MAX_RESPONSE_BYTES = 4_096
 TOKEN_TIMEOUT_SECONDS = 5
-HTTP_TIMEOUT_SECONDS = 15
+HTTP_TIMEOUT_SECONDS = 30
 JST = ZoneInfo("Asia/Tokyo")
 HOST_LABEL_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,63}\Z")
 SUPPORTED_STATUSES = frozenset({"sent", "deduplicated", "no_subscribers"})

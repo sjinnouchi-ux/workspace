@@ -158,7 +158,7 @@ function New-OwnedHandlerGroup {
         $LogPath)
     $Handler = [pscustomobject][ordered]@{
         type = 'command'
-        timeout = 30
+        timeout = 45
         statusMessage = 'Sending LINE turn notification'
         command = $CommandWindows
         commandWindows = $CommandWindows

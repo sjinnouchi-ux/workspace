@@ -4,7 +4,7 @@
 
 **Goal:** Prevent the trusted Codex `Stop` hook from being killed before the production notification endpoint returns successfully.
 
-**Architecture:** Keep the existing synchronous, fail-open notifier and server contract. Separate the 5-second ID-token timeout from a 15-second HTTP timeout, and give the outer Codex command hook 30 seconds so Windows process startup and both bounded operations fit without changing public Cloud Run behavior.
+**Architecture:** Keep the existing synchronous, fail-open notifier and server contract. Separate the 5-second ID-token timeout from a 30-second HTTP timeout, and give the outer Codex command hook 45 seconds so Windows process startup and both bounded operations fit without changing public Cloud Run behavior.
 
 **Tech Stack:** Python 3.13 `unittest`, PowerShell installer tests, Codex `hooks.json`, GitHub.
 
@@ -14,7 +14,7 @@
 - Preserve existing `config.toml`, desktop `notify`, unrelated hooks, public LIFF, webhook, Cloud Run IAM, and server deployment.
 - Never log or persist bearer tokens, raw hook input, raw session/turn IDs, response bodies, or LINE data.
 - Keep fail-open behavior and do not add retries, outbox, daemon, or background execution.
-- ID-token timeout is 5 seconds, HTTP timeout is 15 seconds, and outer hook timeout is 30 seconds.
+- ID-token timeout is 5 seconds, HTTP timeout is 30 seconds, and outer hook timeout is 45 seconds.
 
 ---
 
