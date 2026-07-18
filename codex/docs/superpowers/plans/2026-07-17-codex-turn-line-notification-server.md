@@ -12,7 +12,7 @@
 
 - Use a task-specific `sjinnouchi-ux/kakeibo-liff` clone/worktree based on current GitHub `main`.
 - Read all repo startup and Primary Docs before editing. Do not edit Claude/FABLE-owned `DESIGN.md`.
-- Keep Cloud Run public IAM, `--allow-unauthenticated`, Worker, LIFF, webhook, GAS, and Phase 3 Stage B unchanged.
+- Keep the existing Cloud Run public mode, Worker, LIFF, webhook, GAS, and Phase 3 Stage B unchanged. The live service disables the Invoker IAM check and has no `allUsers` Run Invoker binding, so deploy with `--no-invoker-iam-check`; do not replace this with `--allow-unauthenticated`.
 - Protect only `POST /internal/codex/turn-ended/notify` with application-layer Google OIDC validation.
 - Never store or print LINE tokens, LINE user IDs, OAuth/ID tokens, service-account JSON, raw session/turn IDs, transcripts, prompts, cwd, or models.
 - Reuse `_management_notification_subscribers`; store event IDs only in `_codex_turn_notification_dispatches`.
@@ -217,7 +217,7 @@ git commit -m "feat: protect Codex turn notification endpoint"
 
 - [ ] **Step 1: Read-only production preflight**
 
-Set exact variables and inspect active account, service, and IAM policy. Hash the policy; do not print credentials.
+Set exact variables and inspect active account, service, public-mode annotation, registered service URLs, and IAM policy. Hash the policy; do not print credentials or the policy body. Confirm `run.googleapis.com/invoker-iam-disabled=true`, no `allUsers` Run Invoker binding, and the configured audience before deployment. Google documents disabling the Invoker IAM check as the recommended public-access mode: <https://docs.cloud.google.com/run/docs/authenticating/public>.
 
 ```powershell
 $ProjectId="kakeibo-liff-prod"; $Region="asia-northeast1"; $Service="kakeibo-api"
@@ -225,12 +225,21 @@ $ServiceUrl="https://kakeibo-api-570965759130.asia-northeast1.run.app"
 $NotifierSa="codex-turn-notifier@$ProjectId.iam.gserviceaccount.com"
 $CallerUser="s.jinnouchi@yumekango.com"
 gcloud auth list --filter="status:ACTIVE" --format="value(account)"
-gcloud run services describe $Service --project $ProjectId --region $Region --format="yaml(metadata.name,status.url,spec.template.spec.serviceAccountName)"
-gcloud run services get-iam-policy $Service --project $ProjectId --region $Region --format=json
-$PreDeployRevision=gcloud run services describe $Service --project $ProjectId --region $Region --format="value(status.latestReadyRevisionName)"
+$ServiceJson=gcloud run services describe $Service --project $ProjectId --region $Region --format=json
+$ServiceState=$ServiceJson | ConvertFrom-Json
+$IamJson=gcloud run services get-iam-policy $Service --project $ProjectId --region $Region --format=json
+$IamCanonical=$IamJson -join "`n"
+$Sha=[System.Security.Cryptography.SHA256]::Create()
+try { $PreDeployIamHash=([BitConverter]::ToString($Sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($IamCanonical)))).Replace("-", "").ToLowerInvariant() } finally { $Sha.Dispose() }
+$IamPolicy=$IamCanonical | ConvertFrom-Json
+$AllUsersInvoker=@($IamPolicy.bindings | Where-Object { $_.role -eq "roles/run.invoker" -and @($_.members) -contains "allUsers" }).Count -gt 0
+$InvokerIamDisabled=$ServiceState.metadata.annotations.'run.googleapis.com/invoker-iam-disabled'
+$RegisteredUrls=$ServiceState.metadata.annotations.'run.googleapis.com/urls'
+$PreDeployRevision=$ServiceState.status.latestReadyRevisionName
+if ($InvokerIamDisabled -ne "true" -or $AllUsersInvoker) { throw "unexpected Cloud Run public mode" }
 ```
 
-- [ ] **Step 2: Obtain explicit production approval** for exactly: create notifier SA + token-creator binding, deploy two non-secret env values. State that public IAM, Invoker, Worker, LIFF, webhook, GAS, and secrets stay unchanged.
+- [ ] **Step 2: Obtain explicit production approval** for exactly: create notifier SA + token-creator binding, deploy two new non-secret env values, and deploy the merged code while explicitly preserving `--no-invoker-iam-check`. State that the existing audience, public mode, IAM policy, Worker, LIFF, webhook, GAS, and secrets stay unchanged.
 
 - [ ] **Step 3: Create identity and only impersonation IAM**
 
@@ -252,13 +261,13 @@ gcloud run deploy $Service `
   --source .\api `
   --region $Region `
   --service-account "kakeibo-api-sa@$ProjectId.iam.gserviceaccount.com" `
-  --allow-unauthenticated `
+  --no-invoker-iam-check `
   --min-instances 0 `
   --set-secrets "LINE_CHANNEL_ACCESS_TOKEN=LINE_CHANNEL_ACCESS_TOKEN:latest,LINE_CHANNEL_SECRET=LINE_CHANNEL_SECRET:latest,SPREADSHEET_ID=SPREADSHEET_ID:latest,EXPENSE_SS_ID=EXPENSE_SS_ID:latest" `
   --update-env-vars "CLOUD_RUN_SERVICE_URL=$ServiceUrl,CODEX_TURN_NOTIFICATION_SENDER_SERVICE_ACCOUNT=$NotifierSa,CODEX_TURN_NOTIFICATION_SENDER_SUBJECT=$NotifierSubject"
 ```
 
-Re-hash IAM afterward; it must match pre-deploy.
+Re-hash IAM afterward; it must match pre-deploy. Re-read `run.googleapis.com/invoker-iam-disabled`; it must remain `true`, and no `allUsers` Run Invoker binding may be introduced.
 
 - [ ] **Step 5: Smoke test safely**
 
