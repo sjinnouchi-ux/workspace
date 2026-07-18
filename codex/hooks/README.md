@@ -25,7 +25,13 @@ PowerShellでrepository rootから実行します。
 ```powershell
 $Installer = Join-Path (git rev-parse --show-toplevel) 'codex\hooks\install_codex_turn_line_hook.ps1'
 $CodexUserDir = Join-Path $env:USERPROFILE '.codex'
-$PythonPath = (Get-Command python -ErrorAction Stop).Source
+$PythonCandidates = @(Get-Command python.exe -CommandType Application -All -ErrorAction Stop | Where-Object {
+  $_.Source -notlike '*\Microsoft\WindowsApps\python.exe'
+})
+if ($PythonCandidates.Count -eq 0) { throw 'Runnable Python was not found' }
+$PythonPath = [string]$PythonCandidates[0].Source
+& $PythonPath --version
+if ($LASTEXITCODE -ne 0) { throw 'Selected Python is not runnable' }
 $GcloudPath = (Get-Command gcloud.cmd -CommandType Application -ErrorAction Stop).Source
 
 & $Installer -DryRun `

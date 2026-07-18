@@ -106,7 +106,11 @@ def build_payload(event, now, host_label):
 ```powershell
 if($env:USERNAME -ne "jinnouchi"){throw "Wrong Windows user"}
 if($env:COMPUTERNAME -ne "NUCBOX_K8_PLUS"){throw "Wrong host"}
-$PythonPath=(Get-Command python -ErrorAction Stop).Source
+$PythonCandidates=@(Get-Command python.exe -CommandType Application -All -ErrorAction Stop | Where-Object { $_.Source -notlike '*\Microsoft\WindowsApps\python.exe' })
+if($PythonCandidates.Count -eq 0){throw "Runnable Python was not found"}
+$PythonPath=[string]$PythonCandidates[0].Source
+& $PythonPath --version
+if($LASTEXITCODE -ne 0){throw "Selected Python is not runnable"}
 $GcloudPath=(Get-Command gcloud.cmd -CommandType Application -ErrorAction Stop).Source
 $CodexUserDir=Join-Path $env:USERPROFILE ".codex"
 gcloud auth list --filter="status:ACTIVE" --format="value(account)"
