@@ -116,7 +116,7 @@ Invoke-Test 'Apply creates the exact Stop handler and installed notifier' {
         $ExpectedCommand = ('"{0}" "{1}" --endpoint "{2}" --audience "{3}" --service-account "{4}" --host-label "{5}" --gcloud "{6}" --log-path "{7}"' -f
             $Fixture.PythonPath, $InstalledScript, $Endpoint, $Audience, $ServiceAccount, $HostLabel, $Fixture.GcloudPath, $LogPath)
         Assert-Equal $ExpectedCommand $Handler.command 'Wrong required base command'
-        Assert-Equal $ExpectedCommand $Handler.commandWindows 'Wrong commandWindows'
+        Assert-Equal ('& ' + $ExpectedCommand) $Handler.commandWindows 'Wrong PowerShell commandWindows'
         Assert-True (Test-Path -LiteralPath $InstalledScript -PathType Leaf) 'Notifier was not installed'
         Assert-Equal 5 @($Handler.PSObject.Properties.Name).Count 'Handler property count does not match the command-hook schema'
     }
