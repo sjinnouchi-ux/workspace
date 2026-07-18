@@ -109,7 +109,7 @@ Invoke-Test 'Apply creates the exact Stop handler and installed notifier' {
         Assert-Equal 1 $Handlers.Count 'Apply did not create exactly one owned handler'
         $Handler = $Handlers[0]
         Assert-Equal 'command' $Handler.type 'Wrong handler type'
-        Assert-Equal 10 $Handler.timeout 'Wrong handler timeout'
+        Assert-Equal 30 $Handler.timeout 'Wrong handler timeout'
         Assert-Equal 'Sending LINE turn notification' $Handler.statusMessage 'Wrong statusMessage'
         $InstalledScript = Join-Path $Fixture.CodexUserDir 'hooks\codex_turn_line_notify.py'
         $LogPath = Join-Path $Fixture.CodexUserDir 'logs\codex_turn_line_notify.log'

@@ -186,7 +186,7 @@ class MintIdTokenTests(unittest.TestCase):
 
 class PostNotificationTests(unittest.TestCase):
     @mock.patch("codex.hooks.codex_turn_line_notify.request.urlopen")
-    def test_posts_json_with_bearer_and_five_second_timeout(self, urlopen):
+    def test_posts_json_with_bearer_and_fifteen_second_timeout(self, urlopen):
         response = FakeResponse(b'{"status":"sent"}')
         urlopen.return_value = response
         payload = {
@@ -209,7 +209,7 @@ class PostNotificationTests(unittest.TestCase):
         self.assertEqual(request_arg.headers["Authorization"], "Bearer secret-token")
         self.assertEqual(request_arg.headers["Content-type"], "application/json")
         self.assertEqual(json.loads(request_arg.data), payload)
-        self.assertEqual(urlopen.call_args.kwargs, {"timeout": 5})
+        self.assertEqual(urlopen.call_args.kwargs, {"timeout": 15})
         self.assertEqual(response.read_sizes, [4_097])
 
     @mock.patch("codex.hooks.codex_turn_line_notify.request.urlopen")
