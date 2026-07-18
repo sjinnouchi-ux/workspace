@@ -147,7 +147,7 @@ function Remove-OwnedHandlers {
 }
 
 function New-OwnedHandlerGroup {
-    $CommandWindows = ('"{0}" "{1}" --endpoint "{2}" --audience "{3}" --service-account "{4}" --host-label "{5}" --gcloud "{6}" --log-path "{7}"' -f
+    $BaseCommand = ('"{0}" "{1}" --endpoint "{2}" --audience "{3}" --service-account "{4}" --host-label "{5}" --gcloud "{6}" --log-path "{7}"' -f
         [IO.Path]::GetFullPath($PythonPath),
         $InstalledNotifier,
         $Endpoint,
@@ -156,11 +156,12 @@ function New-OwnedHandlerGroup {
         $HostLabel,
         [IO.Path]::GetFullPath($GcloudPath),
         $LogPath)
+    $CommandWindows = '& ' + $BaseCommand
     $Handler = [pscustomobject][ordered]@{
         type = 'command'
         timeout = 45
         statusMessage = 'Sending LINE turn notification'
-        command = $CommandWindows
+        command = $BaseCommand
         commandWindows = $CommandWindows
     }
     return [pscustomobject][ordered]@{ hooks = @($Handler) }

@@ -56,7 +56,7 @@
 
 - [ ] **Step 3: Commit and publish the reviewed source change.** Commit the timeout fix, push the task branch, open a PR, review the diff/checks, and merge to `main` before applying locally.
 
-- [ ] **Step 4: Apply locally through the canonical installer.** Run `DryRun`, then `Apply` under Windows user `jinnouchi`; verify one owned `Stop` handler, timeout 30, identical `command`/`commandWindows`, source/installed SHA-256 equality, no `SubagentStop`, and unchanged `config.toml` notify.
+- [ ] **Step 4: Apply locally through the canonical installer.** Run `DryRun`, then `Apply` under Windows user `jinnouchi`; verify one owned `Stop` handler, timeout 45, `commandWindows == '& ' + command`, source/installed SHA-256 equality, no `SubagentStop`, and unchanged `config.toml` notify.
 
 - [ ] **Step 5: Re-trust and perform one live test.** Use CLI `/hooks` to review the changed hash, trust only the exact notifier hook, restart Desktop, run one main turn, and require a new `status=sent` or `status=deduplicated` log entry plus user confirmation of one official LINE notification.
 

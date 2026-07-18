@@ -68,7 +68,7 @@ if ($SourceHash -cne $InstalledHash) { throw 'Installed notifier hash mismatch' 
 "notifier_sha256=$InstalledHash"
 ```
 
-次のread-only確認はraw hook JSONやcommand全文を表示せず、owned handlerの件数と信頼判断に必要な非秘密leafだけを出します。Codexのcommand-hook schemaでは `command` が必須で、Windowsでは `commandWindows` がoverrideとして使われるため、installerは両方へ同一の安全なcommandを設定します。
+次のread-only確認はraw hook JSONやcommand全文を表示せず、owned handlerの件数と信頼判断に必要な非秘密leafだけを出します。Codexのcommand-hook schemaでは `command` が必須で、Windowsでは `commandWindows` がoverrideとして使われます。PowerShellはquoted executableを起動するcall operatorが必要なため、installerはportable base commandを `command`、その先頭へ `& ` を付けた値を `commandWindows` に設定します。
 
 ```powershell
 $Endpoint = 'https://kakeibo-api-570965759130.asia-northeast1.run.app/internal/codex/turn-ended/notify'
@@ -79,10 +79,10 @@ $Owned = @($Document.hooks.Stop | ForEach-Object { $_.hooks } | Where-Object {
   $_.commandWindows.Contains($Endpoint)
 })
 if ($Owned.Count -ne 1) { throw "Unexpected owned handler count: $($Owned.Count)" }
-if ($Owned[0].command -isnot [string] -or $Owned[0].command -cne $Owned[0].commandWindows) {
-  throw 'Required base command and Windows override differ'
+if ($Owned[0].command -isnot [string] -or $Owned[0].commandWindows -cne ('& ' + $Owned[0].command)) {
+  throw 'Windows override is not the PowerShell call-operator form of the base command'
 }
-$Tokens = @([regex]::Matches($Owned[0].commandWindows, '"[^"]*"|\S+') | ForEach-Object { $_.Value.Trim('"') })
+$Tokens = @([regex]::Matches($Owned[0].command, '"[^"]*"|\S+') | ForEach-Object { $_.Value.Trim('"') })
 [pscustomobject]@{
   owned_handler_count = $Owned.Count
   type = $Owned[0].type
@@ -93,7 +93,7 @@ $Tokens = @([regex]::Matches($Owned[0].commandWindows, '"[^"]*"|\S+') | ForEach-
 }
 ```
 
-期待値はhandler 1件、同一内容の必須 `command` とWindows override `commandWindows`、`type=command`、`timeout=45`、status message `Sending LINE turn notification`、script leaf `codex_turn_line_notify.py` です。`GcloudPath` はPythonから直接起動できる `gcloud.cmd` に限定します。notifierまたはhandler変更後はhook hashが変わるため、上記確認後に `/hooks` でそのexact hookだけを再承認し、警告を迂回しません。
+期待値はhandler 1件、必須 `command` とそのPowerShell call-operator formである `commandWindows`、`type=command`、`timeout=45`、status message `Sending LINE turn notification`、script leaf `codex_turn_line_notify.py` です。`GcloudPath` はPythonから直接起動できる `gcloud.cmd` に限定します。notifierまたはhandler変更後はhook hashが変わるため、上記確認後に `/hooks` でそのexact hookだけを再承認し、警告を迂回しません。
 
 ## Diagnostics
 
