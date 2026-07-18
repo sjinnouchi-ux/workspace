@@ -17,7 +17,7 @@
 - Never read transcript, cwd, model, task title, prompt, or conversation content.
 - Never store/print bearer tokens, key JSON, raw hook JSON, raw IDs, response bodies, or LINE data.
 - Exact endpoint: `https://kakeibo-api-570965759130.asia-northeast1.run.app/internal/codex/turn-ended/notify`; audience is its service root; notifier SA is `codex-turn-notifier@kakeibo-liff-prod.iam.gserviceaccount.com`.
-- HTTP and token timeouts are 5 seconds; hook timeout is 10 seconds; notifier always fails open.
+- Token timeout is 5 seconds, HTTP timeout is 15 seconds, and hook timeout is 30 seconds; notifier always fails open. These values supersede the original 5/5/10 values after the 2026-07-18 production latency diagnosis.
 - No outbox, daemon, retry, or completion classification in initial release.
 - No `~/.codex` write, restart, trust action, or live call before separate approval.
 
@@ -64,7 +64,7 @@ def build_payload(event, now, host_label):
     return {"schema_version":1,"event_id":event_id,"ended_at":now.astimezone(ZoneInfo("Asia/Tokyo")).isoformat(timespec="seconds"),"host_label":host_label}
 ```
 
-- [ ] **Step 4: Implement token mint and POST** using `subprocess.run` argv `gcloud auth print-identity-token`, impersonation, audience, `--include-email`, `--quiet`, captured output, check, and 5-second timeout. Use `urllib.request` for JSON POST and parse at most 4,096 bytes. Return only `sent`, `deduplicated`, or `no_subscribers`; never log stdout/stderr/body.
+- [ ] **Step 4: Implement token mint and POST** using `subprocess.run` argv `gcloud auth print-identity-token`, impersonation, audience, `--include-email`, `--quiet`, captured output, check, and 5-second token timeout. Use `urllib.request` with a 15-second HTTP timeout for JSON POST and parse at most 4,096 bytes. Return only `sent`, `deduplicated`, or `no_subscribers`; never log stdout/stderr/body.
 
 - [ ] **Step 5: Implement fail-open logging/main.** CLI requires endpoint, audience, service-account, host-label, gcloud, log-path. Log only timestamp/status/error class. Catch validation, subprocess, timeout, URL, JSON, and OS failures; return 0.
 
@@ -81,7 +81,7 @@ def build_payload(event, now, host_label):
 - [ ] **Step 1: Write isolated tests** using an explicit temporary `-CodexUserDir` without changing `$HOME`, `$home`, or `$CODEX_HOME`. Cover dry-run no-write, apply, second apply idempotency, unrelated handler preservation, remove-only-owned-handler, and no `config.toml` modification.
 - [ ] **Step 2: Verify RED** by running the PowerShell test file.
 - [ ] **Step 3: Implement mutually exclusive `-DryRun`, `-Apply`, `-Remove` plus required CodexUserDir/PythonPath/GcloudPath and exact non-secret defaults. Reject filesystem-root targets.
-- [ ] **Step 4: Merge safely.** The handler is `type=command`, `timeout=10`, `statusMessage="Sending LINE turn notification"`, required `command`, and Windows override `commandWindows`. Set `command` and `commandWindows` to the same safe invocation of the installed script with exact endpoint/audience/SA/host. Match ownership only by exact script filename plus endpoint. Preserve unrelated events/groups/handlers. Backup only for Apply/Remove; write same-directory temp then atomic rename. Resolve and accept `gcloud.cmd`, not the PowerShell `gcloud.ps1` wrapper, because the notifier launches it directly with Python `subprocess`.
+- [ ] **Step 4: Merge safely.** The handler is `type=command`, `timeout=30`, `statusMessage="Sending LINE turn notification"`, required `command`, and Windows override `commandWindows`. Set `command` and `commandWindows` to the same safe invocation of the installed script with exact endpoint/audience/SA/host. Match ownership only by exact script filename plus endpoint. Preserve unrelated events/groups/handlers. Backup only for Apply/Remove; write same-directory temp then atomic rename. Resolve and accept `gcloud.cmd`, not the PowerShell `gcloud.ps1` wrapper, because the notifier launches it directly with Python `subprocess`.
 - [ ] **Step 5: Run installer tests twice**, expecting both pass and no temporary residue.
 - [ ] **Step 6: Commit:** `git commit -m "feat(codex): install turn notification hook safely"`.
 

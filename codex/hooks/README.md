@@ -9,7 +9,7 @@ Codex Desktopの主ターンが停止したとき、公式LINEへ最小限の通
 - 送信payloadは `schema_version`、ハッシュ化した `event_id`、JSTの `ended_at`、固定の `host_label` だけです。
 - transcript、cwd、model、タスク名、prompt、会話内容は読み取りません。
 - bearer token、hook入力、HTTP response body、LINE dataはログへ出しません。
-- token取得とHTTP通信は各5秒、hookは10秒で打ち切ります。失敗時も終了コード0を返すfail-openで、outbox、daemon、自動retryはありません。
+- token取得は5秒、HTTP通信は15秒、hook全体は30秒で打ち切ります。失敗時も終了コード0を返すfail-openで、outbox、daemon、自動retryはありません。2026-07-18の本番E2EでCloud Runの正常応答に6.42秒かかり、従来のHTTP 5秒・hook 10秒ではCLIが `Stop Failed` となったため、公開サービスを変えずクライアント側だけに余裕を持たせています。
 - ログは時刻とallowlist済みstatus、または例外classだけを `~/.codex/logs/codex_turn_line_notify.log` へ記録します。
 
 ## 前提と承認境界
@@ -93,7 +93,7 @@ $Tokens = @([regex]::Matches($Owned[0].commandWindows, '"[^"]*"|\S+') | ForEach-
 }
 ```
 
-期待値はhandler 1件、同一内容の必須 `command` とWindows override `commandWindows`、`type=command`、`timeout=10`、status message `Sending LINE turn notification`、script leaf `codex_turn_line_notify.py` です。`GcloudPath` はPythonから直接起動できる `gcloud.cmd` に限定します。Codex Desktopがhookの信頼確認を表示した場合は、上記確認後にそのexact hookだけを承認し、警告を迂回しません。
+期待値はhandler 1件、同一内容の必須 `command` とWindows override `commandWindows`、`type=command`、`timeout=30`、status message `Sending LINE turn notification`、script leaf `codex_turn_line_notify.py` です。`GcloudPath` はPythonから直接起動できる `gcloud.cmd` に限定します。notifierまたはhandler変更後はhook hashが変わるため、上記確認後に `/hooks` でそのexact hookだけを再承認し、警告を迂回しません。
 
 ## Diagnostics
 

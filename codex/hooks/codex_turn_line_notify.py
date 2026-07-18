@@ -17,7 +17,8 @@ from zoneinfo import ZoneInfo
 
 MAX_STDIN_BYTES = 65_536
 MAX_RESPONSE_BYTES = 4_096
-OPERATION_TIMEOUT_SECONDS = 5
+TOKEN_TIMEOUT_SECONDS = 5
+HTTP_TIMEOUT_SECONDS = 15
 JST = ZoneInfo("Asia/Tokyo")
 HOST_LABEL_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,63}\Z")
 SUPPORTED_STATUSES = frozenset({"sent", "deduplicated", "no_subscribers"})
@@ -77,7 +78,7 @@ def mint_id_token(gcloud: str, service_account: str, audience: str) -> str:
         capture_output=True,
         text=True,
         check=True,
-        timeout=OPERATION_TIMEOUT_SECONDS,
+        timeout=TOKEN_TIMEOUT_SECONDS,
     )
     token = completed.stdout.strip()
     if not token:
@@ -97,7 +98,7 @@ def post_notification(endpoint: str, token: str, payload: dict[str, object]) -> 
         },
         method="POST",
     )
-    with request.urlopen(http_request, timeout=OPERATION_TIMEOUT_SECONDS) as response:
+    with request.urlopen(http_request, timeout=HTTP_TIMEOUT_SECONDS) as response:
         response_body = response.read(MAX_RESPONSE_BYTES + 1)
     if len(response_body) > MAX_RESPONSE_BYTES:
         raise ValueError("notification response too large")
