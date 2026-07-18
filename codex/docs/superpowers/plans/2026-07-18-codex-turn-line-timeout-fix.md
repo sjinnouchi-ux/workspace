@@ -50,15 +50,15 @@
 - Consumes: tested notifier and installer from Task 1.
 - Produces: auditable timeout rationale, exact local handler, and live CLI/Desktop evidence.
 
-- [x] **Step 1: Update operator documentation.** State token 5 seconds, HTTP 15 seconds, hook 30 seconds, the production latency evidence, and that the changed hook hash requires exact-hook trust review again.
+- [x] **Step 1: Update operator documentation.** State token 5 seconds, HTTP 30 seconds, hook 45 seconds, the production latency evidence, and that the changed hook hash requires exact-hook trust review again.
 
 - [x] **Step 2: Verify repository state.** Re-run both full test suites, inspect `git diff --check`, and confirm only the notifier, installer, tests, spec, plan, README, and work log changed.
 
-- [ ] **Step 3: Commit and publish the reviewed source change.** Commit the timeout fix, push the task branch, open a PR, review the diff/checks, and merge to `main` before applying locally.
+- [x] **Step 3: Commit and publish the reviewed source change.** Timeout correction PR #28 and PowerShell command correction PR #29 were reviewed and merged to `main` before their corresponding local applies.
 
-- [ ] **Step 4: Apply locally through the canonical installer.** Run `DryRun`, then `Apply` under Windows user `jinnouchi`; verify one owned `Stop` handler, timeout 45, `commandWindows == '& ' + command`, source/installed SHA-256 equality, no `SubagentStop`, and unchanged `config.toml` notify.
+- [x] **Step 4: Apply locally through the canonical installer.** `DryRun` then `Apply` ran under Windows user `jinnouchi`; verification found one owned `Stop` handler, timeout 45, `commandWindows == '& ' + command`, source/installed SHA-256 equality, no `SubagentStop`, and unchanged `config.toml` notify.
 
-- [ ] **Step 5: Re-trust and perform one live test.** Use CLI `/hooks` to review the changed hash, trust only the exact notifier hook, restart Desktop, run one main turn, and require a new `status=sent` or `status=deduplicated` log entry plus user confirmation of one official LINE notification.
+- [x] **Step 5: Re-trust and perform one live test.** CLI `/hooks` reviewed and trusted only the exact notifier hook; after CLI restart, one main turn produced `status=sent` at `2026-07-18T18:40:57+09:00`, no new hook failure, and the user confirmed receipt in official LINE.
 
 ### Task 3: Existing notifier atomic replacement compatibility
 
