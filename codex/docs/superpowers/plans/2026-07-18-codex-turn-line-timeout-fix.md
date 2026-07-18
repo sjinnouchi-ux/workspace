@@ -59,3 +59,23 @@
 - [ ] **Step 4: Apply locally through the canonical installer.** Run `DryRun`, then `Apply` under Windows user `jinnouchi`; verify one owned `Stop` handler, timeout 30, identical `command`/`commandWindows`, source/installed SHA-256 equality, no `SubagentStop`, and unchanged `config.toml` notify.
 
 - [ ] **Step 5: Re-trust and perform one live test.** Use CLI `/hooks` to review the changed hash, trust only the exact notifier hook, restart Desktop, run one main turn, and require a new `status=sent` or `status=deduplicated` log entry plus user confirmation of one official LINE notification.
+
+### Task 3: Existing notifier atomic replacement compatibility
+
+**Files:**
+- Modify: `codex/hooks/tests/test_install_codex_turn_line_hook.ps1`
+- Modify: `codex/hooks/install_codex_turn_line_hook.ps1`
+
+**Interfaces:**
+- Consumes: existing installed notifier path and same-directory atomic replacement flow.
+- Produces: Windows PowerShell-compatible replacement of a stale notifier with zero temporary or replacement-backup residue.
+
+- [x] **Step 1: Reproduce the live Apply failure.** Applying main over an existing stale notifier fails in `[IO.File]::Replace($TemporaryPath, $InstalledNotifier, $null)` with `The path is not of a legal form`; installed handler remains timeout 10 and installer temp residue remains zero.
+
+- [x] **Step 2: Add a failing installer test.** Apply once, overwrite the installed notifier with stale bytes, Apply again, require installed/source byte equality, and require zero `*.tmp.*` and `*.replace-backup.*` files.
+
+- [x] **Step 3: Verify RED.** Run the installer test suite and require only the stale-notifier replacement case to fail with the illegal-path error.
+
+- [x] **Step 4: Implement a real same-directory replacement-backup path.** Pass a unique non-null path to `File.Replace` and delete that transient backup in `finally`, while preserving the existing temp cleanup.
+
+- [x] **Step 5: Verify GREEN.** Run the installer suite twice and the Python suite once; require 11 installer tests and 19 Python tests with zero failures and no residue.

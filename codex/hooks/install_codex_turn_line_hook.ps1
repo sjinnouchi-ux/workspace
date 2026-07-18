@@ -197,10 +197,11 @@ function Install-NotifierAtomically {
         return
     }
     $TemporaryPath = Join-Path $InstalledHooksDir ('.' + $NotifierFileName + '.tmp.' + [guid]::NewGuid().ToString('N'))
+    $ReplacementBackupPath = Join-Path $InstalledHooksDir ('.' + $NotifierFileName + '.replace-backup.' + [guid]::NewGuid().ToString('N'))
     try {
         [IO.File]::Copy($SourceNotifier, $TemporaryPath, $false)
         if (Test-Path -LiteralPath $InstalledNotifier -PathType Leaf) {
-            [IO.File]::Replace($TemporaryPath, $InstalledNotifier, $null)
+            [IO.File]::Replace($TemporaryPath, $InstalledNotifier, $ReplacementBackupPath)
         }
         else {
             [IO.File]::Move($TemporaryPath, $InstalledNotifier)
@@ -208,6 +209,7 @@ function Install-NotifierAtomically {
     }
     finally {
         if (Test-Path -LiteralPath $TemporaryPath) { Remove-Item -LiteralPath $TemporaryPath -Force }
+        if (Test-Path -LiteralPath $ReplacementBackupPath) { Remove-Item -LiteralPath $ReplacementBackupPath -Force }
     }
 }
 

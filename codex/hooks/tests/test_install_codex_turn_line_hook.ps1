@@ -155,6 +155,23 @@ Invoke-Test 'DryRun reports a stale installed notifier without changing it' {
     finally { Remove-Item -LiteralPath $Fixture.Root -Recurse -Force }
 }
 
+Invoke-Test 'Apply atomically replaces a stale installed notifier without residue' {
+    $Fixture = New-Fixture
+    try {
+        Invoke-Installer $Fixture 'Apply'
+        $InstalledScript = Join-Path $Fixture.CodexUserDir 'hooks\codex_turn_line_notify.py'
+        [IO.File]::WriteAllText($InstalledScript, 'stale notifier')
+
+        Invoke-Installer $Fixture 'Apply'
+
+        $SourceScript = Join-Path (Split-Path -Parent $Installer) 'codex_turn_line_notify.py'
+        Assert-Equal ([Convert]::ToBase64String([IO.File]::ReadAllBytes($SourceScript))) ([Convert]::ToBase64String([IO.File]::ReadAllBytes($InstalledScript))) 'Apply did not replace the stale notifier'
+        Assert-Equal 0 @(Get-ChildItem -LiteralPath (Split-Path -Parent $InstalledScript) -Filter '*.tmp.*' -File).Count 'Notifier temporary file remains'
+        Assert-Equal 0 @(Get-ChildItem -LiteralPath (Split-Path -Parent $InstalledScript) -Filter '*.replace-backup.*' -File).Count 'Notifier replacement backup remains'
+    }
+    finally { Remove-Item -LiteralPath $Fixture.Root -Recurse -Force }
+}
+
 Invoke-Test 'Apply preserves unrelated hooks and config.toml' {
     $Fixture = New-Fixture
     try {
