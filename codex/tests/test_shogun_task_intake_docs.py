@@ -49,6 +49,13 @@ class ShogunTaskIntakeDocsTests(unittest.TestCase):
         self.assertIn("Shogunへ送信せず", section)
         self.assertIn("ユーザーへ確認", section)
 
+    def test_intent_classification_order_is_mutually_exclusive(self) -> None:
+        section = intake_section()
+        self.assertIn("まず `ambiguous` を除外", section)
+        self.assertIn(
+            "`ambiguous` に該当せず、明示的な継続表現がない依頼", section
+        )
+
     def test_task_authority_does_not_expand_runtime_authority(self) -> None:
         section = intake_section()
         self.assertIn("既存の承認済みShogun task入力経路へ1回", section)
