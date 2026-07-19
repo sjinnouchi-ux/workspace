@@ -154,7 +154,7 @@ git commit -m "test(codex): define Shogun task intake contract"
 
 この明示依頼が許可するのは、指定されたtask本文を既存の承認済みShogun task入力経路へ1回配送することだけです。start、stop、restart、repair、deployment、permission自動承認、新しいtransportの作成は含みません。承認済み入力経路を確定できない場合は送信せず、不足する入口または承認を報告します。
 
-配送前に、上記の固定read-only diagnostics contractでprovenanceとschemaを検証します。信頼済み診断の再計算結果が `overall=healthy` でない場合は送信しません。診断失敗時にraw fallback、生queue、pane、report、ログ本文の直接読取を行いません。
+配送前に、この文書の固定read-only diagnostics contractでprovenanceとschemaを検証します。信頼済み診断の再計算結果が `overall=healthy` でない場合は送信しません。診断失敗時にraw fallback、生queue、pane、report、ログ本文の直接読取を行いません。
 
 依頼意図を次の3種類へ分類します。
 
