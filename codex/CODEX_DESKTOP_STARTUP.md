@@ -124,6 +124,34 @@ Codex Desktopの設定、認証、session、ローカルworktree・cleanup方式
 
 Shogun実装、WSL2設定、WebUI設定は、ユーザーが明示的にShogun作業を依頼した場合だけ対象とします。通常のCodex Desktop交通整理では変更しません。
 
+<!-- BEGIN CODEX_SHOGUN_TASK_INTAKE_V1 -->
+### Codex-mediated Shogun task intake
+
+ユーザーが「Shogunを使って」「Shogun経由で」「将軍へ依頼して」など、CodexからShogunを操作する意図を明示した場合に適用します。一般的な質問だけの場合はruntimeへ配送しません。
+
+この明示依頼が許可するのは、指定されたtask本文を既存の承認済みShogun task入力経路へ1回配送することだけです。start、stop、restart、repair、deployment、permission自動承認、新しいtransportの作成は含みません。承認済み入力経路を確定できない場合は送信せず、不足する入口または承認を報告します。
+
+配送前に、この文書の固定read-only diagnostics contractでprovenanceとschemaを検証します。信頼済み診断の再計算結果が `overall=healthy` でない場合は送信しません。診断失敗時にraw fallback、生queue、pane、report、ログ本文の直接読取を行いません。
+
+依頼意図を次の3種類へ分類します。まず `ambiguous` を除外し、該当しない場合だけ、明示的な継続を `resume`、残りを `new` とします。3分類は相互排他的です。
+
+1. `new`: `ambiguous` に該当せず、明示的な継続表現がない依頼。次のガードをtask本文の先頭へ付けます。
+
+   ```text
+   この依頼は新規taskです。前回の未完了task、未配送command、未処理receiptの状態を先に確認し、sanitized summaryで報告してください。前回taskを自動継続・再実行せず、今回の依頼は新しいtaskと新しいcommand epochとして開始してください。前回作業と今回の依頼が衝突する場合は実行せず、衝突理由と選択肢を報告してください。
+   ```
+
+2. `resume`: 「前回の続きをして」など継続が明示された依頼だけ。次のガードを付けます。
+
+   ```text
+   この依頼は前回taskの明示的な継続です。前回taskの現在状態と残作業を確認し、完了済み部分と終了済みcommandを再実行せず、残作業だけを継続してください。対象taskを一意に特定できない場合や状態が矛盾する場合は実行せず、sanitized summaryで確認を求めてください。
+   ```
+
+3. `ambiguous`: 「前と同じ」「さっきの件」など新規か継続か一意に決められない依頼。Shogunへ送信せず、Codexがユーザーへ確認します。既定値で継続扱いにしません。
+
+Shogunから受け取る状態報告にも秘密値、Inbox本文、pane内容、生queue、生report、生ログを含めないよう指示します。
+<!-- END CODEX_SHOGUN_TASK_INTAKE_V1 -->
+
 ### Runtime discovery
 
 - `NUCBOX_K8_PLUS` はShogunのメインホストです。実Windowsユーザー `jinnouchi` のWSL2ディストリビューション `Ubuntu` に `/home/jinnouchi/multi-agent-shogun` があります。`ShogunUbuntu` は使用しません。
