@@ -50,7 +50,9 @@ apt update && apt install -y gh ripgrep || true
 ```text
 共通起動手順とPROJECTS.mdをGitHub mainから取得し、取得したworkspace commit SHAと、
 現在登録されているCanonical Entryの件数を報告してください。
-あわせて gh --version と rg --version、echo $GH_TOKEN の結果（proxy-injectedか否かのみ）を報告してください。
+あわせて gh --version と rg --version を報告し、GH_TOKEN の状態を
+unset / proxy-injected / unexpected のいずれかの分類だけで報告してください。
+値そのものは出力しないでください。
 ```
 
 成功条件:
@@ -58,7 +60,7 @@ apt update && apt install -y gh ripgrep || true
 - raw GitHub URLを取得できる
 - `sjinnouchi-ux/workspace` のcommit SHAを報告できる
 - `gh` と `rg` が使える
-- `GH_TOKEN` が `proxy-injected`（または未設定でgh動作）であり、実token値が表示されない
+- `GH_TOKEN` の状態が `unset` / `proxy-injected` / `unexpected` の分類だけで報告され、実token値が表示されない（`unexpected` の場合は作業を止めて報告）
 - 対象private repoをcloneできる
 
 ## Setup Checklist

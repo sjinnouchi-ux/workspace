@@ -68,6 +68,7 @@ push できない状態で終了せざるを得ない場合は、未保存の対
 - `s.jinnouchi@yumekango.com` はGoogle業務用アカウントであり、GitHub owner名ではない。
 - クラウドセッションのGitHub認証はClaude GitHub App承認（またはGitHub proxy）による。token値を表示・保存しない。
 - `gh` はセットアップスクリプトで導入済み（`claude/CLOUD_ENVIRONMENT.md` 参照）。`GH_TOKEN` が `proxy-injected` の場合はproxyが認証を代行している正常状態であり、実tokenの取得を試みない。
+- `GH_TOKEN` の状態を報告する場合は `unset` / `proxy-injected` / `unexpected` の分類だけを返し、値そのものを出力しない。`unexpected` の場合は作業を止めて報告する。
 
 ## Secrets And Accounts
 
