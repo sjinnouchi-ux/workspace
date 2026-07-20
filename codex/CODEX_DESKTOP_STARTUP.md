@@ -109,6 +109,19 @@ https://drive.google.com/drive/folders/1yrWHPFuE7yHZGhs_MLeVZPiifpfsDVQX
 
 対象PCに同期先が存在しない場合は別のローカル場所を推測せず、未保存として報告します。保存後はファイルパスとGoogle DriveフォルダURLを報告します。
 
+## Claude Report Intake
+
+Claude Desktopの作業レポートは `G:\マイドライブ\Claude保存\レポート\受信箱` に集まる。
+
+- 受信箱の確認・統合は、ユーザーの明示指示または明示的なintakeタスクとしてのみ行う。通常タスクの開始時に自動確認しない。
+- ローカル `G:` が見えない場合はGoogle Drive connector経由で確認し、単独の `Test-Path` 失敗を理由にintake以外の通常作業を停止しない。
+- 処理開始時に対象ファイルを `処理中\<PC名>\` へ移動してclaimし、二重処理を防ぐ。移動できなかったファイルには手を出さない。
+- 統合前に対象repoの既定branch、HEAD SHA、`AGENTS.md`、Primary Docsを読み、repo固有のbranch/PR・保存先規則を優先する。
+- 統合完了（commit/push確認）までファイルを削除しない。処理後は処理済みへ移動し、`codex/work_log.md` にReport-IDとcommitを記録する。
+- プロジェクトを特定できないレポートは保留へ移動し、ユーザーへ確認する。
+- レポートに秘密値が含まれていた場合は統合を停止し、値を再掲せずに該当箇所を報告する。
+- 詳細手順は `claude/REPORT_INTAKE.md` を正本とする。
+
 ## Reporting
 
 - 確認済み事実だけを報告する。
