@@ -30,6 +30,18 @@ class ShogunTaskIntakeDocsTests(unittest.TestCase):
         self.assertIn("overall=healthy", section)
         self.assertIn("raw fallback", section)
 
+    def test_delivery_uses_fixed_ops_status_without_legacy_diagnostics_preflight(
+        self,
+    ) -> None:
+        section = intake_section()
+        self.assertIn("CODEX_SHOGUN_OPS_V1", section)
+        self.assertIn("固定 `status`", section)
+        self.assertIn("legacy diagnostics", section)
+        self.assertIn("先にも並行にも実行しません", section)
+        self.assertNotIn(
+            "配送前に、この文書の固定read-only diagnostics contract", section
+        )
+
     def test_new_task_guard_is_exact_and_fail_closed(self) -> None:
         section = intake_section()
         self.assertIn("この依頼は新規taskです。", section)

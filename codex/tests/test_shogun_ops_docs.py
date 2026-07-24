@@ -12,6 +12,15 @@ OPS_END = "<!-- END CODEX_SHOGUN_OPS_V1 -->"
 DIAGNOSTICS_BEGIN = "<!-- BEGIN CODEX_SHOGUN_READONLY_DIAGNOSTICS_V1 -->"
 DIAGNOSTICS_END = "<!-- END CODEX_SHOGUN_READONLY_DIAGNOSTICS_V1 -->"
 OPS = "/home/jinnouchi/.local/libexec/shogun-codex-ops"
+DIAGNOSTICS = "/home/jinnouchi/.local/libexec/shogun-codex-diagnostics"
+DIAGNOSTIC_VECTOR = (
+    "wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun "
+    f"{DIAGNOSTICS} summary"
+)
+REGISTRY_URL = (
+    "https://raw.githubusercontent.com/sjinnouchi-ux/multi-agent-shogun/main/"
+    "docs/superpowers/plans/2026-07-14-codex-readonly-diagnostics-work-log.md"
+)
 VECTORS = (
     f"wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun {OPS} status",
     f"wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun {OPS} start",
@@ -56,6 +65,16 @@ class ShogunOpsDocumentContractTests(unittest.TestCase):
         cls.startup_ops = versioned_block(cls.startup, OPS_BEGIN, OPS_END)
         cls.custom_ops = versioned_block(cls.custom, OPS_BEGIN, OPS_END)
         cls.ops_blocks = (cls.startup_ops, cls.custom_ops)
+        cls.startup_diagnostics = versioned_block(
+            cls.startup, DIAGNOSTICS_BEGIN, DIAGNOSTICS_END
+        )
+        cls.custom_diagnostics = versioned_block(
+            cls.custom, DIAGNOSTICS_BEGIN, DIAGNOSTICS_END
+        )
+        cls.diagnostics_blocks = (
+            cls.startup_diagnostics,
+            cls.custom_diagnostics,
+        )
 
     def test_custom_pasteable_block_is_intact_and_complete(self) -> None:
         self.assertTrue(self.custom_pasteable_closed)
@@ -76,6 +95,50 @@ class ShogunOpsDocumentContractTests(unittest.TestCase):
             self.assertEqual(text.count(DIAGNOSTICS_BEGIN), 1)
             self.assertEqual(text.count(DIAGNOSTICS_END), 1)
             self.assertGreater(text.index(OPS_BEGIN), text.index(DIAGNOSTICS_END))
+
+    def test_legacy_diagnostics_do_not_require_per_call_github_provenance(
+        self,
+    ) -> None:
+        for text in (self.startup, self.custom):
+            self.assertNotIn(REGISTRY_URL, text)
+        for block in self.diagnostics_blocks:
+            for phrase in (
+                "Immediately before each diagnostic invocation",
+                "schema-version-1 JSON registry",
+                "exactly one active deployment",
+                "`tool.source_sha256`",
+                "GitHub provenance retrieval or validation failure",
+                "no active deployment",
+                "multiple active deployments",
+                "source-hash mismatch",
+                "`diagnostic_provenance_untrusted`",
+            ):
+                self.assertNotIn(phrase, block)
+
+    def test_only_the_exact_legacy_diagnostic_vector_remains_allowlisted(
+        self,
+    ) -> None:
+        for block in self.diagnostics_blocks:
+            self.assertEqual(block.count(DIAGNOSTICS), 1)
+            self.assertEqual(block.count(DIAGNOSTIC_VECTOR), 1)
+
+    def test_legacy_diagnostics_retain_local_validation_and_fail_closed_guards(
+        self,
+    ) -> None:
+        for block in self.diagnostics_blocks:
+            content = normalized(block)
+            for phrase in (
+                "mode-`0555`",
+                "schema-version-1 JSON",
+                "ASCII-only bytes",
+                "exact key order",
+                "cross-field invariants",
+                "recomputed `overall`",
+                "nonempty stderr",
+                "10 seconds",
+                "do not use any raw or direct-read fallback",
+            ):
+                self.assertIn(phrase, content)
 
     def test_only_the_five_exact_ops_vectors_are_allowlisted_in_order(self) -> None:
         for block in self.ops_blocks:
