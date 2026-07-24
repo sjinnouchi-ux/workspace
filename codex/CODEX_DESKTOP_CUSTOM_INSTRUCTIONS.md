@@ -31,56 +31,6 @@ ShogunはWSL2 Linux + WebUI上で、Codex Desktopと設定・認証・session・
 
 「Shogunを使って」「Shogun経由で」などCodexからShogunを操作する依頼では、毎回取得した共通起動手順の `CODEX_SHOGUN_TASK_INTAKE_V1` を適用してください。最初に新規か継続か曖昧かを判定し、曖昧な場合はShogunへ送信せず利用者へ確認してください。曖昧でない依頼のうち、明示的な継続だけを再開し、それ以外は新規taskとして前回taskを自動継続しないでください。Shogun taskの配送意図だけではstart、stop、restart、repair、deployment、permission承認を許可しません。deployment済みで有効な `CODEX_SHOGUN_OPS_V1` だけが、その固定operationだけを許可します。
 
-<!-- BEGIN CODEX_SHOGUN_OPS_V1 -->
-### Codex-mediated Shogun Ops exception
-
-This fixed Ops exception is inactive until a one-time deployment checkpoint has
-verified the reviewed GitHub `main` source, a clean runtime repo at the reviewed
-commit, the fixed repo venv/PyYAML dependency, a user-owned regular mode-`0555`
-snapshot at the fixed path, and installation of the matching host policy. After
-that checkpoint, no per-call GitHub registry or source-hash lookup is required
-for the Ops wrapper.
-
-Only these complete executable/subcommand vectors are eligible for persistent
-permission. Never permit a shorter `wsl.exe`, `bash -lc`, Python, repo script,
-arbitrary path, suffix, or environment prefix:
-
-```text
-wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun /home/jinnouchi/.local/libexec/shogun-codex-ops status
-wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun /home/jinnouchi/.local/libexec/shogun-codex-ops start
-wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun /home/jinnouchi/.local/libexec/shogun-codex-ops restart-agent <allowlisted-agent>
-wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun /home/jinnouchi/.local/libexec/shogun-codex-ops restart-all
-wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun /home/jinnouchi/.local/libexec/shogun-codex-ops deliver
-```
-
-- `status` is routine read-only monitoring.
-- For an explicit, unambiguous Shogun task, `start` may run once without a new
-  approval only when sanitized status is `stopped` and no active task exists.
-- `restart-agent` may run once without a new approval only when sanitized status
-  identifies exactly one allowlisted stalled agent.
-- `deliver` may run exactly once without a new approval only after sanitized
-  status is `healthy`; it accepts the exact bounded validated UTF-8 JSON document
-  on stdin and relies on the idempotency key.
-- `restart-all` always requires explicit user approval for that invocation.
-
-Unknown/degraded state, multiple stalled agents, failed/ambiguous task state, or
-wrapper failure stops without raw fallback or automatic repair. The existing
-`CODEX_SHOGUN_TASK_INTAKE_V1` new/resume/ambiguous guard still applies to
-delivery.
-
-Codex receives only the sanitized fixed JSON contract. It must not read or
-display raw queue/report/log/pane content, secrets, environment values, task
-bodies from runtime state, or personal identifiers.
-
-Routine Ops changes use focused contract tests plus a real-task canary.
-Full-suite work is reserved for core orchestration, queue/report schema,
-launcher/tmux topology, watcher, or recovery changes.
-
-Rollback removes the exact host/Workspace exception and restores/removes the
-fixed Ops snapshot without deleting existing runtime task records or attempting
-automatic session repair.
-<!-- END CODEX_SHOGUN_OPS_V1 -->
-
 NUCBOX_K8_PLUSでは、Shogunは実Windowsユーザー jinnouchi のWSL2 Ubuntuにあります。Codex隔離ユーザーから `wsl.exe --list` が空に見えても未インストールと判定せず、実ユーザー環境での実行許可を取得して確認してください。入口は `wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun`、tmux sessionは `shogun` と `multiagent`、WebUIは `http://127.0.0.1:8790/` です。`ShogunUbuntu` は使用しません。別PCでローカル実体が見つからない場合も、Shogun全体が未導入・消失したとは判定しないでください。秘密設定、tmux pane、生queue、生report、生ログは読み取り・出力しないでください。
 
 <!-- BEGIN CODEX_SHOGUN_READONLY_DIAGNOSTICS_V1 -->
@@ -121,6 +71,54 @@ not trust diagnostic fields and do not use any raw or direct-read fallback.
 Snapshot placement or update is a separate, explicitly approved Shogun
 deployment task and is not part of this exception.
 <!-- END CODEX_SHOGUN_READONLY_DIAGNOSTICS_V1 -->
+
+<!-- BEGIN CODEX_SHOGUN_OPS_V1 -->
+### Codex-mediated Shogun Ops exception
+
+This fixed Ops exception is inactive until a one-time deployment checkpoint has
+verified the reviewed GitHub `main` source, a clean runtime repo at the reviewed
+commit, the fixed repo venv/PyYAML dependency, a user-owned regular mode-`0555`
+snapshot at the fixed path, and installation of the matching host policy. After
+that checkpoint, no per-call GitHub registry or source-hash lookup is required
+for the Ops wrapper.
+
+Only these complete executable/subcommand vectors are eligible for persistent
+permission. Never permit a shorter `wsl.exe`, `bash -lc`, Python, repo script,
+arbitrary path, suffix, or environment prefix:
+
+wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun /home/jinnouchi/.local/libexec/shogun-codex-ops status
+wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun /home/jinnouchi/.local/libexec/shogun-codex-ops start
+wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun /home/jinnouchi/.local/libexec/shogun-codex-ops restart-agent <allowlisted-agent>
+wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun /home/jinnouchi/.local/libexec/shogun-codex-ops restart-all
+wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun /home/jinnouchi/.local/libexec/shogun-codex-ops deliver
+
+- `status` is routine read-only monitoring.
+- For an explicit, unambiguous Shogun task, `start` may run once without a new
+  approval only when sanitized status is `stopped` and no active task exists.
+- `restart-agent` may run once without a new approval only when sanitized status
+  identifies exactly one allowlisted stalled agent.
+- `deliver` may run exactly once without a new approval only after sanitized
+  status is `healthy`; it accepts the exact bounded validated UTF-8 JSON document
+  on stdin and relies on the idempotency key.
+- `restart-all` always requires explicit user approval for that invocation.
+
+Unknown/degraded state, multiple stalled agents, failed/ambiguous task state, or
+wrapper failure stops without raw fallback or automatic repair. The existing
+`CODEX_SHOGUN_TASK_INTAKE_V1` new/resume/ambiguous guard still applies to
+delivery.
+
+Codex receives only the sanitized fixed JSON contract. It must not read or
+display raw queue/report/log/pane content, secrets, environment values, task
+bodies from runtime state, or personal identifiers.
+
+Routine Ops changes use focused contract tests plus a real-task canary.
+Full-suite work is reserved for core orchestration, queue/report schema,
+launcher/tmux topology, watcher, or recovery changes.
+
+Rollback removes the exact host/Workspace exception and restores/removes the
+fixed Ops snapshot without deleting existing runtime task records or attempting
+automatic session repair.
+<!-- END CODEX_SHOGUN_OPS_V1 -->
 ```
 
 ## Verification
