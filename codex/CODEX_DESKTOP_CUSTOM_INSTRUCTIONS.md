@@ -31,17 +31,18 @@ ShogunはWSL2 Linux + WebUI上で、Codex Desktopと設定・認証・session・
 
 「Shogunを使って」「Shogun経由で」などCodexからShogunを操作する依頼では、毎回取得した共通起動手順の `CODEX_SHOGUN_TASK_INTAKE_V1` を適用してください。最初に新規か継続か曖昧かを判定し、曖昧な場合はShogunへ送信せず利用者へ確認してください。曖昧でない依頼のうち、明示的な継続だけを再開し、それ以外は新規taskとして前回taskを自動継続しないでください。Shogun taskの配送意図だけではstart、stop、restart、repair、deployment、permission承認を許可しません。deployment済みで有効な `CODEX_SHOGUN_OPS_V1` だけが、その固定operationだけを許可します。
 
+配備済みで有効な `CODEX_SHOGUN_OPS_V1` がある場合、Shogunの操作とtask配送前の状態確認には同contractの固定 `status` だけを使用します。legacy `shogun-codex-diagnostics summary` を先行または並行実行しません。sanitized statusが `healthy` の場合だけ1回配送し、`stopped` の場合の1回起動、配送、限定restartの条件は `CODEX_SHOGUN_OPS_V1` に従います。Opsが未配備・無効・失敗・不明の場合は、承認済み入力経路を確認できないものとして配送せず、raw fallbackを行わず報告します。
+
+この `healthy` は固定Ops statusの再計算済み `overall=healthy` を指し、legacy diagnostics はtask配送の前提ではなく、先にも並行にも実行しません。
+
 NUCBOX_K8_PLUSでは、Shogunは実Windowsユーザー jinnouchi のWSL2 Ubuntuにあります。Codex隔離ユーザーから `wsl.exe --list` が空に見えても未インストールと判定せず、実ユーザー環境での実行許可を取得して確認してください。入口は `wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun`、tmux sessionは `shogun` と `multiagent`、WebUIは `http://127.0.0.1:8790/` です。`ShogunUbuntu` は使用しません。別PCでローカル実体が見つからない場合も、Shogun全体が未導入・消失したとは判定しないでください。秘密設定、tmux pane、生queue、生report、生ログは読み取り・出力しないでください。
 
 <!-- BEGIN CODEX_SHOGUN_READONLY_DIAGNOSTICS_V1 -->
 ### Codex read-only diagnostics limited exception
 
-The preceding prohibition remains in force. Immediately before each diagnostic
-invocation, Codex must fetch GitHub `main` raw
-`https://raw.githubusercontent.com/sjinnouchi-ux/multi-agent-shogun/main/docs/superpowers/plans/2026-07-14-codex-readonly-diagnostics-work-log.md`,
-validate its single marked schema-version-1 JSON registry and exactly one active
-deployment, then compare that record's source SHA-256 with the returned
-`tool.source_sha256`.
+The installed, user-owned regular mode-`0555` snapshot at the fixed path is the trust checkpoint for direct legacy diagnostic requests. No per-call GitHub registry, active-deployment, or source-hash lookup is required.
+
+The preceding prohibition remains in force.
 
 Only this complete command is eligible for a persistent argv-prefix permission:
 
@@ -63,10 +64,8 @@ Do not persist a shorter `wsl.exe`, `bash -lc`, `python3`, or repo-script prefix
 agents, regexes, shell commands, other scripts, suffix arguments, environment
 overrides, starts, stops, restarts, repairs, and writes remain forbidden.
 
-GitHub provenance retrieval or validation failure, no active deployment,
-multiple active deployments, and source-hash mismatch are
-`diagnostic_provenance_untrusted`. A nonzero exit, empty/non-JSON/partial output,
-nonempty stderr, or execution of 10 seconds or more is `diagnostic_process_failed`. In both cases, do
+A nonzero exit, empty/non-JSON/partial output, nonempty stderr, or execution of
+10 seconds or more is `diagnostic_process_failed`. Do
 not trust diagnostic fields and do not use any raw or direct-read fallback.
 Snapshot placement or update is a separate, explicitly approved Shogun
 deployment task and is not part of this exception.
@@ -136,8 +135,9 @@ automatic session repair.
 - `PROJECTS.md` のCanonical Entryを読める
 - 同名ローカルフォルダへ先に移動しない
 - Shogun操作依頼で `CODEX_SHOGUN_TASK_INTAKE_V1` を取得し、`new`、`resume`、`ambiguous` を区別する。
-- 新規taskは前回taskを自動継続せず、曖昧な依頼とunhealthy/untrusted診断では送信しない。
-- Before every fixed diagnostic invocation, GitHub main has one valid active deployment and its source SHA-256 matches `tool.source_sha256`.
+- 新規taskは前回taskを自動継続せず、曖昧な依頼とfixed Ops statusが `healthy` でない場合は送信しない。
+- Deployed Shogun operation and delivery requests use fixed Ops `status` without a legacy diagnostics prerequisite or per-call GitHub registry/source-hash lookup.
+- Direct legacy diagnostics use the installed mode-`0555` snapshot as the trust checkpoint while retaining exact argv, schema/invariant validation, empty stderr, and the 10-second limit.
 - The complete command exits 0, returns one fully schema-valid version-1 ASCII JSON object, has empty stderr, and finishes in under 10 seconds; `overall=degraded|unavailable` is not a process failure.
 - Free text, pane/YAML/log bodies, paths, PID, command line, remote URL, exact runtime sizes, and runtime hashes are absent.
-- Provenance/process failure never triggers a raw fallback, repo-script execution, shorter WSL permission, or direct runtime read.
+- Fixed Ops status failure or direct legacy diagnostic process/output-contract failure never triggers a raw fallback, repo-script execution, shorter WSL permission, or direct runtime read.
