@@ -28,6 +28,12 @@ GLOBAL__GOOGLE_OAUTH__CLIENT_SECRET
 GLOBAL__GOOGLE_OAUTH__REFRESH_TOKEN
 ```
 
+## Supabase dashboard account
+
+- dori-mangaのSupabase project `vdntqwtywxyjxelycavx` へアクセスする際は、`s.jinnouchi@yumekango.com` の業務用アカウントを使用する。
+- Supabase dashboardに別organizationのprojectだけが表示される場合は、同名projectを推測せず、上記アカウントへ切り替えてから確認する。
+- パスワード、認証コード、access tokenはチャット、GitHub、Markdown、ログへ記録しない。
+
 ## Cloudflare Pages Deploy
 
 Cloudflare Pages deployでWranglerが要求するenv名と保管済みSecret ID:
