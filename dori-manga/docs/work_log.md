@@ -1,5 +1,11 @@
 # 作業ログ
 
+## 2026-07-25（Supabaseログインアカウントの明文化）
+
+- dori-mangaのSupabase project `vdntqwtywxyjxelycavx` は、`s.jinnouchi@yumekango.com` の業務用アカウントで確認・管理することを `docs/secret-management.md` に追記。
+- 別organizationのprojectだけが表示される場合は、同名projectを推測せず、上記アカウントへ切り替えてから確認する手順を明記。
+- パスワード、認証コード、access tokenなどの秘密値は記録していない。
+
 ## 2026-07-11（新PC Cloudflare secret consumer実装）
 
 - `mgmt-terminal` に `dori-manga.deploy` manifestを追加し、Cloudflare TokenとAccount IDだけを子プロセスへ渡す構成にした。
