@@ -165,16 +165,23 @@ explicit incident-wide user approval:
    Automated revocation is not required. Rollback restores or removes the
    policy and stops broad-prefix use. App-level permission removal is manual if
    the product exposes it.
-8. After same-task `task_state=completed` closes the grant, the Codex fixed-Ops
-   consumer uses routine non-break-glass Git/GitHub workflow to append exactly
-   one sanitized `task_completion` event before the next Shogun task is
-   delivered. A matching existing `event_id` makes the append idempotent.
-   Ledger commit, GitHub push, pull-request creation, and merge remain
-   separately approved. If durable publication is not approved, Codex reports
-   the ledger as pending and must not advance or claim 2x/3x counters on
-   uncommitted evidence. After user review, a required outcome is appended as a
-   separate disposition event whose `disposition_ref` identifies the approved
-   review/proposal record.
+8. After fixed Ops returns schema-valid same-task `task_state=completed`,
+   whether or not an incident grant is active, any active grant closes and the
+   Codex fixed-Ops consumer constructs exactly one sanitized immutable
+   `task_completion` event using the idempotent `event_id` and commits it on a
+   dedicated non-main Shogun branch.
+9. GitHub branch push remains a separately approved action. The event is
+   durably published only after the approved branch push succeeds. Until then,
+   fixed Ops `status` monitoring and the ledger publication workflow are
+   allowed, but `deliver`, `start` for a new task, and all other new Shogun task
+   intake are blocked. If push is denied or fails, Codex reports
+   `ledger_publication_pending`; it must not advance counters or construct any
+   later immutable event, and it must not deliver the next task. A retry with
+   the same `event_id` is idempotent.
+10. PR creation and merge remain separate approvals and are not required to
+    release the next-delivery gate. After user review, a required outcome is
+    appended as a separate disposition event whose `disposition_ref`
+    identifies the approved review/proposal record.
 <!-- END CODEX_SHOGUN_BREAKGLASS_SYNC_V1 -->
 
 The one approval does not require approval before each WSL command. It remains

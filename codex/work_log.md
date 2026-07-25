@@ -446,3 +446,17 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 - Logical closure does not require automatic removal of installed OS/App
   broad-prefix permission. Rollback stops use and restores/removes policy;
   App-level permission removal is manual if the product exposes it.
+
+### Deterministic publication gate
+
+- Separated incident-grant closure from the next-delivery gate. After same-task
+  `task_state=completed`, Codex constructs one immutable idempotent completion
+  event and commits it on a dedicated non-main Shogun branch.
+- The event is durable only after a separately approved branch push succeeds.
+  Until then, fixed Ops `status` and ledger-publication work remain available,
+  while `deliver`, new-task `start`, and all new Shogun intake remain blocked.
+- A denied or failed push reports `ledger_publication_pending`; counters stay
+  on published evidence, later immutable events cannot accumulate, and retries
+  use the same `event_id`.
+- PR creation and merge remain separate approvals and are not prerequisites for
+  releasing the next-delivery gate after successful approved branch push.

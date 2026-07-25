@@ -339,12 +339,18 @@ class ShogunOpsDocumentContractTests(unittest.TestCase):
             "Automated revocation is not required",
             "App-level permission removal is manual",
             "Codex fixed-Ops consumer",
-            "append exactly one sanitized `task_completion` event",
-            "matching existing `event_id`",
-            "ledger as pending",
-            "must not advance or claim",
+            "constructs exactly one sanitized immutable `task_completion` event",
+            "retry with the same `event_id` is idempotent",
             "separate disposition event",
             "`disposition_ref`",
+            "dedicated non-main Shogun branch",
+            "approved branch push succeeds",
+            "`ledger_publication_pending`",
+            "fixed Ops `status` monitoring",
+            "`deliver`, `start` for a new task, and all other new Shogun task intake are blocked",
+            "must not advance counters or construct any later immutable event",
+            "PR creation and merge remain separate approvals",
+            "not required to release the next-delivery gate",
         ):
             self.assertIn(phrase, content)
 
