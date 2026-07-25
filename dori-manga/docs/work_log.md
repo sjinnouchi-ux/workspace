@@ -1,5 +1,20 @@
 # 作業ログ
 
+## 2026-07-25（Supabase OKプロンプトデータ整備）
+
+- Supabase project `vdntqwtywxyjxelycavx` の `generation_attempts` を対象に、OKプロンプトの欠落・JSON解析失敗・完全重複を整理した。DBスキーマやWebアプリコードは変更していない。
+- 実際の生成プロンプトを復元できなかった `PEEPの効果` 1コマ目の1件を、OKからNGへ変更した。
+  - `final_generation_prompt` はプレースホルダー文字列から `NULL` へ変更。
+  - `evaluation_summary`、`evaluation_json.ng_reason`、`evaluation_json.manual_failure_reason` に「生成プロンプト欠落・復元不可であり、画像品質によるNGではない」ことを記録。
+- JSON解析失敗によりJSON全文が `final_generation_prompt` へ誤格納されていた5件を補修した。
+  - `evaluation_json.raw_text` から内部の生成プロンプトと評価要約を抽出し、それぞれ `final_generation_prompt` と `evaluation_summary` へ復旧。
+  - 元の解析エラーとraw textは `evaluation_json` に保持し、`prompt_recovery_status=recovered` と補修理由・日時を追記。
+- 完全一致していたOKプロンプト2件は、採用指定・学習ルール参照のない古い1件を削除し、3件の学習ルールが紐づく新しい1件を残した。
+- 修正後の検証結果:
+  - `OK=19` / `NG=13` / `CLOSE=0` / 合計32件。
+  - OKのプロンプト欠落0件、プレースホルダー0件、JSON解析失敗ラッパー0件、完全重複グループ0件。
+  - 復旧対象5件はすべて生成プロンプト本文・評価要約・補修状態を確認済み。
+
 ## 2026-07-25（Supabaseログインアカウントの明文化）
 
 - dori-mangaのSupabase project `vdntqwtywxyjxelycavx` は、`s.jinnouchi@yumekango.com` の業務用アカウントで確認・管理することを `docs/secret-management.md` に追記。
