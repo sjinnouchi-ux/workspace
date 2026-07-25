@@ -118,6 +118,92 @@ Rollback removes the exact host/Workspace exception and restores/removes the
 fixed Ops snapshot without deleting existing runtime task records or attempting
 automatic session repair.
 <!-- END CODEX_SHOGUN_OPS_V1 -->
+
+<!-- BEGIN CODEX_SHOGUN_BREAKGLASS_V1 -->
+### Codex-mediated Shogun incident break-glass
+
+The fixed Ops remain the routine control surface. This incident exception is
+inactive by default.
+
+Codex may use the broad WSL prefix only after a confirmed Shogun incident, an
+identified affected task, a sanitized incident summary to the user, and
+explicit incident-wide user approval:
+
+`wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun <command> [args...]`
+
+<!-- BEGIN CODEX_SHOGUN_BREAKGLASS_SYNC_V1 -->
+1. An incident grant activates only after a confirmed Shogun incident, the same
+   affected task identifier, a sanitized incident summary, and one explicit
+   incident-wide approval.
+2. That one approval covers Shogun diagnosis and repair without per-command
+   approval until logical closure or explicit user revocation. `failed`,
+   `cancelled`, `stopped`, `degraded`, restart, and unsuccessful repair do not
+   close it.
+3. Raw bodies must never be emitted through Codex stdout/stderr. Direct `cat`,
+   raw `tail`, unredacted `tmux capture-pane`, raw queue/report/YAML/log output,
+   `.env`, credential-source, token, OAuth, authentication JSON, and
+   personal-identifier output are forbidden. Only bounded in-WSL
+   parsers/redactors may read raw material, and only allowlisted sanitized
+   findings, counts, enums, timestamps, and bounded redacted excerpts may leave
+   WSL. If those are insufficient, obtain new explicit approval for one
+   specifically bounded
+   redacted excerpt; secret values remain forbidden.
+4. Logical closure requires schema-valid fixed Ops status for the same affected
+   task identifier with `task_state=completed`; this is the fixed projection of
+   canonical task `done`.
+5. The one-time installation-canary exception requires explicit
+   deployment-canary approval for exactly:
+   `wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun /usr/bin/pwd`.
+   It does not require an affected production task, authorizes no other broad
+   command, and closes immediately after the expected
+   `/home/jinnouchi/multi-agent-shogun` path and valid schema-checked fixed Ops
+   status are confirmed.
+6. Production deployment, Cloud/IAM, external-service changes, the original
+   task's external changes, GitHub push, pull-request creation, and merge
+   each remain separately approved.
+7. Installed OS/App broad-prefix permission may remain after logical closure;
+   Automated revocation is not required. Rollback restores or removes the
+   policy and stops broad-prefix use. App-level permission removal is manual if
+   the product exposes it.
+8. After fixed Ops returns schema-valid same-task `task_state=completed`,
+   whether or not an incident grant is active, any active grant closes and the
+   Codex fixed-Ops consumer constructs exactly one sanitized immutable
+   `task_completion` event using the idempotent `event_id` and commits it on a
+   dedicated non-main Shogun branch.
+9. GitHub branch push remains a separately approved action. The event is
+   durably published only after the approved branch push succeeds. Until then,
+   fixed Ops `status` monitoring and the ledger publication workflow are
+   allowed, but `deliver`, `start` for a new task, and all other new Shogun task
+   intake are blocked. If push is denied or fails, Codex reports
+   `ledger_publication_pending`; it must not advance counters or construct any
+   later immutable event, and it must not deliver the next task. A retry with
+   the same `event_id` is idempotent.
+10. PR creation and merge remain separate approvals and are not required to
+    release the next-delivery gate. After user review, a required outcome is
+    appended as a separate disposition event whose `disposition_ref`
+    identifies the approved review/proposal record.
+<!-- END CODEX_SHOGUN_BREAKGLASS_SYNC_V1 -->
+
+The one approval does not require approval before each WSL command. It remains
+active until the user explicitly revokes it or fixed Ops proves closure for the
+same affected task. This is the logical policy boundary; a later incident
+requires new approval.
+
+For the approved affected task, the exception overrides only the routine
+inspection and repair prohibitions needed for targeted Shogun-only `sudo`,
+process, tmux, filesystem, dependency, configuration, and state repair. It does
+not expand the original task's authority.
+
+The following remain forbidden: wildcard or system-wide kills, reboot or
+shutdown, destructive filesystem actions, unrelated services, projects, or
+data (including all unrelated projects), `/mnt/c`, and secret or authentication
+changes. Direct raw output remains forbidden even when a bounded parser or
+redactor reads raw material inside WSL. GitHub push, pull-request creation, and
+GitHub merge each remain separately approved.
+
+If a new Codex thread cannot verify the affected task and approval history, it
+must ask again instead of inferring an active grant.
+<!-- END CODEX_SHOGUN_BREAKGLASS_V1 -->
 ```
 
 ## Verification

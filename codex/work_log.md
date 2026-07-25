@@ -405,3 +405,58 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 - exact argv、mode `0555`、sanitized ASCII JSON/schema/invariant validation、empty stderr、legacy timeout 10秒、privacy boundary、raw-fallback prohibitionは維持する。
 - Ops document testsは11/11、intake testsは8/8成功し、`git diff --check` はcleanだった。full suiteは意図的に実行していない。
 - Shogun executable snapshots/runtime/tmux/task records、およびFinance/LIFF/Supabase/Cloud Run/IAM/LINE/Sheets/production servicesは変更していない。
+## 2026-07-25 — Shogun incident break-glass policy
+
+- Kept the five deployed fixed Ops vectors as the routine Shogun control
+  surface.
+- Added `CODEX_SHOGUN_BREAKGLASS_V1`, allowing the broad
+  `wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun` prefix only after
+  a confirmed incident, an identified affected task, and explicit
+  incident-wide user approval.
+- One approval lasts until task `done` or explicit revocation; `failed`,
+  `cancelled`, `stopped`, `degraded`, restart, and unsuccessful repair do not
+  close it.
+- Raw WSL diagnosis and Shogun repair are permitted during the incident, while
+  secrets, Windows mounts, unrelated projects, and the original task's external
+  approval boundaries remain protected.
+- Host-policy installation and the exact one-time installation canary are
+  separate deployment checkpoints; no incident activation is included.
+
+### Final review safety correction
+
+- Replaced raw-body output with bounded in-WSL parsing/redaction: only
+  allowlisted sanitized findings, counts, enums, timestamps, and bounded
+  redacted excerpts may leave WSL. Direct raw output and secret/authentication
+  output remain forbidden.
+- Defined closure as schema-valid fixed Ops `task_state=completed` for the same
+  affected task identifier, the projection of canonical `done`.
+- Split the one-time installation canary from incident activation. It permits
+  only the exact reviewed `/usr/bin/pwd` vector, requires explicit
+  deployment-canary approval, needs no affected production task, and closes
+  immediately after expected-path and fixed-status validation.
+- Added normalized `incident_class`, deterministic append-only event/reset
+  semantics, and a durable sanitized stability ledger recorded by the Codex
+  fixed-Ops consumer after every completed task. Karo does not receive fixed
+  Ops output.
+- Synchronized the Shogun canonical, Startup, and pasteable Custom policy via a
+  marked byte-for-byte contract and a cross-repository check.
+- GitHub push, pull-request creation, merge, deployment, host policy,
+  permission state, WSL, runtime, Finance, and external services remain
+  separately approved and were not changed.
+- Logical closure does not require automatic removal of installed OS/App
+  broad-prefix permission. Rollback stops use and restores/removes policy;
+  App-level permission removal is manual if the product exposes it.
+
+### Deterministic publication gate
+
+- Separated incident-grant closure from the next-delivery gate. After same-task
+  `task_state=completed`, Codex constructs one immutable idempotent completion
+  event and commits it on a dedicated non-main Shogun branch.
+- The event is durable only after a separately approved branch push succeeds.
+  Until then, fixed Ops `status` and ledger-publication work remain available,
+  while `deliver`, new-task `start`, and all new Shogun intake remain blocked.
+- A denied or failed push reports `ledger_publication_pending`; counters stay
+  on published evidence, later immutable events cannot accumulate, and retries
+  use the same `event_id`.
+- PR creation and merge remain separate approvals and are not prerequisites for
+  releasing the next-delivery gate after successful approved branch push.
