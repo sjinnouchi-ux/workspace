@@ -269,30 +269,71 @@ explicit incident-wide user approval:
 
 `wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun <command> [args...]`
 
-One approval covers Ubuntu diagnosis and repair and does not require approval
-before each WSL command. It ends only when the affected task reaches `done` or
-the user explicitly revokes it. `failed`, `cancelled`, `stopped`, `degraded`,
-restart, and unsuccessful repair do not end the approval.
+<!-- BEGIN CODEX_SHOGUN_BREAKGLASS_SYNC_V1 -->
+1. An incident grant activates only after a confirmed Shogun incident, the same
+   affected task identifier, a sanitized incident summary, and one explicit
+   incident-wide approval.
+2. That one approval covers Shogun diagnosis and repair without per-command
+   approval until logical closure or explicit user revocation. `failed`,
+   `cancelled`, `stopped`, `degraded`, restart, and unsuccessful repair do not
+   close it.
+3. Raw bodies must never be emitted through Codex stdout/stderr. Direct `cat`,
+   raw `tail`, unredacted `tmux capture-pane`, raw queue/report/YAML/log output,
+   `.env`, credential-source, token, OAuth, authentication JSON, and
+   personal-identifier output are forbidden. Only bounded in-WSL
+   parsers/redactors may read raw material, and only allowlisted sanitized
+   findings, counts, enums, timestamps, and bounded redacted excerpts may leave
+   WSL. If those are insufficient, obtain new explicit approval for one
+   specifically bounded
+   redacted excerpt; secret values remain forbidden.
+4. Logical closure requires schema-valid fixed Ops status for the same affected
+   task identifier with `task_state=completed`; this is the fixed projection of
+   canonical task `done`.
+5. The one-time installation-canary exception requires explicit
+   deployment-canary approval for exactly:
+   `wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun /usr/bin/pwd`.
+   It does not require an affected production task, authorizes no other broad
+   command, and closes immediately after the expected
+   `/home/jinnouchi/multi-agent-shogun` path and valid schema-checked fixed Ops
+   status are confirmed.
+6. Production deployment, Cloud/IAM, external-service changes, the original
+   task's external changes, GitHub push, pull-request creation, and merge
+   each remain separately approved.
+7. Installed OS/App broad-prefix permission may remain after logical closure;
+   Automated revocation is not required. Rollback restores or removes the
+   policy and stops broad-prefix use. App-level permission removal is manual if
+   the product exposes it.
+8. After same-task `task_state=completed` closes the grant, the Codex fixed-Ops
+   consumer uses routine non-break-glass Git/GitHub workflow to append exactly
+   one sanitized `task_completion` event before the next Shogun task is
+   delivered. A matching existing `event_id` makes the append idempotent.
+   Ledger commit, GitHub push, pull-request creation, and merge remain
+   separately approved. If durable publication is not approved, Codex reports
+   the ledger as pending and must not advance or claim 2x/3x counters on
+   uncommitted evidence. After user review, a required outcome is appended as a
+   separate disposition event whose `disposition_ref` identifies the approved
+   review/proposal record.
+<!-- END CODEX_SHOGUN_BREAKGLASS_SYNC_V1 -->
 
-For the approved affected task, Codex may inspect raw logs, tmux panes, queues,
-reports, inboxes, processes, filesystem state, dependencies, and configuration;
-run shell, Python, repository scripts, and temporary diagnostics; use `sudo`;
-and repair Shogun runtime and task state. This exception overrides only the
-raw-inspection and repair prohibitions of the fixed diagnostics and Ops
-contracts for that incident.
+The one approval does not require approval before each WSL command. It remains
+active until the user explicitly revokes it or fixed Ops proves closure for the
+same affected task. This is the logical policy boundary; a later incident
+requires new approval.
 
-Secret values, tokens, OAuth material, authentication JSON, `.env` contents,
-and personal identifiers must not be reproduced or persisted in chat, GitHub,
-or incident reports. Do not modify `/mnt/c`, unrelated projects, or unrelated
-user data. Production deployment, Cloud/IAM, external-service changes, GitHub
-merge, and the original task's approval checkpoints remain separate. The
-incident approval does not expand the original task's authority.
+For the approved affected task, the exception overrides only the routine
+inspection and repair prohibitions needed for targeted Shogun-only `sudo`,
+process, tmux, filesystem, dependency, configuration, and state repair. It does
+not expand the original task's authority.
 
-The host prefix remains installed after an incident. Task `done` is a logical
-policy boundary: after `done`, Codex returns to fixed Ops and requires new
-approval for a later incident. If a new Codex thread cannot verify the affected
-task and approval history, it must ask again instead of inferring an active
-grant.
+The following remain forbidden: wildcard or system-wide kills, reboot or
+shutdown, destructive filesystem actions, unrelated services, projects, or
+data (including all unrelated projects), `/mnt/c`, and secret or authentication
+changes. Direct raw output remains forbidden even when a bounded parser or
+redactor reads raw material inside WSL. GitHub push, pull-request creation, and
+GitHub merge each remain separately approved.
+
+If a new Codex thread cannot verify the affected task and approval history, it
+must ask again instead of inferring an active grant.
 <!-- END CODEX_SHOGUN_BREAKGLASS_V1 -->
 
 - 標準確認入口は `wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun` です。tmux sessionは将軍用 `shogun` と各役職用 `multiagent`、WebUIのローカル入口は `http://127.0.0.1:8790/` です。

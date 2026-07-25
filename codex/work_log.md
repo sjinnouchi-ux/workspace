@@ -419,5 +419,30 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 - Raw WSL diagnosis and Shogun repair are permitted during the incident, while
   secrets, Windows mounts, unrelated projects, and the original task's external
   approval boundaries remain protected.
-- Host-policy installation, harmless canary, and the first Finance incident are
-  separate deployment checkpoints.
+- Host-policy installation and the exact one-time installation canary are
+  separate deployment checkpoints; no incident activation is included.
+
+### Final review safety correction
+
+- Replaced raw-body output with bounded in-WSL parsing/redaction: only
+  allowlisted sanitized findings, counts, enums, timestamps, and bounded
+  redacted excerpts may leave WSL. Direct raw output and secret/authentication
+  output remain forbidden.
+- Defined closure as schema-valid fixed Ops `task_state=completed` for the same
+  affected task identifier, the projection of canonical `done`.
+- Split the one-time installation canary from incident activation. It permits
+  only the exact reviewed `/usr/bin/pwd` vector, requires explicit
+  deployment-canary approval, needs no affected production task, and closes
+  immediately after expected-path and fixed-status validation.
+- Added normalized `incident_class`, deterministic append-only event/reset
+  semantics, and a durable sanitized stability ledger recorded by the Codex
+  fixed-Ops consumer after every completed task. Karo does not receive fixed
+  Ops output.
+- Synchronized the Shogun canonical, Startup, and pasteable Custom policy via a
+  marked byte-for-byte contract and a cross-repository check.
+- GitHub push, pull-request creation, merge, deployment, host policy,
+  permission state, WSL, runtime, Finance, and external services remain
+  separately approved and were not changed.
+- Logical closure does not require automatic removal of installed OS/App
+  broad-prefix permission. Rollback stops use and restores/removes policy;
+  App-level permission removal is manual if the product exposes it.
