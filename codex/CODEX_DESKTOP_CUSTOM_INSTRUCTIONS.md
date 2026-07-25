@@ -118,6 +118,44 @@ Rollback removes the exact host/Workspace exception and restores/removes the
 fixed Ops snapshot without deleting existing runtime task records or attempting
 automatic session repair.
 <!-- END CODEX_SHOGUN_OPS_V1 -->
+
+<!-- BEGIN CODEX_SHOGUN_BREAKGLASS_V1 -->
+### Codex-mediated Shogun incident break-glass
+
+The fixed Ops remain the routine control surface. This incident exception is
+inactive by default.
+
+Codex may use the broad WSL prefix only after a confirmed Shogun incident, an
+identified affected task, a sanitized incident summary to the user, and
+explicit incident-wide user approval:
+
+`wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun <command> [args...]`
+
+One approval covers Ubuntu diagnosis and repair and does not require approval
+before each WSL command. It ends only when the affected task reaches `done` or
+the user explicitly revokes it. `failed`, `cancelled`, `stopped`, `degraded`,
+restart, and unsuccessful repair do not end the approval.
+
+For the approved affected task, Codex may inspect raw logs, tmux panes, queues,
+reports, inboxes, processes, filesystem state, dependencies, and configuration;
+run shell, Python, repository scripts, and temporary diagnostics; use `sudo`;
+and repair Shogun runtime and task state. This exception overrides only the
+raw-inspection and repair prohibitions of the fixed diagnostics and Ops
+contracts for that incident.
+
+Secret values, tokens, OAuth material, authentication JSON, `.env` contents,
+and personal identifiers must not be reproduced or persisted in chat, GitHub,
+or incident reports. Do not modify `/mnt/c`, unrelated projects, or unrelated
+user data. Production deployment, Cloud/IAM, external-service changes, GitHub
+merge, and the original task's approval checkpoints remain separate. The
+incident approval does not expand the original task's authority.
+
+The host prefix remains installed after an incident. Task `done` is a logical
+policy boundary: after `done`, Codex returns to fixed Ops and requires new
+approval for a later incident. If a new Codex thread cannot verify the affected
+task and approval history, it must ask again instead of inferring an active
+grant.
+<!-- END CODEX_SHOGUN_BREAKGLASS_V1 -->
 ```
 
 ## Verification

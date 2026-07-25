@@ -11,6 +11,11 @@ OPS_BEGIN = "<!-- BEGIN CODEX_SHOGUN_OPS_V1 -->"
 OPS_END = "<!-- END CODEX_SHOGUN_OPS_V1 -->"
 DIAGNOSTICS_BEGIN = "<!-- BEGIN CODEX_SHOGUN_READONLY_DIAGNOSTICS_V1 -->"
 DIAGNOSTICS_END = "<!-- END CODEX_SHOGUN_READONLY_DIAGNOSTICS_V1 -->"
+BREAKGLASS_BEGIN = "<!-- BEGIN CODEX_SHOGUN_BREAKGLASS_V1 -->"
+BREAKGLASS_END = "<!-- END CODEX_SHOGUN_BREAKGLASS_V1 -->"
+BROAD_WSL_PREFIX = (
+    "wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun"
+)
 OPS = "/home/jinnouchi/.local/libexec/shogun-codex-ops"
 DIAGNOSTICS = "/home/jinnouchi/.local/libexec/shogun-codex-diagnostics"
 DIAGNOSTIC_VECTOR = (
@@ -75,11 +80,28 @@ class ShogunOpsDocumentContractTests(unittest.TestCase):
             cls.startup_diagnostics,
             cls.custom_diagnostics,
         )
+        cls.startup_breakglass = versioned_block(
+            cls.startup, BREAKGLASS_BEGIN, BREAKGLASS_END
+        )
+        cls.custom_breakglass = versioned_block(
+            cls.custom, BREAKGLASS_BEGIN, BREAKGLASS_END
+        )
+        cls.breakglass_blocks = (
+            cls.startup_breakglass,
+            cls.custom_breakglass,
+        )
 
     def test_custom_pasteable_block_is_intact_and_complete(self) -> None:
         self.assertTrue(self.custom_pasteable_closed)
         self.assertNotIn("```text", self.custom_pasteable)
-        for marker in (OPS_BEGIN, OPS_END, DIAGNOSTICS_BEGIN, DIAGNOSTICS_END):
+        for marker in (
+            OPS_BEGIN,
+            OPS_END,
+            DIAGNOSTICS_BEGIN,
+            DIAGNOSTICS_END,
+            BREAKGLASS_BEGIN,
+            BREAKGLASS_END,
+        ):
             self.assertIn(marker, self.custom_pasteable)
         for phrase in (
             "`restart-all` always requires explicit user approval",
@@ -214,6 +236,67 @@ class ShogunOpsDocumentContractTests(unittest.TestCase):
                 "without deleting existing runtime task records",
             ):
                 self.assertIn(phrase, content)
+
+    def test_breakglass_block_is_unique_and_follows_fixed_ops(self) -> None:
+        for text in (self.startup, self.custom):
+            self.assertEqual(text.count(BREAKGLASS_BEGIN), 1)
+            self.assertEqual(text.count(BREAKGLASS_END), 1)
+            self.assertGreater(text.index(BREAKGLASS_BEGIN), text.index(OPS_END))
+
+    def test_breakglass_requires_incident_task_and_approval(self) -> None:
+        for block in self.breakglass_blocks:
+            content = normalized(block)
+            self.assertEqual(
+                block.count(f"{BROAD_WSL_PREFIX} <command> [args...]"), 1
+            )
+            for phrase in (
+                "confirmed Shogun incident",
+                "identified affected task",
+                "explicit incident-wide user approval",
+                "does not require approval before each WSL command",
+            ):
+                self.assertIn(phrase, content)
+
+    def test_breakglass_lasts_until_done_only(self) -> None:
+        for block in self.breakglass_blocks:
+            content = normalized(block)
+            for phrase in (
+                "ends only when the affected task reaches `done`",
+                "`failed`",
+                "`cancelled`",
+                "`stopped`",
+                "`degraded`",
+                "restart",
+                "user explicitly revokes",
+                "logical policy boundary",
+            ):
+                self.assertIn(phrase, content)
+
+    def test_breakglass_allows_raw_repair_but_retains_external_boundaries(
+        self,
+    ) -> None:
+        for block in self.breakglass_blocks:
+            content = normalized(block)
+            for phrase in (
+                "raw logs",
+                "tmux panes",
+                "queues",
+                "reports",
+                "`sudo`",
+                "`/mnt/c`",
+                "must not be reproduced or persisted",
+                "Production deployment",
+                "Cloud/IAM",
+                "GitHub merge",
+                "does not expand the original task's authority",
+            ):
+                self.assertIn(phrase, content)
+
+    def test_breakglass_does_not_replace_the_five_fixed_ops_vectors(self) -> None:
+        for block in self.ops_blocks:
+            self.assertEqual(ops_command_lines(block), list(VECTORS))
+        for block in self.breakglass_blocks:
+            self.assertIn("fixed Ops remain the routine control surface", block)
 
 
 if __name__ == "__main__":

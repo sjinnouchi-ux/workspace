@@ -405,3 +405,19 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 - exact argv、mode `0555`、sanitized ASCII JSON/schema/invariant validation、empty stderr、legacy timeout 10秒、privacy boundary、raw-fallback prohibitionは維持する。
 - Ops document testsは11/11、intake testsは8/8成功し、`git diff --check` はcleanだった。full suiteは意図的に実行していない。
 - Shogun executable snapshots/runtime/tmux/task records、およびFinance/LIFF/Supabase/Cloud Run/IAM/LINE/Sheets/production servicesは変更していない。
+## 2026-07-25 — Shogun incident break-glass policy
+
+- Kept the five deployed fixed Ops vectors as the routine Shogun control
+  surface.
+- Added `CODEX_SHOGUN_BREAKGLASS_V1`, allowing the broad
+  `wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun` prefix only after
+  a confirmed incident, an identified affected task, and explicit
+  incident-wide user approval.
+- One approval lasts until task `done` or explicit revocation; `failed`,
+  `cancelled`, `stopped`, `degraded`, restart, and unsuccessful repair do not
+  close it.
+- Raw WSL diagnosis and Shogun repair are permitted during the incident, while
+  secrets, Windows mounts, unrelated projects, and the original task's external
+  approval boundaries remain protected.
+- Host-policy installation, harmless canary, and the first Finance incident are
+  separate deployment checkpoints.
