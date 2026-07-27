@@ -9,7 +9,10 @@ Canonical URLs:
 ```text
 https://raw.githubusercontent.com/sjinnouchi-ux/workspace/main/codex/CODEX_DESKTOP_STARTUP.md
 https://raw.githubusercontent.com/sjinnouchi-ux/workspace/main/PROJECTS.md
+https://raw.githubusercontent.com/sjinnouchi-ux/workspace/main/GIT_HANDOFF_PROTOCOL.md
 ```
+
+Claude、Codex、Fable間のGit引き継ぎは、共通契約 [`GIT_HANDOFF_PROTOCOL.md`](../GIT_HANDOFF_PROTOCOL.md) に従います。
 
 OpenAI references:
 
