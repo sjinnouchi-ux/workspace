@@ -346,5 +346,138 @@ If a new Codex thread cannot verify the affected task and approval history, it
 must ask again instead of inferring an active grant.
 <!-- END CODEX_SHOGUN_BREAKGLASS_V1 -->
 
+<!-- BEGIN CODEX_PARALLEL_SHOGUN_V1 -->
+### Codex-mediated Native Windows parallel Shogun
+
+This contract is inactive until a one-time deployment checkpoint has verified
+the reviewed GitHub `main` source, a clean source tree at the reviewed commit,
+the sealed build manifest and source-tree hash, the native artifact hash, the
+fixed absolute path, expected owner, explicit ACL, absence of a reparse point or
+junction, and the matching host policy. Repository completion alone does not
+activate this contract or authorize installation, deployment, account, ACL,
+Firewall, credential, provider, or runtime changes.
+
+Only these four complete Native Windows vectors are eligible:
+
+```text
+C:\ProgramData\Shogun\bin\shogun-parallel.exe status
+C:\ProgramData\Shogun\bin\shogun-parallel.exe launch
+C:\ProgramData\Shogun\bin\shogun-parallel.exe review
+C:\ProgramData\Shogun\bin\shogun-parallel.exe cancel
+```
+
+Never permit a shorter `powershell.exe`, `cmd.exe`, Python, or executable-only
+prefix. No arbitrary suffix, environment override, alternate path, shell
+wrapper, additional operation, or argument after the single fixed operation is
+allowed.
+
+All variable data arrives as bounded strict UTF-8 JSON on stdin. The maximum is
+64 KiB. Schema version 1 is mandatory; a UTF-8 BOM, leading or trailing
+whitespace, duplicate keys, unsupported number, unexpected key, or structurally
+oversized value is rejected.
+
+Request shape registry:
+
+```text
+status = schema_version,task_id
+launch = schema_version,approval
+launch.approval = task_id,idempotency_key,manifest_digest
+review = schema_version,task_id,caller
+cancel = schema_version,task_id,worker_id,approved
+```
+
+`manifest_digest` is exactly 64 lowercase hexadecimal characters. `caller` is
+the active Shogun (`codex` or `claude`). `worker_id` is an exact allowlisted
+worker ID, and `approved` must be the JSON boolean `true`.
+
+A successful response requires exit code 0, empty stderr, and ASCII-only JSON
+with schema version 1 and an exact key order.
+
+Successful projection registry:
+
+```text
+output = schema_version,overall,stale,task_id,active_shogun,workers,review,recommendation
+worker = worker_id,state
+review = null|state
+worker.state = queued|starting|running|attention_required|blocked|failed|completed|cancelled
+review.state = pending|running|approved|changes_required|rejected|blocked|failed
+recommendation = none|wait|inspect|retry_with_approval|review_required|user_action_required
+active_shogun = codex|claude
+overall = healthy|degraded|unknown
+```
+
+There are one to seven workers (`ashigaru1` through `ashigaru7`), with no
+duplicate worker ID. The reviewed native wrapper recomputes `overall` from the
+canonical service status using the following closed calculation. The
+`runner_reachable` and `operation_failure` inputs are internal to that reviewed
+wrapper and are not extra fields in the eight-key projection.
+
+Status calculation registry:
+
+```text
+runner_reachable=false => overall=unknown,stale=true
+runner_reachable=true => stale=false
+runner_reachable=true AND operation_failure=false AND every worker.state in {completed,cancelled} AND review in {null,approved} => overall=healthy
+runner_reachable=true AND previous healthy condition is false => overall=degraded
+consumer: overall=unknown <=> stale=true
+consumer: overall=healthy => every worker.state in {completed,cancelled} AND review in {null,approved}
+consumer: overall=degraded => stale=false
+```
+
+The consumer independently validates the exact schema and cross-field
+invariants it can observe before using any field. The deployment hash and host
+checkpoint bind the reviewed wrapper that supplies the two internal inputs.
+When the runner unreachable state is reported, `overall="unknown"` and
+`stale=true`. A nonterminal, blocked, failed, or attention-required worker, an
+uncleared review, or any operation failure never reports `healthy`.
+
+Operation authority is deliberately task-scoped:
+
+- `status` is read-only routine monitoring after this contract is active.
+- `launch` requires one explicit task approval bound to the sealed manifest
+  digest and idempotency key. A retry must reuse the same approved identity.
+- `review` requires the original approved task and an active Shogun ownership
+  match. Oometsuke/reviewer results belong only to that Codex or Claude Shogun;
+  a worker cannot invoke or receive reviewer authority directly.
+- `cancel` requires explicit user approval for that exact invocation, exact
+  task, and exact worker ID.
+
+The contract adds no per-worker, per-turn, or tool-call approval loop. Workers
+remain under direct active-Shogun control, and the user judges progress through
+the current Codex or Claude controller.
+
+CLI version attestation follows the repository `pinned_versions_for` contract
+over the installed and required CLI set only.
+
+CLI attestation registry:
+
+```text
+claude-only = claude
+codex-only = codex
+mixed-task = separate-current-receipt-per-launch
+receipt.keys = exact-installed-and-required-cli-set
+reject = missing|extra|unknown|version-mismatch|stale-generation
+```
+
+A Claude-only launch does not require Codex. A Codex-only launch does not
+require Claude. A mixed task uses separate current receipts for its separate
+launches. Receipt keys must equal the active set and must not accept an
+unrelated extra CLI key, a missing active key, an unknown CLI, a version
+mismatch, or a stale generation.
+
+Before trusting a response, Codex requires exit code 0 and independently
+validates ASCII bytes, empty stderr, exact schema and cross-field invariants,
+task identity, active-Shogun ownership, worker cardinality and IDs, enums, and
+the observable status implications above. A nonzero exit, invalid or partial
+output, nonempty stderr, wrong task, stale receipt, or ownership mismatch stops
+the operation. There is no raw or direct-read fallback.
+
+Codex receives only the sanitized fixed projection. It must not read or display
+raw queue, raw report, raw log, pane content, credentials, environment values,
+task bodies from runtime state, or personal identifiers. This Native Windows
+contract does not replace, weaken, or reuse `CODEX_SHOGUN_OPS_V1`; the legacy
+WSL2 Shogun remains a separate runtime and authorization boundary.
+<!-- END CODEX_PARALLEL_SHOGUN_V1 -->
+
 - 標準確認入口は `wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun` です。tmux sessionは将軍用 `shogun` と各役職用 `multiagent`、WebUIのローカル入口は `http://127.0.0.1:8790/` です。
 - 別PCでローカルWSLが見つからない場合は「そのPCにShogun実体がない」と報告し、Shogun全体が未導入・消失したとは判定しません。メインホストへの接続経路が未確認なら、推測で代替環境を作らず停止します。
