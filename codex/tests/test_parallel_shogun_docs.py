@@ -23,6 +23,46 @@ OUTPUT_KEYS = (
     "review",
     "recommendation",
 )
+REQUEST_REGISTRY = (
+    "status = schema_version,task_id",
+    "launch = schema_version,approval",
+    "launch.approval = task_id,idempotency_key,manifest_digest",
+    "review = schema_version,task_id,caller",
+    "cancel = schema_version,task_id,worker_id,approved",
+)
+PROJECTION_REGISTRY = (
+    "output = " + ",".join(OUTPUT_KEYS),
+    "worker = worker_id,state",
+    "review = null|state",
+    "worker.state = "
+    "queued|starting|running|attention_required|blocked|failed|completed|cancelled",
+    "review.state = "
+    "pending|running|approved|changes_required|rejected|blocked|failed",
+    "recommendation = "
+    "none|wait|inspect|retry_with_approval|review_required|user_action_required",
+    "active_shogun = codex|claude",
+    "overall = healthy|degraded|unknown",
+)
+STATUS_REGISTRY = (
+    "runner_reachable=false => overall=unknown,stale=true",
+    "runner_reachable=true => stale=false",
+    "runner_reachable=true AND operation_failure=false AND "
+    "every worker.state in {completed,cancelled} AND "
+    "review in {null,approved} => overall=healthy",
+    "runner_reachable=true AND previous healthy condition is false "
+    "=> overall=degraded",
+    "consumer: overall=unknown <=> stale=true",
+    "consumer: overall=healthy => every worker.state in "
+    "{completed,cancelled} AND review in {null,approved}",
+    "consumer: overall=degraded => stale=false",
+)
+ATTESTATION_REGISTRY = (
+    "claude-only = claude",
+    "codex-only = codex",
+    "mixed-task = separate-current-receipt-per-launch",
+    "receipt.keys = exact-installed-and-required-cli-set",
+    "reject = missing|extra|unknown|version-mismatch|stale-generation",
+)
 
 
 def versioned_block(text: str) -> str:
@@ -39,12 +79,15 @@ def normalized(text: str) -> str:
     return " ".join(text.split())
 
 
-def windows_command_lines(block: str) -> list[str]:
-    return [
-        line.strip()
-        for line in block.splitlines()
-        if line.strip().startswith(r"C:\ProgramData")
-    ]
+def fenced_registry(block: str, label: str) -> tuple[str, ...]:
+    marker = f"{label}\n\n```text\n"
+    _, found, remainder = block.partition(marker)
+    if not found:
+        return ()
+    payload, closing_fence, _ = remainder.partition("\n```")
+    if not closing_fence:
+        return ()
+    return tuple(line.strip() for line in payload.splitlines() if line.strip())
 
 
 class ParallelShogunDocumentContractTests(unittest.TestCase):
@@ -57,7 +100,13 @@ class ParallelShogunDocumentContractTests(unittest.TestCase):
     def test_exact_native_windows_vectors_are_allowlisted_in_order(self) -> None:
         self.assertEqual(self.startup.count(BEGIN), 1)
         self.assertEqual(self.startup.count(END), 1)
-        self.assertEqual(windows_command_lines(self.block), list(VECTORS))
+        self.assertEqual(
+            fenced_registry(
+                self.block,
+                "Only these four complete Native Windows vectors are eligible:",
+            ),
+            VECTORS,
+        )
         self.assertNotIn("shogun-parallel.cmd", self.block)
         self.assertEqual(self.block.count(EXECUTABLE), len(VECTORS))
 
@@ -91,6 +140,18 @@ class ParallelShogunDocumentContractTests(unittest.TestCase):
             self.assertIn(phrase, self.content)
 
     def test_request_and_status_projection_are_closed_and_bounded(self) -> None:
+        self.assertEqual(
+            fenced_registry(self.block, "Request shape registry:"),
+            REQUEST_REGISTRY,
+        )
+        self.assertEqual(
+            fenced_registry(self.block, "Successful projection registry:"),
+            PROJECTION_REGISTRY,
+        )
+        self.assertEqual(
+            fenced_registry(self.block, "Status calculation registry:"),
+            STATUS_REGISTRY,
+        )
         for phrase in (
             "bounded strict UTF-8 JSON on stdin",
             "schema version 1",
@@ -106,8 +167,6 @@ class ParallelShogunDocumentContractTests(unittest.TestCase):
             "never reports `healthy`",
         ):
             self.assertIn(phrase, self.content)
-        for key in OUTPUT_KEYS:
-            self.assertIn(f"`{key}`", self.block)
 
     def test_operation_authority_is_task_scoped_and_fail_closed(self) -> None:
         for phrase in (
@@ -124,6 +183,10 @@ class ParallelShogunDocumentContractTests(unittest.TestCase):
             self.assertIn(phrase, self.content)
 
     def test_cli_attestation_covers_only_the_active_cli_set(self) -> None:
+        self.assertEqual(
+            fenced_registry(self.block, "CLI attestation registry:"),
+            ATTESTATION_REGISTRY,
+        )
         for phrase in (
             "`pinned_versions_for`",
             "installed and required CLI set",
@@ -139,7 +202,7 @@ class ParallelShogunDocumentContractTests(unittest.TestCase):
             "exit code 0",
             "independently validates",
             "schema and cross-field invariants",
-            "recomputes `overall`",
+            "reviewed native wrapper recomputes `overall`",
             "nonzero exit",
             "invalid or partial output",
             "nonempty stderr",

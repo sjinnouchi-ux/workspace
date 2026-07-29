@@ -374,25 +374,62 @@ allowed.
 All variable data arrives as bounded strict UTF-8 JSON on stdin. The maximum is
 64 KiB. Schema version 1 is mandatory; a UTF-8 BOM, leading or trailing
 whitespace, duplicate keys, unsupported number, unexpected key, or structurally
-oversized value is rejected. The request shapes are fixed:
+oversized value is rejected.
 
-- `status`: `schema_version` and exact `task_id`.
-- `launch`: `schema_version` plus `approval` containing exact `task_id`,
-  `idempotency_key`, and 64-character lowercase `manifest_digest`.
-- `review`: `schema_version`, exact `task_id`, and `caller`, where the caller is
-  the active Shogun (`codex` or `claude`).
-- `cancel`: `schema_version`, exact `task_id`, exact worker ID, and
-  `approved=true`.
+Request shape registry:
+
+```text
+status = schema_version,task_id
+launch = schema_version,approval
+launch.approval = task_id,idempotency_key,manifest_digest
+review = schema_version,task_id,caller
+cancel = schema_version,task_id,worker_id,approved
+```
+
+`manifest_digest` is exactly 64 lowercase hexadecimal characters. `caller` is
+the active Shogun (`codex` or `claude`). `worker_id` is an exact allowlisted
+worker ID, and `approved` must be the JSON boolean `true`.
 
 A successful response requires exit code 0, empty stderr, and ASCII-only JSON
-with schema version 1 and this exact key order: `schema_version`, `overall`,
-`stale`, `task_id`, `active_shogun`, `workers`, `review`, `recommendation`.
-There are one to seven workers (`ashigaru1` through `ashigaru7`). The consumer
-must independently validate the exact schema and cross-field invariants and
-recomputes `overall` before using any field. When the runner unreachable state
-is reported, `overall="unknown"` and `stale=true`. A nonterminal, blocked,
-failed, or attention-required worker, an uncleared review, or any operation
-failure never reports `healthy`.
+with schema version 1 and an exact key order.
+
+Successful projection registry:
+
+```text
+output = schema_version,overall,stale,task_id,active_shogun,workers,review,recommendation
+worker = worker_id,state
+review = null|state
+worker.state = queued|starting|running|attention_required|blocked|failed|completed|cancelled
+review.state = pending|running|approved|changes_required|rejected|blocked|failed
+recommendation = none|wait|inspect|retry_with_approval|review_required|user_action_required
+active_shogun = codex|claude
+overall = healthy|degraded|unknown
+```
+
+There are one to seven workers (`ashigaru1` through `ashigaru7`), with no
+duplicate worker ID. The reviewed native wrapper recomputes `overall` from the
+canonical service status using the following closed calculation. The
+`runner_reachable` and `operation_failure` inputs are internal to that reviewed
+wrapper and are not extra fields in the eight-key projection.
+
+Status calculation registry:
+
+```text
+runner_reachable=false => overall=unknown,stale=true
+runner_reachable=true => stale=false
+runner_reachable=true AND operation_failure=false AND every worker.state in {completed,cancelled} AND review in {null,approved} => overall=healthy
+runner_reachable=true AND previous healthy condition is false => overall=degraded
+consumer: overall=unknown <=> stale=true
+consumer: overall=healthy => every worker.state in {completed,cancelled} AND review in {null,approved}
+consumer: overall=degraded => stale=false
+```
+
+The consumer independently validates the exact schema and cross-field
+invariants it can observe before using any field. The deployment hash and host
+checkpoint bind the reviewed wrapper that supplies the two internal inputs.
+When the runner unreachable state is reported, `overall="unknown"` and
+`stale=true`. A nonterminal, blocked, failed, or attention-required worker, an
+uncleared review, or any operation failure never reports `healthy`.
 
 Operation authority is deliberately task-scoped:
 
@@ -410,18 +447,30 @@ remain under direct active-Shogun control, and the user judges progress through
 the current Codex or Claude controller.
 
 CLI version attestation follows the repository `pinned_versions_for` contract
-over the installed and required CLI set only. A Claude-only launch does not
-require Codex. A Codex-only launch does not require Claude. A mixed task uses
-separate current receipts for its separate launches. Receipt keys must equal
-the active set and must not accept an unrelated extra CLI key, a missing active
-key, an unknown CLI, or a version mismatch.
+over the installed and required CLI set only.
+
+CLI attestation registry:
+
+```text
+claude-only = claude
+codex-only = codex
+mixed-task = separate-current-receipt-per-launch
+receipt.keys = exact-installed-and-required-cli-set
+reject = missing|extra|unknown|version-mismatch|stale-generation
+```
+
+A Claude-only launch does not require Codex. A Codex-only launch does not
+require Claude. A mixed task uses separate current receipts for its separate
+launches. Receipt keys must equal the active set and must not accept an
+unrelated extra CLI key, a missing active key, an unknown CLI, a version
+mismatch, or a stale generation.
 
 Before trusting a response, Codex requires exit code 0 and independently
 validates ASCII bytes, empty stderr, exact schema and cross-field invariants,
 task identity, active-Shogun ownership, worker cardinality and IDs, enums, and
-the recomputed status. A nonzero exit, invalid or partial output, nonempty
-stderr, wrong task, stale receipt, or ownership mismatch stops the operation.
-There is no raw or direct-read fallback.
+the observable status implications above. A nonzero exit, invalid or partial
+output, nonempty stderr, wrong task, stale receipt, or ownership mismatch stops
+the operation. There is no raw or direct-read fallback.
 
 Codex receives only the sanitized fixed projection. It must not read or display
 raw queue, raw report, raw log, pane content, credentials, environment values,

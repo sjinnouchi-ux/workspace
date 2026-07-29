@@ -466,9 +466,10 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 - Used Workspace `main` at
   `a283aacfac2837bddbe7b279fff8cae44b94b84c`, after Git handoff PR #40
   merged, as the isolated task base.
-- Added the versioned `CODEX_PARALLEL_SHOGUN_V1` block to the online Codex
-  startup document. It allows only the four complete Native Windows
-  `shogun-parallel.exe` vectors for `status`, `launch`, `review`, and `cancel`.
+- Added the versioned `CODEX_PARALLEL_SHOGUN_V1` block to the Workspace
+  branch's Codex startup document. It allows only the four complete Native
+  Windows `shogun-parallel.exe` vectors for `status`, `launch`, `review`, and
+  `cancel`.
 - Bound activation to a later one-time deployment checkpoint covering the
   reviewed source, build/source hashes, native artifact, fixed path, owner,
   ACL, reparse/junction rejection, and host policy. Repository completion does
@@ -482,6 +483,11 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 - Added eight focused document-contract tests. The test was observed RED while
   the versioned block was absent, then all eight focused tests and all 34 Codex
   document-contract tests passed.
+- Independent review found that the first draft described nested projection
+  rules only in prose and tested mostly phrase presence. Exact request,
+  projection, status-calculation, and CLI-attestation registries now bind field
+  order, nested shapes, enums, cancelled-worker treatment, and observable
+  health invariants.
 - Did not modify `PROJECTS.md`, Custom Instructions, legacy WSL2 Shogun
   contracts, Shogun repositories/runtime, ProgramData, accounts, ACL,
   Firewall, credentials, providers, deployment, or production services.
