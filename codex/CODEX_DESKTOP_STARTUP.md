@@ -159,4 +159,4 @@ Codex Desktopを唯一のオーケストレーターとします。通常の設�
 
 ### Retired Shogun
 
-旧Shogun runtime、WebUI、固定Ops、diagnostics、break-glass、Native Windows parallel Shogunは退役対象です。新規taskを配送せず、start、restart、repair、再配備、旧repoをCanonical Entryとして使用しません。移行・削除の記録は `development-environment` を正本とします。
+旧Shogun runtime、WebUI、固定Ops、diagnostics、break-glass、Native Windows parallel Shogun、および旧GitHub repoは削除済みです。新規taskの配送、start、restart、repair、再配備、旧repoのCanonical Entry利用を行いません。移行・削除の記録は `development-environment` を正本とします。
