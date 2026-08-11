@@ -491,3 +491,10 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 - Did not modify `PROJECTS.md`, Custom Instructions, legacy WSL2 Shogun
   contracts, Shogun repositories/runtime, ProgramData, accounts, ACL,
   Firewall, credentials, providers, deployment, or production services.
+
+## 2026-08-11 NUCBOX_K8_PLUS Codex Memory MCP working agreement
+
+- Added the host-scoped `NUCBOX_K8_PLUS_CODEX_MEMORY_MCP_V1` block to the GitHub-canonical Codex Desktop custom instructions.
+- Mirrored the exact block to this PC's global `~/.codex/AGENTS.md`; the notebook PC was not changed and is not assumed to share this memory.
+- The rule preserves GitHub-first startup, searches only related verified failure patterns, records only confirmed and verified reusable failures, and excludes secrets and raw runtime data.
+- `shogun_memory` remains a Windows-local STDIO MCP and is not a required task gate. WSL2, tmux, Shogun runtime, and MCP configuration were not changed.

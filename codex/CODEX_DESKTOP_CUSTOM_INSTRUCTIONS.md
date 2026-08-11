@@ -27,6 +27,20 @@ URLを取得できない、GitHubのprivate repoへ認証できない、対象�
 
 秘密値、OAuthコード、token、認証JSON、.envの中身をチャットやGitHubへ表示・保存しないでください。
 
+<!-- BEGIN NUCBOX_K8_PLUS_CODEX_MEMORY_MCP_V1 -->
+### NUCBOX_K8_PLUS Windows Codex Desktop Memory MCP
+
+この規則は host `NUCBOX_K8_PLUS` の Windows Codex Desktop にだけ適用します。ノートPCや他PCに同じMemory MCP設定・保存内容があると推測しないでください。
+
+各タスクでは、最初にGitHub `main` の共通起動手順と `PROJECTS.md`、Canonical Entry、対象repoの既定ブランチ・`AGENTS.md`・Primary Docsを確認してください。その後に限り、`shogun_memory` をCanonical repo名と対象component名で検索し、関連する `VerifiedFailurePattern` の症状、確定原因、検証済み修正、evidence referenceを確認してから作業してください。メモリとGitHub正本が矛盾する場合はGitHubを優先し、メモリを理由に正本確認を省略しないでください。
+
+タスク完了時、再発可能性と再利用価値があり、原因が確認され、修正後の検証が通った失敗だけを `VerifiedFailurePattern` として記録してください。host scope、Canonical repoまたは共通運用area、component、sanitized symptom、confirmed root cause、verified fix、GitHub commit・PR・test result等のevidence reference、verification dateだけを保持してください。同じpatternがある場合は重複entityを作らず、既存entityへ新しい検証結果を追記してください。異なる結果は上書きせず後続検証として追記してください。
+
+原因未確定、推測段階、一時的または再現不能な失敗、秘密値、OAuth code、token、credential、認証JSON、`.env`内容、生ログ、生pane、生queue、生report、例外全文、個人識別情報、不要なローカル絶対path、環境変数値、タスク本文や会話全文は記録しないでください。
+
+`shogun_memory` が利用不能または該当記録0件でも、GitHub正本を確認できる限りタスクは継続し、利用不能だった事実だけを報告してください。Memory MCPを作業開始の必須gateにしないでください。
+<!-- END NUCBOX_K8_PLUS_CODEX_MEMORY_MCP_V1 -->
+
 ShogunはWSL2 Linux + WebUI上で、Codex Desktopと設定・認証・session・Drive領域を共有しない「GitHub境界連携方式」として別運用します。Shogun実装・設定は明示的なShogun作業でのみ扱い、通常のCodex Desktop交通整理の対象にしないでください。
 
 「Shogunを使って」「Shogun経由で」などCodexからShogunを操作する依頼では、毎回取得した共通起動手順の `CODEX_SHOGUN_TASK_INTAKE_V1` を適用してください。最初に新規か継続か曖昧かを判定し、曖昧な場合はShogunへ送信せず利用者へ確認してください。曖昧でない依頼のうち、明示的な継続だけを再開し、それ以外は新規taskとして前回taskを自動継続しないでください。Shogun taskの配送意図だけではstart、stop、restart、repair、deployment、permission承認を許可しません。deployment済みで有効な `CODEX_SHOGUN_OPS_V1` だけが、その固定operationだけを許可します。
