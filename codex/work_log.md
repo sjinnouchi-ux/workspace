@@ -491,3 +491,11 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 - Did not modify `PROJECTS.md`, Custom Instructions, legacy WSL2 Shogun
   contracts, Shogun repositories/runtime, ProgramData, accounts, ACL,
   Firewall, credentials, providers, deployment, or production services.
+
+## 2026-08-11 — Development environment cutover
+
+- Registered the private `sjinnouchi-ux/development-environment` repository as the canonical entry for Codex Desktop orchestration, Windows-local Memory MCP, and WSL2 Claude read-only audits.
+- Replaced the unmerged `shogun_memory` policy draft with the deployed `development_memory` name and preserved GitHub-first startup, verified reusable failure records, and strict secret/raw-runtime exclusions.
+- Defined Codex Desktop as the sole orchestrator and Claude CLI as an explicit one-shot read-only auditor, not a persistent worker or task dispatcher.
+- Retired the Shogun runtime, WebUI, fixed Ops, diagnostics, break-glass, and Native Windows parallel contracts from active routing. Their repositories and local runtime remain separate deletion steps until verified removed.
+- Updated `PROJECTS.md`, the common startup document, and the pasteable Custom Instructions. No credentials, OAuth material, Memory MCP data, project runtime, or external production service was read or changed by this documentation cutover.

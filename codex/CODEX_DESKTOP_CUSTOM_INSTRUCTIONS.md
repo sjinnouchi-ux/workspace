@@ -27,183 +27,21 @@ URLを取得できない、GitHubのprivate repoへ認証できない、対象�
 
 秘密値、OAuthコード、token、認証JSON、.envの中身をチャットやGitHubへ表示・保存しないでください。
 
-ShogunはWSL2 Linux + WebUI上で、Codex Desktopと設定・認証・session・Drive領域を共有しない「GitHub境界連携方式」として別運用します。Shogun実装・設定は明示的なShogun作業でのみ扱い、通常のCodex Desktop交通整理の対象にしないでください。
+<!-- BEGIN NUCBOX_K8_PLUS_CODEX_MEMORY_MCP_V2 -->
+### NUCBOX_K8_PLUS Windows Codex Desktop Memory MCP
 
-「Shogunを使って」「Shogun経由で」などCodexからShogunを操作する依頼では、毎回取得した共通起動手順の `CODEX_SHOGUN_TASK_INTAKE_V1` を適用してください。最初に新規か継続か曖昧かを判定し、曖昧な場合はShogunへ送信せず利用者へ確認してください。曖昧でない依頼のうち、明示的な継続だけを再開し、それ以外は新規taskとして前回taskを自動継続しないでください。Shogun taskの配送意図だけではstart、stop、restart、repair、deployment、permission承認を許可しません。deployment済みで有効な `CODEX_SHOGUN_OPS_V1` だけが、その固定operationだけを許可します。
+この規則は host `NUCBOX_K8_PLUS` のWindows Codex Desktopにだけ適用します。ノートPC、WSL2、他PCに同じMemory MCP設定・保存内容があると推測しないでください。
 
-配備済みで有効な `CODEX_SHOGUN_OPS_V1` がある場合、Shogunの操作とtask配送前の状態確認には同contractの固定 `status` だけを使用します。legacy `shogun-codex-diagnostics summary` を先行または並行実行しません。sanitized statusが `healthy` の場合だけ1回配送し、`stopped` の場合の1回起動、配送、限定restartの条件は `CODEX_SHOGUN_OPS_V1` に従います。Opsが未配備・無効・失敗・不明の場合は、承認済み入力経路を確認できないものとして配送せず、raw fallbackを行わず報告します。
+GitHub正本、Canonical Entry、対象repoの既定ブランチ・AGENTS.md・Primary Docsを確認した後に限り、`development_memory` をCanonical repo名とcomponent名で検索し、関連する `VerifiedFailurePattern` のsanitized symptom、confirmed root cause、verified fix、evidence referenceを確認してください。GitHubと矛盾する場合はGitHubを優先し、Memory MCPが利用不能または該当0件でもGitHub正本を確認できる限り作業を継続してください。
 
-この `healthy` は固定Ops statusの再計算済み `overall=healthy` を指し、legacy diagnostics はtask配送の前提ではなく、先にも並行にも実行しません。
+タスク完了時、再発可能性と再利用価値があり、原因が確認され、修正後の検証が通った失敗だけを `VerifiedFailurePattern` として記録してください。host scope、Canonical repoまたは共通運用area、component、sanitized symptom、confirmed root cause、verified fix、GitHub commit・PR・test result等のevidence reference、verification dateだけを保持してください。同じpatternは重複entityを作らず、後続検証を追記してください。
 
-NUCBOX_K8_PLUSでは、Shogunは実Windowsユーザー jinnouchi のWSL2 Ubuntuにあります。Codex隔離ユーザーから `wsl.exe --list` が空に見えても未インストールと判定せず、実ユーザー環境での実行許可を取得して確認してください。入口は `wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun`、tmux sessionは `shogun` と `multiagent`、WebUIは `http://127.0.0.1:8790/` です。`ShogunUbuntu` は使用しません。別PCでローカル実体が見つからない場合も、Shogun全体が未導入・消失したとは判定しないでください。秘密設定、tmux pane、生queue、生report、生ログは読み取り・出力しないでください。
+原因未確定、推測段階、一時的または再現不能な失敗、秘密値、OAuth code、token、credential、認証JSON、.env内容、生ログ、生pane、生queue、生report、例外全文、個人識別情報、不要なローカル絶対path、環境変数値、タスク本文や会話全文は記録しないでください。
+<!-- END NUCBOX_K8_PLUS_CODEX_MEMORY_MCP_V2 -->
 
-<!-- BEGIN CODEX_SHOGUN_READONLY_DIAGNOSTICS_V1 -->
-### Codex read-only diagnostics limited exception
+Codex Desktopを唯一のオーケストレーターとします。WSL2 Claude CLIは、利用者が監査を求めた場合だけprivate repo `sjinnouchi-ux/development-environment` の固定runnerから一回限りのread-only監査として使用し、task配送、常設worker、変更、retry、fallbackには使用しません。
 
-The installed, user-owned regular mode-`0555` snapshot at the fixed path is the trust checkpoint for direct legacy diagnostic requests. No per-call GitHub registry, active-deployment, or source-hash lookup is required.
-
-The preceding prohibition remains in force.
-
-Only this complete command is eligible for a persistent argv-prefix permission:
-
-`wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun /home/jinnouchi/.local/libexec/shogun-codex-diagnostics summary`
-
-The installed mode-`0555` snapshot may locally aggregate only its fixed,
-allowlisted Git/tmux/process/filesystem metadata and the counts of its four fixed
-watcher-log substrings from at most the final 1,048,576 bytes. Codex receives
-only schema-version-1 JSON. It does not directly read runtime files, logs, or
-panes.
-
-Before using any diagnostic field, Codex must require exit 0 and independently
-validate ASCII-only bytes plus the complete nested schema, exact key order,
-session/agent cardinality, enums, issue severity, count/state/applicability
-cross-field invariants, and a recomputed `overall` value.
-
-Do not persist a shorter `wsl.exe`, `bash -lc`, `python3`, or repo-script prefix.
-`cat`, `grep`, YAML bodies, log lines, pane capture, arbitrary paths, sessions,
-agents, regexes, shell commands, other scripts, suffix arguments, environment
-overrides, starts, stops, restarts, repairs, and writes remain forbidden.
-
-A nonzero exit, empty/non-JSON/partial output, nonempty stderr, or execution of
-10 seconds or more is `diagnostic_process_failed`. Do
-not trust diagnostic fields and do not use any raw or direct-read fallback.
-Snapshot placement or update is a separate, explicitly approved Shogun
-deployment task and is not part of this exception.
-<!-- END CODEX_SHOGUN_READONLY_DIAGNOSTICS_V1 -->
-
-<!-- BEGIN CODEX_SHOGUN_OPS_V1 -->
-### Codex-mediated Shogun Ops exception
-
-This fixed Ops exception is inactive until a one-time deployment checkpoint has
-verified the reviewed GitHub `main` source, a clean runtime repo at the reviewed
-commit, the fixed repo venv/PyYAML dependency, a user-owned regular mode-`0555`
-snapshot at the fixed path, and installation of the matching host policy. After
-that checkpoint, no per-call GitHub registry or source-hash lookup is required
-for the Ops wrapper.
-
-Only these complete executable/subcommand vectors are eligible for persistent
-permission. Never permit a shorter `wsl.exe`, `bash -lc`, Python, repo script,
-arbitrary path, suffix, or environment prefix:
-
-wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun /home/jinnouchi/.local/libexec/shogun-codex-ops status
-wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun /home/jinnouchi/.local/libexec/shogun-codex-ops start
-wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun /home/jinnouchi/.local/libexec/shogun-codex-ops restart-agent <allowlisted-agent>
-wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun /home/jinnouchi/.local/libexec/shogun-codex-ops restart-all
-wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun /home/jinnouchi/.local/libexec/shogun-codex-ops deliver
-
-- `status` is routine read-only monitoring.
-- For an explicit, unambiguous Shogun task, `start` may run once without a new
-  approval only when sanitized status is `stopped` and no active task exists.
-- `restart-agent` may run once without a new approval only when sanitized status
-  identifies exactly one allowlisted stalled agent.
-- `deliver` may run exactly once without a new approval only after sanitized
-  status is `healthy`; it accepts the exact bounded validated UTF-8 JSON document
-  on stdin and relies on the idempotency key.
-- `restart-all` always requires explicit user approval for that invocation.
-
-Unknown/degraded state, multiple stalled agents, failed/ambiguous task state, or
-wrapper failure stops without raw fallback or automatic repair. The existing
-`CODEX_SHOGUN_TASK_INTAKE_V1` new/resume/ambiguous guard still applies to
-delivery.
-
-Codex receives only the sanitized fixed JSON contract. It must not read or
-display raw queue/report/log/pane content, secrets, environment values, task
-bodies from runtime state, or personal identifiers.
-
-Routine Ops changes use focused contract tests plus a real-task canary.
-Full-suite work is reserved for core orchestration, queue/report schema,
-launcher/tmux topology, watcher, or recovery changes.
-
-Rollback removes the exact host/Workspace exception and restores/removes the
-fixed Ops snapshot without deleting existing runtime task records or attempting
-automatic session repair.
-<!-- END CODEX_SHOGUN_OPS_V1 -->
-
-<!-- BEGIN CODEX_SHOGUN_BREAKGLASS_V1 -->
-### Codex-mediated Shogun incident break-glass
-
-The fixed Ops remain the routine control surface. This incident exception is
-inactive by default.
-
-Codex may use the broad WSL prefix only after a confirmed Shogun incident, an
-identified affected task, a sanitized incident summary to the user, and
-explicit incident-wide user approval:
-
-`wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun <command> [args...]`
-
-<!-- BEGIN CODEX_SHOGUN_BREAKGLASS_SYNC_V1 -->
-1. An incident grant activates only after a confirmed Shogun incident, the same
-   affected task identifier, a sanitized incident summary, and one explicit
-   incident-wide approval.
-2. That one approval covers Shogun diagnosis and repair without per-command
-   approval until logical closure or explicit user revocation. `failed`,
-   `cancelled`, `stopped`, `degraded`, restart, and unsuccessful repair do not
-   close it.
-3. Raw bodies must never be emitted through Codex stdout/stderr. Direct `cat`,
-   raw `tail`, unredacted `tmux capture-pane`, raw queue/report/YAML/log output,
-   `.env`, credential-source, token, OAuth, authentication JSON, and
-   personal-identifier output are forbidden. Only bounded in-WSL
-   parsers/redactors may read raw material, and only allowlisted sanitized
-   findings, counts, enums, timestamps, and bounded redacted excerpts may leave
-   WSL. If those are insufficient, obtain new explicit approval for one
-   specifically bounded
-   redacted excerpt; secret values remain forbidden.
-4. Logical closure requires schema-valid fixed Ops status for the same affected
-   task identifier with `task_state=completed`; this is the fixed projection of
-   canonical task `done`.
-5. The one-time installation-canary exception requires explicit
-   deployment-canary approval for exactly:
-   `wsl.exe -d Ubuntu --cd /home/jinnouchi/multi-agent-shogun /usr/bin/pwd`.
-   It does not require an affected production task, authorizes no other broad
-   command, and closes immediately after the expected
-   `/home/jinnouchi/multi-agent-shogun` path and valid schema-checked fixed Ops
-   status are confirmed.
-6. Production deployment, Cloud/IAM, external-service changes, the original
-   task's external changes, GitHub push, pull-request creation, and merge
-   each remain separately approved.
-7. Installed OS/App broad-prefix permission may remain after logical closure;
-   Automated revocation is not required. Rollback restores or removes the
-   policy and stops broad-prefix use. App-level permission removal is manual if
-   the product exposes it.
-8. After fixed Ops returns schema-valid same-task `task_state=completed`,
-   whether or not an incident grant is active, any active grant closes and the
-   Codex fixed-Ops consumer constructs exactly one sanitized immutable
-   `task_completion` event using the idempotent `event_id` and commits it on a
-   dedicated non-main Shogun branch.
-9. GitHub branch push remains a separately approved action. The event is
-   durably published only after the approved branch push succeeds. Until then,
-   fixed Ops `status` monitoring and the ledger publication workflow are
-   allowed, but `deliver`, `start` for a new task, and all other new Shogun task
-   intake are blocked. If push is denied or fails, Codex reports
-   `ledger_publication_pending`; it must not advance counters or construct any
-   later immutable event, and it must not deliver the next task. A retry with
-   the same `event_id` is idempotent.
-10. PR creation and merge remain separate approvals and are not required to
-    release the next-delivery gate. After user review, a required outcome is
-    appended as a separate disposition event whose `disposition_ref`
-    identifies the approved review/proposal record.
-<!-- END CODEX_SHOGUN_BREAKGLASS_SYNC_V1 -->
-
-The one approval does not require approval before each WSL command. It remains
-active until the user explicitly revokes it or fixed Ops proves closure for the
-same affected task. This is the logical policy boundary; a later incident
-requires new approval.
-
-For the approved affected task, the exception overrides only the routine
-inspection and repair prohibitions needed for targeted Shogun-only `sudo`,
-process, tmux, filesystem, dependency, configuration, and state repair. It does
-not expand the original task's authority.
-
-The following remain forbidden: wildcard or system-wide kills, reboot or
-shutdown, destructive filesystem actions, unrelated services, projects, or
-data (including all unrelated projects), `/mnt/c`, and secret or authentication
-changes. Direct raw output remains forbidden even when a bounded parser or
-redactor reads raw material inside WSL. GitHub push, pull-request creation, and
-GitHub merge each remain separately approved.
-
-If a new Codex thread cannot verify the affected task and approval history, it
-must ask again instead of inferring an active grant.
-<!-- END CODEX_SHOGUN_BREAKGLASS_V1 -->
+旧Shogun runtime、WebUI、固定Ops、diagnostics、break-glass、Native Windows parallel Shogunは退役対象です。新規taskを配送せず、start、restart、repair、再配備、旧repoのCanonical Entry利用を行わないでください。移行・削除の正本は `sjinnouchi-ux/development-environment` です。
 ```
 
 ## Verification
@@ -211,19 +49,15 @@ must ask again instead of inferring an active grant.
 設定後に新しいCodexタスクを開始し、次を依頼します。
 
 ```text
-共通起動手順とPROJECTS.mdをGitHub mainから取得し、取得したworkspace commit SHAと、現在登録されているCanonical Entryの件数を報告してください。ローカルcloneはまだ作らないでください。
+共通起動手順とPROJECTS.mdをGitHub mainから取得し、取得したworkspace commit SHA、開発環境のCanonical Entry、NUCBOX_K8_PLUSでのMemory MCP名、Claude監査の役割、旧Shogunの状態を報告してください。ローカルcloneはまだ作らず、メモリへの書込みもしないでください。
 ```
 
 成功条件:
 
 - raw GitHub URLを取得できる
 - `sjinnouchi-ux/workspace` のcommit SHAを報告できる
-- `PROJECTS.md` のCanonical Entryを読める
+- 開発環境のCanonical Entryをprivate `sjinnouchi-ux/development-environment` と判定できる
+- GitHub確認後にだけ `development_memory` を補助参照する
+- Claude CLIを一回限りのread-only監査と説明できる
+- 旧Shogunへtaskを配送または起動しない
 - 同名ローカルフォルダへ先に移動しない
-- Shogun操作依頼で `CODEX_SHOGUN_TASK_INTAKE_V1` を取得し、`new`、`resume`、`ambiguous` を区別する。
-- 新規taskは前回taskを自動継続せず、曖昧な依頼とfixed Ops statusが `healthy` でない場合は送信しない。
-- Deployed Shogun operation and delivery requests use fixed Ops `status` without a legacy diagnostics prerequisite or per-call GitHub registry/source-hash lookup.
-- Direct legacy diagnostics use the installed mode-`0555` snapshot as the trust checkpoint while retaining exact argv, schema/invariant validation, empty stderr, and the 10-second limit.
-- The complete command exits 0, returns one fully schema-valid version-1 ASCII JSON object, has empty stderr, and finishes in under 10 seconds; `overall=degraded|unavailable` is not a process failure.
-- Free text, pane/YAML/log bodies, paths, PID, command line, remote URL, exact runtime sizes, and runtime hashes are absent.
-- Fixed Ops status failure or direct legacy diagnostic process/output-contract failure never triggers a raw fallback, repo-script execution, shorter WSL permission, or direct runtime read.
