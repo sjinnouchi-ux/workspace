@@ -41,7 +41,7 @@ GitHub正本、Canonical Entry、対象repoの既定ブランチ・AGENTS.md・P
 
 Codex Desktopを唯一のオーケストレーターとします。WSL2 Claude CLIは、利用者が監査を求めた場合だけprivate repo `sjinnouchi-ux/development-environment` の固定runnerから一回限りのread-only監査として使用し、task配送、常設worker、変更、retry、fallbackには使用しません。
 
-旧Shogun runtime、WebUI、固定Ops、diagnostics、break-glass、Native Windows parallel Shogunは退役対象です。新規taskを配送せず、start、restart、repair、再配備、旧repoのCanonical Entry利用を行わないでください。移行・削除の正本は `sjinnouchi-ux/development-environment` です。
+旧Shogun runtime、WebUI、固定Ops、diagnostics、break-glass、Native Windows parallel Shogun、および旧GitHub repoは削除済みです。新規taskの配送、start、restart、repair、再配備、旧repoのCanonical Entry利用を行わないでください。移行・削除の正本は `sjinnouchi-ux/development-environment` です。
 ```
 
 ## Verification
