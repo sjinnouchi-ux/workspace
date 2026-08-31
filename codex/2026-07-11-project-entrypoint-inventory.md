@@ -80,11 +80,10 @@ GitHub URLs:
 
 ## Workspace Registry Findings
 
-現行 `PROJECTS.md` は9件の現役・移行中プロジェクトと3件の凍結・完了プロジェクトを持つ。
+現行 `PROJECTS.md` は複数の現役・移行中プロジェクトと凍結・完了プロジェクトを持つ。
 
 確認した問題:
 
-- `dori-manga` の入口が `dori-manga/` という相対パスで、別PCからはリポジトリを特定しにくい。正本は `https://github.com/sjinnouchi-ux/workspace/tree/main/dori-manga`。
 - `ai-keiei-shindan/` と `code-exchange/` も相対パスである。workspace内であることをURLで明示する余地がある。
 - `mgmt-terminal`、`kango-mamori-studio-requests`、`supabase-db-templates` はGitHubに存在するが、現行 `PROJECTS.md` に行がない。
 - `docs/notion/projects.csv` は旧管理面であり、現行 `PROJECTS.md` と状態が一致しない。例として `market-pilot` は旧CSVでActive、現行台帳でFrozenになっている。
@@ -114,7 +113,6 @@ Shogun関連の `multi-agent-shogun`、`shogun-lab/`、Shogun移行を理由と�
 | `Kアラート・テスト開発` | remoteなし / unborn `master` | commitなし、`.wrangler/` と `outputs/` が未追跡 | Archived入口。生成物確認前は削除禁止 |
 | `Kアラート・本番開発` | `k-alert-production` / `main` | origin/mainと同期、clean | 有効な安定clone |
 | `workspace` | `workspace` / `main` | 4 behind、clean | 安定入口候補。更新が必要 |
-| `どり看護師マンガプロジェクト` | remoteなし / unborn `master` | commitなし、clean | 危険入口。正本はworkspace内 `dori-manga` |
 | `家計簿` | remoteなし / unborn `master` | commitなし、clean | 危険入口。正本は `kakeibo-liff` |
 | `管理ターミナル` | `mgmt-terminal` / `main` | origin/mainと同期、clean | 有効な安定clone。台帳未登録 |
 | `議事録システム` | `meeting-minutes-system` / `main` | origin/mainと同期、clean | 有効な安定clone |
@@ -137,7 +135,6 @@ Shogun関連の `multi-agent-shogun`、`shogun-lab/`、Shogun移行を理由と�
 
 | Location | Local-only or different information |
 |---|---|
-| stale workspace clone dated 2026-06-06 | modified `dori-manga/docs/work_log.md` |
 | same stale workspace clone | untracked `docs/kango-mamori-hp-management.md` |
 | same stale workspace clone | untracked `taiwan-outreach/studio-copy-page-log.md` |
 | `台湾プロジェクト` | modified `docs/work-log.md` plus 8 untracked output entries |
@@ -157,7 +154,7 @@ Shogun関連の `multi-agent-shogun`、`shogun-lab/`、Shogun移行を理由と�
 - 日本語名などの固定フォルダ: 10
 - `Documents\Codex` 全体: 1
 - trusted pathのうち成立した正規Git clone: `台湾プロジェクト`、`議事録システム`、`事業振り返り`、`管理ターミナル` の4
-- trusted pathのうちremoteもcommitもないGit入口: `Kアラート・テスト開発`、`家計簿`、`APIモニター`、`Freee`、`どり看護師マンガプロジェクト`、`Kアラート` の6
+- trusted pathのうちremoteもcommitもないGit入口: `Kアラート・テスト開発`、`家計簿`、`APIモニター`、`Freee`、`Kアラート` の5
 - 正式なローカルcloneだが明示的trusted pathにない: `Kアラート・本番開発`、`kakeibo-liff`、`workspace`
 
 日付別trusted path 20件:
@@ -195,7 +192,6 @@ C:\Users\irodo\Documents\APIモニター
 C:\Users\irodo\Documents\議事録システム
 C:\Users\irodo\Documents\Freee
 C:\Users\irodo\Documents\事業振り返り
-C:\Users\irodo\Documents\どり看護師マンガプロジェクト
 C:\Users\irodo\Documents\管理ターミナル
 C:\Users\irodo\Documents\Kアラート
 ```
@@ -284,7 +280,6 @@ GitHubまたは指定保存先へ残すもの:
 | Item | Result |
 |---|---|
 | 共通ルーターと起動手順 | `workspace` PR #4をmerge。`main` は `e976f29352eaf08f996c1182e7509233e11ed99f` |
-| stale workspaceのdori-mangaログ | 確認済み2026-06-16記録を `workspace/main` へ救出 |
 | stale workspaceの看護まもりSTUDIOメモ | 現行repoへ整理し、`kango-mamori-studio-requests` PR #2、`44c676065d37a2e95493ae22275544ef50e309bf` へ反映 |
 | 台湾プロジェクトの確認済みログ | `taiwan-outreach` PR #1、`dc02db8cd879f7e4f7dba96dc9ffc42d1e9d489d` へ反映 |
 | 台湾プロジェクトの生成物 | `outputs/` をignore対象として保持。OAuth関連を読まず、commitしていない |
@@ -298,7 +293,7 @@ GitHubまたは指定保存先へ残すもの:
 
 | Category | Preserved item | Reason |
 |---|---|---|
-| 空または誤誘導Git入口 | `APIモニター`、`どり看護師マンガプロジェクト`、`家計簿`、`Freee`、`Kアラート`、`Kアラート・テスト開発` | 既存資産の破壊的削除には明示承認が必要 |
+| 空または誤誘導Git入口 | `APIモニター`、`家計簿`、`Freee`、`Kアラート`、`Kアラート・テスト開発` | 既存資産の破壊的削除には明示承認が必要 |
 | 空 `.git` | `C:\Users\irodo\Documents\Codex\.git` ほか棚卸し済み3件 | 親フォルダの用途を維持したまま削除判断が必要 |
 | stale / duplicate clone | 旧workspace clone、重複business-management clone、入れ子の一時clone | 救出済み内容と残存差分を最終照合してから削除する |
 | 未統合branch | `kakeibo-liff`、`k-alert-production-workspace-push` | `main` にないcommitを保持している |

@@ -95,7 +95,6 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 - `PROJECTS.md` を完全なGitHub URLとPrimary Docsを持つルーターへ再構成した。
 - `mgmt-terminal`、`kango-mamori-studio-requests`、`supabase-db-templates` を台帳へ追加した。
 - Shogunを `multi-agent-shogun` へ正しく接続し、WSL2 Linux + WebUI、後日同一GitHub運用へ改修する方針を記録した。
-- stale workspaceにだけ残っていた2026-06-16のdori-manga確認ログを正本へ救出した。
 
 ### 非対象
 
@@ -150,14 +149,12 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 - `PROJECTS.md` の全15プロジェクト行、実Git入口14件をGitHub既定branchから監査した。
 - 旧 `global.env` の値あり41項目に対応するSecret IDは41件すべて存在し、全件に有効versionがあることを確認した。
 - `codex-agent` が参照できるのは管理ターミナル用2件だけで、残る39件は保管のみ完了、manifest/IAM/consumer切替が未完了だった。
-- dori-mangaの新PC障害は、本番停止ではなくCloudflare deploy credentialの供給経路不足と確定した。
 - API Monitor、議事録システム、Kakeibo、Market PilotにもPC間移行上の残件がある。
 
 ### 反映
 
 - 共通起動手順へSecret Manager移行完了の4条件を追加した。
 - `PROJECTS.md` の影響projectへ現在の停止条件を追記した。
-- dori-mangaのsecret文書と作業ログへ、保管済み・利用未整備の境界を追記した。
 - privateの詳細監査正本は `mgmt-terminal/docs/reports/2026-07-11-cross-project-secret-consumer-audit.md` とした。
 
 ### 非変更
@@ -177,34 +174,6 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 
 ---
 
-## 2026-07-11｜dori-manga新PC secret consumer実装
-
-### 実装
-
-- `mgmt-terminal` の中央helperへ `dori-manga.deploy` manifestを追加した。
-- `codex-agent` にはCloudflare 2 Secretだけのaccessorを付与した。
-- `workspace` へ新PC用Cloudflare Pages deploy runbookを追加した。
-- helperの明示的引数転送不具合を修正し、回帰テストを追加した。
-
-### 検証
-
-- manifest検査とhelper引数転送テスト: pass。
-- service account impersonationと子プロセス限定注入: pass。
-- 別のactive gcloud accountを設定した親processからも、manifest指定アカウントでSecret取得: pass。
-- `dori-manga-admin` Pages project読取: pass、production branch `main`。
-- 一時preview deployとHTTP 200: pass。検証後にdeploymentを削除し、削除後HTTP 404を確認。
-- productionはHTTP 200のまま。
-- Secret値、Secret version、Pages配信内容、Shogunは変更していない。
-
-### 現在地
-
-- 新PCからの取得経路は利用可能。
-- Cloudflare専用Pages Edit tokenへのrotationまでは `ready_with_rotation_pending`。
-- コード変更がないためproduction deployは未実施。
-
----
-
-
 ## 2026-07-11｜議事録システム Secret Manager consumer移行
 
 - `meeting-minutes.runtime` manifestからOpenAI資格情報1件だけを子processへ渡す構成へ変更した。
@@ -217,7 +186,7 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 ## 2026-07-11｜Kakeibo Cloudflare deploy consumer移行
 
 - `kakeibo.deploy` manifestからCloudflare tokenとaccount IDだけを子processへ渡す構成へ変更した。
-- Doriで設定済みの限定IAMを再利用し、新規IAM付与は行っていない。
+- 既存の限定IAMを再利用し、新規IAM付与は行っていない。
 - repo固有 `AGENTS.md`、secret運用文書、production確認付きdeploy wrapperを追加した。
 - `yumekango` Workerのreadと一時Worker write/delete、Cloud Run 4 secret参照、live HTTP 200を確認した。
 - production Worker、Cloud Run、route flag、GAS、LINE、Spreadsheet、Shogunは変更していない。
@@ -225,7 +194,7 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 
 ## 2026-07-11｜Kアラート Cloudflare deploy consumer整備
 
-- Kアラート専用Cloudflare accountとDori/Kakeibo用accountを分離した。
+- Kアラート専用Cloudflare accountとKakeibo用accountを分離した。
 - 共通Cloudflare tokenはKアラートWorkerへHTTP 403であり、流用不可と確認した。
 - `k-alert.deploy` manifest、限定IAM、確認付きdeploy wrapper、非秘密疎通checkerを整備した。
 - 専用scoped API tokenの発行・Secret Manager version登録までは `blocked_pending_token` とし、`global.env` やWrangler OAuthへ戻さない。
@@ -499,3 +468,11 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 - Defined Codex Desktop as the sole orchestrator and Claude CLI as an explicit one-shot read-only auditor, not a persistent worker or task dispatcher.
 - Retired the Shogun runtime, WebUI, fixed Ops, diagnostics, break-glass, and Native Windows parallel contracts from active routing. Their repositories and local runtime remain separate deletion steps until verified removed.
 - Updated `PROJECTS.md`, the common startup document, and the pasteable Custom Instructions. No credentials, OAuth material, Memory MCP data, project runtime, or external production service was read or changed by this documentation cutover.
+
+## 2026-08-31 — dori-manga retirement and Supabase reuse
+
+- Removed 45 production source/configuration/asset files and eight dedicated review reports from `workspace`.
+- Audited all 17 owner repositories and removed project-specific routing, manifests, fixtures, and stale references from the five affected repositories.
+- Preserved the former Supabase project under the generic display name `reusable-supabase`, but removed Auth users, Storage buckets/objects, Edge Functions, OAuth function secrets, project schema, and migration history. The public schema now contains only the generic anonymous read-only `keepalive_ping` table, verified by HTTP 200.
+- Deleted the Cloudflare Pages admin project and three project-specific GCP Secret Manager resources. Shared Cloudflare credentials used by Kakeibo, the management-terminal Supabase project, and unrelated keepalives were not changed.
+- Retained only the Deleted tombstone in `PROJECTS.md`; local same-name folders are not a restoration or startup source.
