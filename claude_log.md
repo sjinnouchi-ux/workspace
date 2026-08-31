@@ -669,53 +669,6 @@ Desktop→CLI パイプラインの疎通確認完了。
 
 ---
 
-## 2026-05-23｜dori-manga setup_sheets.py バグ修正
-
-### 背景
-- `python src/setup_sheets.py` 実行時に `No grid with id: 0` エラーが発生
-- スプレッドシート作成・認証は成功したがヘッダー書式設定ステップで失敗
-
-### 対応内容
-- `src/setup_sheets.py` の `batchUpdate` で使用する `sheetId` をハードコード `0` から、
-  APIレスポンス `spreadsheet["sheets"][0]["properties"]["sheetId"]` で動的取得に修正
-- 再実行で全ステップ（認証・作成・ヘッダー・書式）が正常完了
-
-### 結果
-- スプレッドシートID: `1TYbBLOi6tjeOuEyXbNO8vh0tGq_Z2R9oSELv8OebHcw`
-- URL: https://docs.google.com/spreadsheets/d/1TYbBLOi6tjeOuEyXbNO8vh0tGq_Z2R9oSELv8OebHcw/edit
-
-### 残課題
-- [ ] `.env` に `GOOGLE_SHEETS_ID` を追記する
-
----
-
-## 2026-05-19｜dori-manga プロジェクトフォルダ作成
-
-### 背景
-- どり看護師の Instagram 漫画化プロジェクトを開始
-- 企画・制作・投稿スケジュールを一元管理するフォルダが必要
-
-### 対応内容
-- `dori-manga/` フォルダを新規作成
-- `CLAUDE.md`：プロジェクトコンテキスト（Claude用）
-- `README.md`：プロジェクト概要
-- `docs/concept.md`：キャラクター・コンセプト設定
-- `docs/episode_list.md`：エピソード管理リスト
-- `docs/work_log.md`：作業ログ
-
-### 構成
-```
-dori-manga/
-├── CLAUDE.md
-├── README.md
-└── docs/
-    ├── concept.md
-    ├── episode_list.md
-    └── work_log.md
-```
-
----
-
 ## 2026-05-27｜Codex MCP接続設定の追加
 
 ### 背景
@@ -758,31 +711,6 @@ dori-manga/
 ### 残課題
 - [ ] GA4 MCPサーバーの `tools/list` 接続終了原因を調査
 - [ ] 必要に応じてGA4 Data API直接利用の専用MCP/スクリプトへ切り替える
-
----
-
-## 2026-05-28｜GAS操作用 clasp 認証確認
-
-### 背景
-- CodexからGoogleアカウントのGASを操作できるようにしたい
-- ブラウザ操作のトークン消費を抑えるため、まず `clasp` / Apps Script API 経由での操作可否を確認した
-
-### 対応内容
-- `clasp` 3.3.0 が利用可能であることを確認
-- `dori-manga/gas/clasp-project` の `.clasp.json` と `appsscript.json` を確認
-- 既存の `~/.clasprc.json` をバックアップ
-- 既定クライアントおよび `dori-manga/credentials.json` のOAuthクライアントで再認証を実施
-- `prompt=login` 付きの再認証も試行
-
-### 結果
-- `clasp status` は成功し、ローカルGASプロジェクトの追跡状態は確認可能
-- `clasp push` と `clasp deployments` は `invalid_grant / rapt_required` で失敗
-- Google Workspace 側の再認証ポリシーにより、CLI/APIからの更新系操作が制限されている可能性が高い
-
-### 残課題
-- [ ] Google Workspace / Cloud OAuth 側で `rapt_required` の原因を確認
-- [ ] CLI運用が難しい場合は、CodexブラウザでApps Scriptエディタを操作する運用に切り替える
-- [ ] Apps Script API直接実装でも同じOAuth制約が出る可能性があるため要検証
 
 ---
 

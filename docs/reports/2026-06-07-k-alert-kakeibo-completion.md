@@ -77,7 +77,6 @@
   - 家計簿: `yumekango`
   - kango-mamori用Workerは現時点で未作成または未使用。
 - Supabase:
-  - dori-manga URL: `https://vdntqwtywxyjxelycavx.supabase.co`
   - market-pilot URL: `https://coeepfbfvtkwgtnmzwtz.supabase.co`
   - anon/publishable keyとservice_role keyはSupabase API Keys画面から取得する。service_role keyはGitHub/Notion/チャットに保存しない。
 
