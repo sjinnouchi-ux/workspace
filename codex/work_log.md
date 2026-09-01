@@ -476,3 +476,10 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 - Preserved the former Supabase project under the generic display name `reusable-supabase`, but removed Auth users, Storage buckets/objects, Edge Functions, OAuth function secrets, project schema, and migration history. The public schema now contains only the generic anonymous read-only `keepalive_ping` table, verified by HTTP 200.
 - Deleted the Cloudflare Pages admin project and three project-specific GCP Secret Manager resources. Shared Cloudflare credentials used by Kakeibo, the management-terminal Supabase project, and unrelated keepalives were not changed.
 - Retained only the Deleted tombstone in `PROJECTS.md`; local same-name folders are not a restoration or startup source.
+
+## 2026-09-01 — NUCBOX_K8_PLUS Codex turn LINE notification disabled
+
+- Used Workspace `main` at `80981384252b684dc474a8e798eb4c8a9d63941a` and the canonical Windows hook installer in `Remove` mode.
+- Removed only the owned Codex turn-completion LINE `Stop` handler on `NUCBOX_K8_PLUS`; the owned handler count changed from one to zero.
+- Preserved the existing desktop turn notification, unrelated hook structures, the installed notifier and minimal diagnostic log, and the installer-created `hooks.json` backup.
+- Did not send a live LINE test and did not change the management notification subscription, server endpoint, service account, IAM, API, or production deployment.
