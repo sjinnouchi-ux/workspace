@@ -156,6 +156,10 @@ Codex Desktopを唯一のオーケストレーターとします。通常の設�
 - ユーザーが監査を求めたときだけ、`development-environment` の固定runnerを使い、対象commit、spec/evidence path、監査質問を明示して一回実行する。
 - Claude childはread-only toolsだけを使用し、変更、Git push、retry、fallback、別CLI起動を行わない。
 - 監査結果は補助判断であり、GitHub正本とCodexの検証を置き換えない。
+- 固定runnerの直前に、同じWSL2 Ubuntu環境で非推論の `claude auth status` を一回確認する。commandが非zero、responseが解釈不能、または `loggedIn=false` の場合は監査を起動せず、利用者へ一回限りの対話的な認証復旧が必要と報告する。認証復旧の承認は監査実行の承認を兼ねない。
+- 呼出し側は結果分類まで固定receipt全体を保持し、`stdout_tail` と `stderr_tail` を先に捨てない。受入判断へ進めるのは `state=completed`、`exit_code=0`、かつnonempty `audit_text` の場合だけとし、その他をpassまたはfindings 0件として扱わない。診断tail全文は転載・保存せず、error categoryだけを要約する。
+- runner返却後は、当該invocationのaudit-owned controller/Claude childと、effective temporary directory内の `codex-claude-audit-subject-*` だけをread-only確認する。広範なsweepや自動削除は行わず、WSL2 Ubuntuがglobally stoppedであることを要求せず、Dockerやunrelated processesを停止・削除しない。
+- 詳細な実行・receipt・cleanup契約は `sjinnouchi-ux/development-environment` の [`docs/claude-audit.md`](https://github.com/sjinnouchi-ux/development-environment/blob/main/docs/claude-audit.md) を正本とする。
 
 ### Retired Shogun
 
