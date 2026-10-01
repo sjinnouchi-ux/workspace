@@ -476,3 +476,16 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 - Preserved the former Supabase project under the generic display name `reusable-supabase`, but removed Auth users, Storage buckets/objects, Edge Functions, OAuth function secrets, project schema, and migration history. The public schema now contains only the generic anonymous read-only `keepalive_ping` table, verified by HTTP 200.
 - Deleted the Cloudflare Pages admin project and three project-specific GCP Secret Manager resources. Shared Cloudflare credentials used by Kakeibo, the management-terminal Supabase project, and unrelated keepalives were not changed.
 - Retained only the Deleted tombstone in `PROJECTS.md`; local same-name folders are not a restoration or startup source.
+
+---
+
+## 2026-10-01｜社労士事務所 AI環境構築プロジェクトの新規登録（Codex）
+
+- ユーザーの明示的な新規作成依頼に基づき、非公開repo `sjinnouchi-ux/sharoushi-office-ai` を作成。
+- 起動時のworkspace main: `1a3a5faba6581b016877f515b4c401c84f371a71`。共通起動手順、台帳、Git引継ぎ契約を確認。既存登録なし。
+- `PROJECTS.md` にCanonical Entry、Alias、Primary Docsを登録。状態は `Active / Planning`。
+- 新repoのmain commit `99695b4088170fb954c481093ab37bcc62c329c6` に概要・作業ルール・未確定事項・秘密管理方針・初期作業ログ・gitignoreを反映。認証済みGitHub APIおよびGit transportでcommitの実在と一致を確認。
+- README相対リンクと `git diff --check` を確認。project cloneはclean、mainとorigin/mainのahead/behindは0/0。
+- workspaceはWindows-native Gitのタスク専用clone、main / origin/main、編集開始時clean、ahead/behind 0/0、fetch refspec `+refs/heads/*:refs/remotes/origin/*`。個人固有のローカルパスは共通文書へ保存しない。
+- 事務所名、対象業務、利用アカウント、採用サービス等は未確定。外部サービス接続・AI環境構築は未実施。
+- 詳細記録: https://github.com/sjinnouchi-ux/sharoushi-office-ai/blob/main/IMPLEMENTATION_LOG.md
