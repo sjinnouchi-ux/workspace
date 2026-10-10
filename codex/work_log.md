@@ -489,3 +489,15 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 - workspaceはWindows-native Gitのタスク専用clone、main / origin/main、編集開始時clean、ahead/behind 0/0、fetch refspec `+refs/heads/*:refs/remotes/origin/*`。個人固有のローカルパスは共通文書へ保存しない。
 - 事務所名、対象業務、利用アカウント、採用サービス等は未確定。外部サービス接続・AI環境構築は未実施。
 - 詳細記録: https://github.com/sjinnouchi-ux/sharoushi-office-ai/blob/main/IMPLEMENTATION_LOG.md
+
+---
+
+## 2026-10-10｜過去作業記録のGitHub調査（Codex）
+
+- GitHub mainの共通起動手順、PROJECTS.md、Git Handoff Protocolを取得。起動時workspace main: `d44aaef025f5506b84b6fc5b72a5cf82f8e26575`。
+- 認証済みGitHub owner `sjinnouchi-ux` の19 repoを一覧確認し、既定ブランチのコード検索、コミット検索、Issue/PR検索でユーザー指定の過去作業を調査した。ローカルの過去cloneを正本として使っていない。
+- 関連する `workspace`（439 commit）、`mgmt-terminal`（1717 commit）、`yumekango-business-management`（7 commit）の新規read-only mirrorで、全取得refの変更履歴と過去ファイル名を確認した。合計2163 commit。全19 repoの全履歴を調べたという意味ではない。
+- private repoの既存設計ログに関連記載を確認したが、今回の検索範囲で当該操作の直接記録や提出・受付証拠は未発見。関連する設定値だけから操作完了を断定しない。個人の申請情報・識別値は本公開ログへ転記しない。
+- 関連資料: `mgmt-terminal/docs/reports/2026-07-15-finance-foundation-design-log.md`、初出commit `f0fb342da98d32fd6bbada40f77cffb3c1ccf99f`。
+- 秘密値・認証JSON・.env内容は参照・保存していない。外部業務サービスへの操作、開発環境変更、提出処理は実施していない。
+- 検索用mirrorの全refがGitHubの広告refと一致することを確認。調査結果を本ログへGitHub APIで保存し、再取得照合後に検索用mirrorを整理する。コード変更・ローカルcommitはない。
