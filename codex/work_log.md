@@ -500,4 +500,5 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 - private repoの既存設計ログに関連記載を確認したが、今回の検索範囲で当該操作の直接記録や提出・受付証拠は未発見。関連する設定値だけから操作完了を断定しない。個人の申請情報・識別値は本公開ログへ転記しない。
 - 関連資料: `mgmt-terminal/docs/reports/2026-07-15-finance-foundation-design-log.md`、初出commit `f0fb342da98d32fd6bbada40f77cffb3c1ccf99f`。
 - 秘密値・認証JSON・.env内容は参照・保存していない。外部業務サービスへの操作、開発環境変更、提出処理は実施していない。
-- 検索用mirrorの全refがGitHubの広告refと一致することを確認。調査結果を本ログへGitHub APIで保存し、再取得照合後に検索用mirrorを整理する。コード変更・ローカルcommitはない。
+- 検索用mirrorの全refがGitHubの広告refと一致することを確認。調査結果を本ログへGitHub APIで保存し、再取得照合を確認。コード変更・ローカルcommit・未push変更・ローカル専用の必要情報はない。
+- 検索用mirror 3個の削除は、作業場内の解決済み絶対パスとread-only bare repoであることを確認して限定したが、実行環境の自動承認レビューが `blocked by policy` として拒否した。削除は未実施で一時mirrorだけが残る。回避手段での削除は行わない。
