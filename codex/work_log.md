@@ -509,4 +509,5 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 - ユーザーの明示依頼で非公開repo `sjinnouchi-ux/personal-business` を作成。既定ブランチmain。AGENTS、概要、引継ぎ、書類所在・確認記録、作業ログを整備。
 - `PROJECTS.md` に個人事業のCanonical EntryとPrimary Docsを登録（commit `53a2a2fed9f1b9424c27cd7b46bd6d60fc9cda66`）。
 - 指定アカウントのGoogle Driveにmy/個人事業フォルダを作成し、取得できた証跡を保存。詳細、保存先URL、未完了事項はprivate repoの `docs/HANDOFF.md` と `docs/document-index.md` を正本とする。
-- 個人情報を含む書類原本や受付内容は公開workspaceへ転載しない。freeePDFの通常ダウンロード操作は本人に引継ぎ中。未取得PDFを保存済みとは扱わない。
+- 個人情報を含む書類原本や受付内容は公開workspaceへ転載しない。本人が取得したPDFは指定Driveへ保存し、クラウドからのダウンロード読戻しでSHA256一致を確認。詳細はprivate repoの確認記録・書類一覧へ反映した。
+- 引継ぎMarkdownをPDFリンク・取得結果・残作業を含む内容へ更新。送信済み原本・受信通知の本人認証後の取得と照合は残る。
