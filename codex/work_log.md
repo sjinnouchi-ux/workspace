@@ -511,3 +511,10 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 - 指定アカウントのGoogle Driveにmy/個人事業フォルダを作成し、取得できた証跡を保存。詳細、保存先URL、未完了事項はprivate repoの `docs/HANDOFF.md` と `docs/document-index.md` を正本とする。
 - 個人情報を含む書類原本や受付内容は公開workspaceへ転載しない。本人が取得したPDFは指定Driveへ保存し、クラウドからのダウンロード読戻しでSHA256一致を確認。詳細はprivate repoの確認記録・書類一覧へ反映した。
 - 引継ぎMarkdownをPDFリンク・取得結果・残作業を含む内容へ更新。送信済み原本・受信通知の本人認証後の取得と照合は残る。
+
+
+## 2026-10-10｜個人事業プロジェクトの原本照合完了
+
+- Canonical Entry personal-business の送信原本・受付記録を照合し、指定クラウド保存先へ保管。
+- 非公開GitHub mainの確認記録、書類一覧、引継ぎMarkdownと作業ログを更新。
+- 提出書類・個人情報・認証情報は公開workspaceへ保存しない。詳細は対象非公開repoのPrimary Docsを参照。
