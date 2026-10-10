@@ -502,3 +502,11 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 - 秘密値・認証JSON・.env内容は参照・保存していない。外部業務サービスへの操作、開発環境変更、提出処理は実施していない。
 - 検索用mirrorの全refがGitHubの広告refと一致することを確認。調査結果を本ログへGitHub APIで保存し、再取得照合を確認。コード変更・ローカルcommit・未push変更・ローカル専用の必要情報はない。
 - 検索用mirror 3個の削除は、作業場内の解決済み絶対パスとread-only bare repoであることを確認して限定したが、実行環境の自動承認レビューが `blocked by policy` として拒否した。削除は未実施で一時mirrorだけが残る。回避手段での削除は行わない。
+
+
+## 2026-10-10 個人事業プロジェクト新規作成
+
+- ユーザーの明示依頼で非公開repo `sjinnouchi-ux/personal-business` を作成。既定ブランチmain。AGENTS、概要、引継ぎ、書類所在・確認記録、作業ログを整備。
+- `PROJECTS.md` に個人事業のCanonical EntryとPrimary Docsを登録（commit `53a2a2fed9f1b9424c27cd7b46bd6d60fc9cda66`）。
+- 指定アカウントのGoogle Driveにmy/個人事業フォルダを作成し、取得できた証跡を保存。詳細、保存先URL、未完了事項はprivate repoの `docs/HANDOFF.md` と `docs/document-index.md` を正本とする。
+- 個人情報を含む書類原本や受付内容は公開workspaceへ転載しない。freeePDFの通常ダウンロード操作は本人に引継ぎ中。未取得PDFを保存済みとは扱わない。
