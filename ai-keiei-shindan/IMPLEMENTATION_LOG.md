@@ -449,3 +449,9 @@ Completed in Google Sheets:
 Verification:
 
 - Read back formatted cells from `app_config`, `questions`, `choices`, `results`, and `result_steps`; confirmed background colors were applied to representative header and data cells.
+
+## 2026-10-11 — GitHub Actions・検証コストの共通ルール
+
+- 利用者の依頼によりAGENTS.mdへ合意済みの7項目と共通方針への参照を追加。既存の指示・承認規則を維持する。
+- 文書のみの変更。変更内容・参照先・7項目の一致を確認し、重いアプリ/DBテストは省略。統合前はMarkdown差分とGitHub保存内容の確認のみを必要とする。
+- workflow、DB、配備、予算・課金上限は変更しない。

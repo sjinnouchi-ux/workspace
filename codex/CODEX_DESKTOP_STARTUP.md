@@ -21,7 +21,7 @@ OpenAI references:
 
 ## Startup Order
 
-1. GitHub `sjinnouchi-ux/workspace` の `main` を取得し、この文書と `PROJECTS.md` を読む。
+1. GitHub `sjinnouchi-ux/workspace` の `main` を取得し、この文書、`PROJECTS.md`、[GitHub Actions・検証コストの共通方針](GITHUB_ACTIONS_POLICY.md)を読む。
 2. 取得に使った `workspace` のcommit SHAを確認する。
 3. ユーザーの表現を `PROJECTS.md` の `Alias` と照合し、Canonical Entryを確定する。
 4. 対象Gitの既定ブランチを取得し、repoの `AGENTS.md` があれば最初に読む。
