@@ -2,6 +2,13 @@
 
 Codex専用フォルダ内の作業記録です。ワークスペース全体に関わる内容はルートの `claude_log.md` にも記録します。
 
+## 2026-10-12｜Kアラートの起動時資料を3点へ整理
+
+- 利用者の指示に従い、Kアラートの旧未完了表示・障害記録の整理完了後、毎回の必読をAGENTS.md・PROJECT_BRIEF.md・docs/CURRENT_STATE.mdへ分類した。
+- 対象repoの[PR #43](https://github.com/sjinnouchi-ux/k-alert-production/pull/43)はmain統合済み（`f107db4cd923ac6d3579b51bfdeda86157dbd86e`）。PROJECTS.mdのKアラート行だけを同じ3点へそろえる。
+- 実装・設計ログは関連箇所、6月サマリーは履歴参照。環境・認証・秘密操作の条件付き必読と安全規則は維持する。アプリのAI応答仕様・コード、本番配備・DBは変更していない。
+- 文書・台帳のみの変更。対象行の範囲、参照先の実在とrepo規則一致、Markdown差分を確認し、重いアプリテストは再実行しない。共通起動手順と他projectのPrimary Docsは変更しない。
+
 ---
 
 ## 2026-05-28｜Codex専用フォルダ作成
