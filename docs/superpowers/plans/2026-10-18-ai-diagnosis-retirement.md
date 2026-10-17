@@ -16,14 +16,16 @@
 ## 実行
 
 - [x] 専用17ファイル、Googleファイル8件、現行Git参照を特定。
-- [ ] `ai-keiei-shindan/` 一式を削除、`PROJECTS.md`を撤去状態へ変更、旧入口棚卸しを訂正。
-- [ ] 専用branchへcommitし、mainをbaseとするdraft PRのFiles changedを照合。
-- [ ] 確認済み所有者の専用GAS、マスタ/回答Sheet、仕様・seed・起動指示・レビュー回答を削除。
-- [ ] GitHub差分の対象範囲、他プロジェクト行とworkflowの不変を検証し、mainへ統合。
-- [ ] 公開ページが診断を表示しないこと、旧GASが設定JSONを返さないこと、Google削除結果を確認。
-- [ ] 管理ターミナルの関連4文書へ削除済み注記を反映。
-- [ ] 作業ログに結果・未完範囲を確定し、remoteとPR状態を照合。
+- [x] `ai-keiei-shindan/` 一式を削除、`PROJECTS.md`を撤去状態へ変更、旧入口棚卸しを訂正。
+- [x] 専用branchへcommitし、mainをbaseとするdraft PRのFiles changedを照合。
+- [x] 確認済み所有者の専用GAS、マスタ/回答Sheet、仕様・seed・起動指示・レビュー回答を削除。
+- [x] GitHub差分の対象範囲、他プロジェクト行とworkflowの不変を検証し、mainへ統合。
+- [x] 公開ページが診断を表示しないこと、旧GASが設定JSONを返さないこと、Google削除結果を確認。
+- [x] 管理ターミナルの関連4文書へ削除済み注記を反映。
+- [x] 作業ログに結果・未完範囲を確定し、remoteとPR状態を照合。
 
 ## 検証方針
 
 アプリを撤去するため旧アプリの機能テストは実行しない。Git tree差分、台帳の行数・他行不変、削除対象17件、公開ページとGAS停止、Driveメタデータ再取得で確認する。管理ターミナルは文書のみのためアプリ/DB/Windows全体テストを起動しない。
+
+完了結果: [削除記録](../../reports/2026-10-18-ai-diagnosis-retirement.md)。Google8件の削除と404、公開ページ/APIの404、両repoのmain統合を確認した。

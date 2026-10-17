@@ -567,3 +567,8 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 - 起動時workspace main: `45d2afa2e96f3098c97d54d9de368d9a32e0b1cb`。GitHub connector経由の専用branch/PRを使用。
 - 削除対象と検証結果は [削除記録](../docs/reports/2026-10-18-ai-diagnosis-retirement.md) に集約する。
 - Kアラート本体、労基診断、共有workflow、他プロジェクトの実行環境は変更しない。
+
+- 完了: [PR #69](https://github.com/sjinnouchi-ux/workspace/pull/69)で17ファイルをmainから削除。専用Google8件の削除成功・認証済みmetadata 404、公開ページ/APIのHTTP404を確認。
+- [管理ターミナルPR #355](https://github.com/sjinnouchi-ux/mgmt-terminal/pull/355)もmain統合済み。既存4文書に廃止注記、コード/DB/配備変更なし。
+- Pagesの対象merge build成功、対象外61ファイルのSHA不変、他プロジェクト台帳行不変。旧アプリ機能テストは撤去のため省略、管理ターミナル重い回帰は文書scopeでskipped。
+- 旧専用setup branchと今回の統合済みbranchをSHA照合後に削除。local clone・未commit/未push・local専用成果物なし。Git履歴と削除記録は保持。
