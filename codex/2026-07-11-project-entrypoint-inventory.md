@@ -84,7 +84,8 @@ GitHub URLs:
 
 確認した問題:
 
-- `ai-keiei-shindan/` と `code-exchange/` も相対パスである。workspace内であることをURLで明示する余地がある。
+- `code-exchange/` も相対パスである。workspace内であることをURLで明示する余地がある。
+- 2026-10-18追記: AI経営実装度診断は利用者依頼により撤去対象となった。旧ディレクトリを作業入口に使わず、PROJECTS.mdの削除記録を参照する。
 - `mgmt-terminal`、`kango-mamori-studio-requests`、`supabase-db-templates` はGitHubに存在するが、現行 `PROJECTS.md` に行がない。
 - `docs/notion/projects.csv` は旧管理面であり、現行 `PROJECTS.md` と状態が一致しない。例として `market-pilot` は旧CSVでActive、現行台帳でFrozenになっている。
 - workspace内には台帳対象以外に `company-settings/`、`codex/`、`docs/`、`yumekango-worker/` がある。プロジェクト、共通資料、旧実装のどれとして扱うかを台帳で明示する必要がある。
