@@ -9,7 +9,7 @@ Secrets, OAuth tokens, API keys, service-role keys, and credential JSON contents
 
 ## Purpose
 
-- Recreate the Mac-side Codex, MCP, GitHub, and API-monitoring workflow on Windows.
+- Recreate the Mac-side Codex, MCP and GitHub workflow on Windows. API monitoring now uses Management Terminal.
 - Keep the setup auditable in GitHub without exposing secrets.
 - Make future Windows Codex sessions able to use GitHub, Node/npm/npx, Python, Streamlit, and MCP servers.
 
@@ -137,48 +137,17 @@ startup_timeout_sec = 120
 - `python-repl` starts through `uv tool run mcp-python-repl`.
 - Codex app restart is required before newly added MCP servers appear as tools.
 
-## API Monitor
+## API Monitor（独立版・退役）
 
-The Mac-side `api-monitor` project was cloned from `workspace/api-monitor`.
+独立版の新規セットアップ、Streamlit起動、旧認証の復元は行わない。
+現役のprovider同期・費用表示・保存データの入口は
+[管理ターミナル](https://github.com/sjinnouchi-ux/mgmt-terminal)。
 
-Python dependencies were installed with Windows Python 3.13:
-
-```powershell
-python -m pip install -r .\workspace\api-monitor\requirements.txt
-```
-
-Installed key packages:
-
-- `streamlit`
-- `openai`
-- `anthropic`
-- `google-generativeai`
-- `python-dotenv`
-- `pandas`
-- `plotly`
-
-Database initialized:
-
-```text
-C:\Users\irodo\Documents\Codex\2026-06-03\mac-github\workspace\api-monitor\data\api_log.db
-```
-
-Created local `.env` with empty key placeholders:
-
-```text
-OPENAI_API_KEY=
-ANTHROPIC_API_KEY=
-GOOGLE_API_KEY=
-API_MONITOR_DB_PATH=data/api_log.db
-```
-
-API keys must be filled in locally. Do not commit `.env`.
-
-Streamlit was verified on:
-
-```text
-http://localhost:8501
-```
+旧設計・移行記録は管理ターミナルの
+[履歴資料](https://github.com/sjinnouchi-ux/mgmt-terminal/tree/main/docs/history/standalone-api-monitor)、
+削除範囲と確認結果は
+[退役記録](https://github.com/sjinnouchi-ux/mgmt-terminal/blob/main/docs/reports/2026-10-18-standalone-api-monitor-retirement.md)
+を参照する。旧PCのSQLiteや未確認データを同名フォルダという理由だけで削除・起動しない。
 
 ## Verification
 
@@ -215,5 +184,4 @@ toml_ok
 - Restart Codex Desktop so the new MCP server entries are loaded.
 - Confirm whether `github`, `gsc`, `ga4-mcp-server`, and `python-repl` appear as tools after restart.
 - Complete first-run OAuth for Search Console and GA4 if prompted.
-- Fill API monitor `.env` locally with actual API keys.
 - If GA4 MCP still fails during `tools/list`, consider replacing it with a direct GA4 Data API script or a dedicated local MCP server.
