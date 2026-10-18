@@ -578,6 +578,6 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 - 利用者の明示依頼に基づき、管理ターミナルの現役機能と必要データを残して独立版の削除を進めた。
 - [管理ターミナルPR356](https://github.com/sjinnouchi-ux/mgmt-terminal/pull/356)で旧runtime/sync manifestを撤去し、必要履歴を存続repoへ保存。旧consumerの確認済みaccessorを解除し、現役サービス・認証設定・定期実行・移行済みデータの不変と両provider同期成功を読戻し確認した。
 - 関連試験と独立レビューを実施。検証中に判明した既存Webテストの待機解除競合は[PR359](https://github.com/sjinnouchi-ux/mgmt-terminal/pull/359)でfixtureだけを修正・検証しmainへ反映。現役アプリの変更なし。
-- 独立repoの最終削除はGitHubの本人再認証待ち。まだ削除済みとは扱わず、台帳を `Retired / Delete pending` とした。今後の正本は[退役記録](https://github.com/sjinnouchi-ux/mgmt-terminal/blob/main/docs/reports/2026-10-18-standalone-api-monitor-retirement.md)と保存済み履歴。認証コードは本人がGitHub画面だけで入力する。
+- 本人再認証後、独立repoの削除成功表示・認証済みAPIの404と存続repoの200を確認し、台帳を `Deleted` へ更新した。今後の正本は[退役記録](https://github.com/sjinnouchi-ux/mgmt-terminal/blob/main/docs/reports/2026-10-18-standalone-api-monitor-retirement.md)と保存済み履歴。認証コードは本人がGitHub画面だけで入力し、記録していない。
 - Windowsセットアップの独立版起動・旧キー記入案内を除去し、過去のDB初期化資料へ再実行禁止の注記を追加。旧PCの未確認データ・共有認証は削除しない。
-- このworkspace変更は文書のみ。対象行以外の台帳・差分・参照先を確認し、重いアプリ試験は成功済みのため再実行しない。GitHub削除後は認証済み404確認と台帳のDeletedへの更新が必要。
+- このworkspace変更は文書のみ。対象行以外の台帳・差分・参照先を確認し、重いアプリ試験は成功済みのため再実行しない。削除後も現役APIの移行済み履歴digest・件数・両provider同期成功を再確認した。必要な履歴と実施記録は存続repoのmainに保存する。
