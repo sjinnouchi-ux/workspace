@@ -820,3 +820,8 @@ Desktop→CLI パイプラインの疎通確認完了。
 
 - 2つ目のCloudflare対象の復旧ファイルを保存・照合し、設定完了を確認。一時保管は5件、次のMoney Forward IDは本人ログイン待ち。
 - 全件完了・Drive一括保存とは扱わない。詳細は [codex/work_log.md](codex/work_log.md) を参照。
+
+### 2026-10-19 継続 — 一時保管6件
+
+- Money Forward IDの復元コードを再生成し、テキストとして保存・照合。一時保管は6件、Drive一括保存は未実施。
+- Supabaseの2対象は通常の復旧コードが提供されないため、公式の予備TOTP方式に沿って現在の認証登録を確認する段階。最初の対象は本人ログイン待ち。詳細は [codex/work_log.md](codex/work_log.md) を参照。
