@@ -815,3 +815,8 @@ Desktop→CLI パイプラインの疎通確認完了。
 
 - 最初のCloudflare対象の復旧ファイルを保存・照合し、設定完了を確認した。一時保管は4件。次のCloudflare対象は本人による認証コード入力待ち。
 - 一括アップロードは未実施。詳細は [codex/work_log.md](codex/work_log.md) を参照。
+
+### 2026-10-19 継続 — 一時保管5件
+
+- 2つ目のCloudflare対象の復旧ファイルを保存・照合し、設定完了を確認。一時保管は5件、次のMoney Forward IDは本人ログイン待ち。
+- 全件完了・Drive一括保存とは扱わない。詳細は [codex/work_log.md](codex/work_log.md) を参照。
