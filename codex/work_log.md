@@ -581,3 +581,12 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 - 本人再認証後、独立repoの削除成功表示・認証済みAPIの404と存続repoの200を確認し、台帳を `Deleted` へ更新した。今後の正本は[退役記録](https://github.com/sjinnouchi-ux/mgmt-terminal/blob/main/docs/reports/2026-10-18-standalone-api-monitor-retirement.md)と保存済み履歴。認証コードは本人がGitHub画面だけで入力し、記録していない。
 - Windowsセットアップの独立版起動・旧キー記入案内を除去し、過去のDB初期化資料へ再実行禁止の注記を追加。旧PCの未確認データ・共有認証は削除しない。
 - このworkspace変更は文書のみ。対象行以外の台帳・差分・参照先を確認し、重いアプリ試験は成功済みのため再実行しない。削除後も現役APIの移行済み履歴digest・件数・両provider同期成功を再確認した。必要な履歴と実施記録は存続repoのmainに保存する。
+
+## 2026-10-19 — Codex / Claude初期設定手順書のDrive控え照合
+
+- GitHub mainの共通起動手順・台帳・対象AGENTS/Primary Docsを先に確認。参照時のworkspace mainは `9016ff303d9f660df01a70718acb140306a875c3`、mgmt-terminal mainは `44841a32a61e0e80bb81d885831d48831b7b48cb`、development-environment mainは `c6f058c51a61897cbaedba1796158b57109a904d`。
+- 利用者指定のDriveフォルダには対象の初期設定手順書が見当たらず、別の既存一時確認フォルダで2件を発見。Driveの文書本文と認証済みGitHub mainを比較した。
+- `mgmt-terminal/docs/runbook/codex-desktop-mcp-new-pc-setup.md`（blob `8b7a780c8838ee1ac2a4979308154e04dda7b73d`）はDrive控えと本文完全一致。
+- `mgmt-terminal/docs/runbook/claude-desktop-environment-setup.md`（blob `205cc5339dacd4b76f10543e942d378c7cf266c6`）はDrive控えとの差分が廃止済みdori-mangaへの案内削除のみ。現役の設定手順・MCPひな形はmainに保持されている。
+- 上記2件の個別控えはGitの手順参照を前提に重複保管不要と判定。指定フォルダ内の別用途PDF4件は削除判定に含めない。各PCの現在の設定値・認証状態の一致は今回未検証であり、手順書保存の確認と区別する。
+- Driveの削除・移動、PC設定変更、認証値取得、業務データ・本番操作は未実施。文書本文照合と差分確認のみのためアプリ/DBテストは不要。確認記録だけをGitHub APIで保存し、保存後に本文を再取得照合する。local clone・local commit・未push成果物は作成していない。
