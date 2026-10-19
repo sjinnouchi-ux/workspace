@@ -787,3 +787,10 @@ Desktop→CLI パイプラインの疎通確認完了。
 - workspaceはWindows-native Gitのタスク専用clone、main / origin/main、編集開始時clean、ahead/behind 0/0、fetch refspec `+refs/heads/*:refs/remotes/origin/*`。個人固有のローカルパスは共通文書へ保存しない。
 - 事務所名、対象業務、利用アカウント、採用サービス等は未確定。外部サービス接続・AI環境構築は未実施。
 - 詳細記録: https://github.com/sjinnouchi-ux/sharoushi-office-ai/blob/main/IMPLEMENTATION_LOG.md
+
+
+## 2026-10-19｜二段階認証バックアップの整理（Codex）
+
+- 利用者指定Driveに16プロジェクトと共通アカウントの保存先を作成し、指定された既存バックアップ1件を非公開のサービス別フォルダへ整理。本人確認と明示承認を経て、指定Googleセッションの整理結果を画面で確認した。
+- 他サービスの個別設定・バックアップ整理は対象一覧の確認後に継続する。秘密値や私有ファイルの識別値は本公開ログに保存しない。
+- 詳細な非秘密記録: [codex/work_log.md](codex/work_log.md)。コード/DB変更がないため重いテストは不要。UI読戻しとGitHub本文の再取得照合を実施する。
