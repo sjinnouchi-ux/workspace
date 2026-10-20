@@ -839,3 +839,7 @@ Desktop→CLI パイプラインの疎通確認完了。
 ### 2026-10-19 後処理 — 一時フォルダ整理
 
 - 利用者の依頼により、照合済みバックアップのローカル一時フォルダとデスクトップのショートカットを、ごみ箱へ移動した。元の場所からの除去を確認。完全消去は未実施、Drive保存分に変更なし。詳細は [codex/work_log.md](codex/work_log.md) を参照。
+
+## 2026-10-21｜Supabase明示GRANT横断監査とmarket-pilot退役
+
+オンライン正本から対象を確定し、5系統の使い捨てDBでmigration再生・role権限検証を実施。現役確認範囲では確定不足なし、market-pilotのみ拒否再現。税理士系統の詳細と全本番ACLは未確認。利用者指定でmarketは再開せずrepo削除へ進む。専用DBは7/6削除済み記録と現在の一覧を照合し、現役2DBを保持。詳細は [監査](docs/reports/2026-10-21-supabase-explicit-grants-audit.md) と [退役](docs/reports/2026-10-21-market-pilot-retirement.md)。文書のみのため重いテストは省略、migration再生結果と差分検査を使用。
