@@ -13,3 +13,7 @@
 削除前main: 7f81ff0c0866ded01f1ff50e61df2faebb0dbe7d。コードと14テーブルのschemaはいずれも市場データ・シグナル・注文・risk管理用途。別プロジェクトへの転用は検出せず。repoは非archive状態、所有者のadmin権限を確認。CLI削除はdelete_repo scope不足で403となり未実行。ブラウザで同repoの削除最終画面まで準備済み。ブラウザ操作規則の恒久削除時確認を待っており、repoはまだ存在する。その後、利用者の実行直前承認を受領して削除ボタンを実行したが、GitHubのConfirm access（本人の認証コード入力）が要求された。本人認証待ちで削除成功は未確認。認証後に結果を追記する。
 
 他PCの旧cron等は全数確認しておらず、全外部resourceの消去完了とはしない。今回対象は利用者指定のrepoと旧専用Supabaseに限定する。
+
+## 削除完了
+
+2026-10-21、利用者の本人認証後にGitHub画面でmarket-pilotの削除成功を確認。同じ認証のAPIでmarket-pilotは404、workspaceは取得成功を確認した。専用Supabaseは既に削除済みのため追加操作なし。監査・退役記録はworkspaceへ保持し、台帳をDeletedへ変更した。
