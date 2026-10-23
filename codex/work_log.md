@@ -671,3 +671,10 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 オンライン正本から対象を確定し、5系統の使い捨てDBでmigration再生・role権限検証を実施。現役確認範囲では確定不足なし、market-pilotのみ拒否再現。税理士系統の詳細と全本番ACLは未確認。利用者指定でmarketは再開せずrepo削除へ進む。専用DBは7/6削除済み記録と現在の一覧を照合し、現役2DBを保持。詳細は [監査](../docs/reports/2026-10-21-supabase-explicit-grants-audit.md) と [退役](../docs/reports/2026-10-21-market-pilot-retirement.md)。文書のみのため重いテストは省略、migration再生結果と差分検査を使用。
 
 2026-10-21追記: 利用者の本人認証後、market-pilotのGitHub削除成功表示と認証済み404を確認。台帳をDeletedへ更新。専用DBは既存の削除済み状態を保持。他プロジェクトは変更なし。
+
+
+## 2026-10-23｜GitHub Actions予算変更の準備（本人保存待ち）
+
+- 利用者の追加予算依頼を受け、workspace main `47d3af4f2ba0b4525750263db93f9642eabf4142` の共通起動手順、台帳、AGENTS、Actions共通方針、codex READMEをオンライン確認。Canonical areaはworkspace/codex。
+- 認証済みGitHubのActions予算編集画面で依頼された増額を入力。保存操作は自動承認レビューで拒否されたため実行せず、本人がUpdate budgetを押す状態で引き継いだ。変更後の保存成功・利用再開は未確認。
+- 金額、請求明細、認証情報は公開ログに記録しない。アプリ・workflow変更はなく、重いテストは不要。編集画面の未保存状態を再確認した。local clone・local commitは作成していない。
