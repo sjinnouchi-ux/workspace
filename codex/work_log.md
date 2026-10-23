@@ -678,3 +678,8 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 - 利用者の追加予算依頼を受け、workspace main `47d3af4f2ba0b4525750263db93f9642eabf4142` の共通起動手順、台帳、AGENTS、Actions共通方針、codex READMEをオンライン確認。Canonical areaはworkspace/codex。
 - 認証済みGitHubのActions予算編集画面で依頼された増額を入力。保存操作は自動承認レビューで拒否されたため実行せず、本人がUpdate budgetを押す状態で引き継いだ。変更後の保存成功・利用再開は未確認。
 - 金額、請求明細、認証情報は公開ログに記録しない。アプリ・workflow変更はなく、重いテストは不要。編集画面の未保存状態を再確認した。local clone・local commitは作成していない。
+
+
+### 2026-10-23 追記 — 本人保存後の確認完了
+
+利用者の保存操作後、認証済みGitHubの予算一覧でActions予算が依頼された増額後の値に保存済みであることと、Actions行のUsage blocked表示が解消したことを確認した。workflowの再実行は行っていない。金額・請求明細は公開ログへ保存しない。文書のみのためアプリテストは不要。local clone・local commitなし。
