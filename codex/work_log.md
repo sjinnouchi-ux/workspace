@@ -683,3 +683,11 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 ### 2026-10-23 追記 — 本人保存後の確認完了
 
 利用者の保存操作後、認証済みGitHubの予算一覧でActions予算が依頼された増額後の値に保存済みであることと、Actions行のUsage blocked表示が解消したことを確認した。workflowの再実行は行っていない。金額・請求明細は公開ログへ保存しない。文書のみのためアプリテストは不要。local clone・local commitなし。
+
+
+## 2026-10-30｜スマホ起点チャットのブラウザ復旧手順
+
+- 設定が有効でもスマホ起点チャットのPC側初期化不足でブラウザ取得が拒否される事象を調査。同じチャットをPC画面で開き、cua_replをリセットした後、Chrome・内蔵ブラウザ取得と公開ページ読取りに成功。設定や認証は変更していない。
+- 利用者の依頼に基づき、共通起動手順へ復旧順序・検証条件・再発時の扱いを追加。設定オフと即断せず、スマホからの依頼でも利用可能な通常のPC操作を先に実施する。
+- 詳細なsanitized証拠はprivate [development-environmentの記録](https://github.com/sjinnouchi-ux/development-environment/blob/main/docs/reports/2026-10-30-mobile-browser-initialization.md)。同PCのMemory MCPにもVerifiedFailurePatternとして保存する。恒久修正や全チャットの復旧とは扱わない。
+- 文書のみ。重いアプリ/DBテストは対象外。実機前後検証、追加差分の秘密情報確認、GitHub本文読戻しを使用。GitHub connectorで変更し、この文書変更用のローカルclone・commit・専用成果物は作成しない。

@@ -38,6 +38,20 @@ URL取得、GitHub認証、対象プロジェクト特定のいずれかに失�
 - GitHub connectorが使える場合はconnectorを優先する。
 - CLIが必要な場合は `gh auth status` でactive accountを確認し、`git fetch origin --prune` 後にremoteとlocalを比較する。
 
+## Mobile-origin Browser Recovery
+
+スマホからの指示でブラウザを使う場合も、Codexが利用可能な通常のPC画面操作で復旧を進め、利用者にPC操作や再起動を繰り返し要求しない。
+
+- `Local browser use is disabled in Work settings` だけで設定オフと断定しない。設定が有効でも、スマホから開始・再開したチャットのPC側初期化不足で同じ表示になる事例がある。
+- まずブラウザ一覧・エラーと、必要に応じて設定画面を確認する。ブラウザ許可を変更せず、ネイティブアプリ操作が利用できる場合は、PCのChatGPT/Codex画面で**作業中の同じチャット**を開く。別チャットへの投稿、新規チャット作成、本人を装ったメッセージ送信はしない。
+- 続いて `cua_repl` をリセットし、初回APIの規則に従ってブラウザ一覧を再取得する。対象ブラウザのページ表示・読取りまで確認してから復旧済みと報告する。
+- これは既存の許可に従う通常の画面操作であり、ブラウザの安全停止を別経路で迂回してよいという意味ではない。許可、署名確認、環境変数、アプリ本体を改変しない。
+- PC側で同じチャットを開けない、または再確認しても失敗する場合は結果を報告する。必要な場合だけ、そのチャットをPC側で開いて短い指示を送る操作を本人に依頼する。モデルの思考強度変更、設定の入切、再インストールを根拠なく勧めない。
+- 別のスマホ起点チャットやアプリ再起動後には再発し得る。今回の復旧を全チャットの恒久修正と扱わない。
+- GitHub正本確認後、`NUCBOX_K8_PLUS` のMemory MCPでは `development-environment` / `mobile-browser-initialization` を検索する。他PCでも同じ原因・修復結果だとは推測しない。
+
+検証済み手順と限界: [development-environmentの復旧記録](https://github.com/sjinnouchi-ux/development-environment/blob/main/docs/reports/2026-10-30-mobile-browser-initialization.md)。関連する外部報告: [openai/codex #57721](https://github.com/openai/codex/issues/57721)（利用者による再現報告であり、修正版の提供を保証するものではない）。
+
 ## Local Work Policy
 
 - ローカルは作業場であり正本ではない。
