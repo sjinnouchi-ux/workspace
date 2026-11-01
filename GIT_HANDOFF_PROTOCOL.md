@@ -4,6 +4,8 @@
 
 この文書は、Claude、Codex、Fableなどの実行環境がGitHubを境界として作業を安全に引き継ぐための共通契約です。プロジェクト固有の`AGENTS.md`、`CLAUDE.md`、branch/PR規則、秘密管理規則が本書より厳しい場合は、プロジェクト固有規則を優先します。
 
+承認・本人操作については[共通方針](codex/AGENT_APPROVAL_POLICY.md)に従い、具体的な利用者指示と上位のツール規則を優先します。「より厳しい」repo記述を理由に承認済み範囲の重複確認や本人PC操作を追加しません。本書のSHA照合・PRレビュー・秘密保護・救出確認は維持し、不一致時は影響する引継ぎ/変更を止め、独立した調査・文書作業を続けます。
+
 ## Canonical Boundary
 
 - canonical repositoryとGitHub上の既定ブランチをオンライン正本とする。

@@ -21,7 +21,7 @@ OpenAI references:
 
 ## Startup Order
 
-1. GitHub `sjinnouchi-ux/workspace` の `main` を取得し、この文書、`PROJECTS.md`、[GitHub Actions・検証コストの共通方針](GITHUB_ACTIONS_POLICY.md)を読む。
+1. GitHub `sjinnouchi-ux/workspace` の `main` を取得し、この文書、`PROJECTS.md`、[GitHub Actions・検証コストの共通方針](GITHUB_ACTIONS_POLICY.md)、[承認・本人操作・継続方針](AGENT_APPROVAL_POLICY.md)を読む。
 2. 取得に使った `workspace` のcommit SHAを確認する。
 3. ユーザーの表現を `PROJECTS.md` の `Alias` と照合し、Canonical Entryを確定する。
 4. 対象Gitの既定ブランチを取得し、repoの `AGENTS.md` があれば最初に読む。
@@ -39,6 +39,8 @@ URL取得、GitHub認証、対象プロジェクト特定のいずれかに失�
 - CLIが必要な場合は `gh auth status` でactive accountを確認し、`git fetch origin --prune` 後にremoteとlocalを比較する。
 
 ## Mobile-origin Browser Recovery
+
+具体的な承認はスマホのチャットでも受けられる。既承認の範囲は引き継ぎ、使用ツールの規則が許す操作をCodexが完了する。OAuth同意を一律に本人PC操作としない。追加承認・本人操作が必要な場合の根拠と手順は[共通方針](AGENT_APPROVAL_POLICY.md)に従う。
 
 スマホからの指示でブラウザを使う場合も、Codexが利用可能な通常のPC画面操作で復旧を進め、利用者にPC操作や再起動を繰り返し要求しない。
 
