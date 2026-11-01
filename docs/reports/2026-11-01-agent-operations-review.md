@@ -34,6 +34,10 @@
 - 手動Actions dispatch/rerunは0。workflowの変更・課金上限変更・定期監視停止はしない。PR自動実行は既存scope判定に従い、結果はPRに記録する。
 - OAuth scope/grant/IAM/Secret、DB/Storage/API、worker/GAS/trigger、配備・公開・本番の安全機構は変更しない。文書上の承認解釈をlive権限の付与や受入成功と扱わない。
 
+## レビュー指摘への対応
+
+作業ログの冒頭説明を日付別の新節から分離し、元の位置へ戻した。 最終差分を再検証し、push後の完全SHAで独立再確認する。
+
 ## GitHub引継ぎ
 
 最終head/base完全SHA、PR、独立レビュー、Actions結果と統合状態は対応PR本文へ記録する。全変更と本記録をpush・照合し、必要な未コミット/未push/ローカル専用情報がないことを確認後、今回の専用cloneと一時編集・検証補助だけを整理する。別タスクの作業場、稼働runtime、既存証拠には触れない。
