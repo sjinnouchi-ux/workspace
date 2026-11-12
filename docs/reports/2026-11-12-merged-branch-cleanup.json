@@ -1,0 +1,416 @@
+{
+  "repo": "workspace",
+  "default_branch": "main",
+  "canonical_start_head": "02b6777c9f13f6651a62ccabf503f60ce09b9c52",
+  "checked_main": "02b6777c9f13f6651a62ccabf503f60ce09b9c52",
+  "original_branches": 53,
+  "delete_branch_on_merge_unchanged": false,
+  "delete_candidates": [
+    {
+      "name": "agent/codex-parallel-shogun-v1",
+      "sha": "cdee53bcb390fcf81cec73553fb91aa65f9d77e1",
+      "protected": false,
+      "pr": 41,
+      "merged_at": "2026-07-29T05:52:56Z",
+      "merge_commit": "b588f302c01135ce1f5366bc150cd8712ca44fa7"
+    },
+    {
+      "name": "agent/codex-shogun-breakglass-policy",
+      "sha": "24a68d43d822df7a3edeb2c090e01d3cc6c7ee3c",
+      "protected": false,
+      "pr": 39,
+      "merged_at": "2026-07-25T10:25:14Z",
+      "merge_commit": "71efd3f877ced0ae0701e1a0176322290750d6c5"
+    },
+    {
+      "name": "agent/codex-shogun-diagnostics-relaxation",
+      "sha": "5e73895495b5f23a964036fc17d4eb99b8b6de4c",
+      "protected": false,
+      "pr": 37,
+      "merged_at": "2026-07-24T13:42:11Z",
+      "merge_commit": "92aac535e0ad02ffa4fd0f214283b6af0b8d2995"
+    },
+    {
+      "name": "agent/codex-shogun-ops-policy",
+      "sha": "d2955fc4a9fdbd4a4e708d4ae290e12661023b51",
+      "protected": false,
+      "pr": 36,
+      "merged_at": "2026-07-24T11:53:27Z",
+      "merge_commit": "62b45fb2a2a5ec922d86e4ade9e63e8955613812"
+    },
+    {
+      "name": "agent/codex-shogun-task-intake",
+      "sha": "2dcf42165832f967d2cf363454ce9fa0aa15e94f",
+      "protected": false,
+      "pr": 32,
+      "merged_at": "2026-07-19T11:31:51Z",
+      "merge_commit": "fa9d2b092b385806452e9ca103bf786bd3b4113b"
+    },
+    {
+      "name": "agent/confirm-zeirishi-google-account",
+      "sha": "0f211f15cd29013692647c76870725b6b6daa0f9",
+      "protected": false,
+      "pr": 43,
+      "merged_at": "2026-08-02T11:58:50Z",
+      "merge_commit": "a57688ce5d6d2fae3422d635f5458461f824262e"
+    },
+    {
+      "name": "agent/dori-supabase-account-doc",
+      "sha": "f41460d53b574afd3002e4da4dec6de99101fa96",
+      "protected": false,
+      "pr": 38,
+      "merged_at": "2026-07-25T03:17:56Z",
+      "merge_commit": "6dd163cef37fc7bc8308da31af9dd3298af9421e"
+    },
+    {
+      "name": "agent/git-handoff-protocol",
+      "sha": "d3fa7683d0f4e65fcccdc0d61108134992dfe19b",
+      "protected": false,
+      "pr": 40,
+      "merged_at": "2026-07-29T02:56:04Z",
+      "merge_commit": "a283aacfac2837bddbe7b279fff8cae44b94b84c"
+    },
+    {
+      "name": "agent/kakeibo-codex-fable-authority-routing",
+      "sha": "ec89b0403f64153be552a0b78712db9d633866af",
+      "protected": false,
+      "pr": 59,
+      "merged_at": "2026-08-12T11:47:51Z",
+      "merge_commit": "5d216011a659e63d30b2b771ca7f847bc2cd4af1"
+    },
+    {
+      "name": "agent/refresh-management-terminal-primary-docs",
+      "sha": "d298ccc747fabad11c84302865f5873c968af288",
+      "protected": false,
+      "pr": 17,
+      "merged_at": "2026-07-16T02:45:42Z",
+      "merge_commit": "e7958d2a54ad21edfd39b06598fe15017329580b"
+    },
+    {
+      "name": "agent/register-zeirishi-freee-doc",
+      "sha": "6b628ec53af834ad45e0368e4be7da01ddd8050c",
+      "protected": false,
+      "pr": 44,
+      "merged_at": "2026-08-02T12:04:58Z",
+      "merge_commit": "63a9ecdeb29cf5ecad1d4fad3424f56af775ce76"
+    },
+    {
+      "name": "agent/register-zeirishi-freee-mcp",
+      "sha": "a2f4d96d49ec3e80cbfde9e355b6dc72b1319acb",
+      "protected": false,
+      "pr": 45,
+      "merged_at": "2026-08-02T12:27:43Z",
+      "merge_commit": "2d40258d197a4cbf0d48426b98f4914ec9bffcf2"
+    },
+    {
+      "name": "agent/register-zeirishi-secret-doc",
+      "sha": "4ef60bc92a1092b849522b07adc03bca8d46370e",
+      "protected": false,
+      "pr": 42,
+      "merged_at": "2026-08-02T11:46:56Z",
+      "merge_commit": "44aeaa8deff3744752161dd28147a9a17ecc8b87"
+    },
+    {
+      "name": "agent/update-box-receipt-source",
+      "sha": "121f2744befa5c85f1edb6815874d4a3229347ed",
+      "protected": false,
+      "pr": 50,
+      "merged_at": "2026-08-02T13:31:07Z",
+      "merge_commit": "f87c486f9fee590bfd0c095c697522d0e883ee8c"
+    },
+    {
+      "name": "agent/update-moneyforward-login",
+      "sha": "1b896a7791540e29893574732406c070a1955500",
+      "protected": false,
+      "pr": 51,
+      "merged_at": "2026-08-02T13:42:30Z",
+      "merge_commit": "1763f7eb806f3300500f01bdd1c0318ff093e8de"
+    },
+    {
+      "name": "agent/update-moneyforward-mcp-status",
+      "sha": "1450278813291eb448102fe3f56e51abe76dea7b",
+      "protected": false,
+      "pr": 53,
+      "merged_at": "2026-08-02T14:42:53Z",
+      "merge_commit": "3dae98b842ebe0a08d6c35c6e6fd7f2fe03febc9"
+    },
+    {
+      "name": "agent/update-receipt-supabase-status",
+      "sha": "56b66edbc9032e04deab9048dd9cf54ba0ee4976",
+      "protected": false,
+      "pr": 49,
+      "merged_at": "2026-08-02T13:20:14Z",
+      "merge_commit": "29999ace55730cb03c72b17b2ef415a6ff144a84"
+    },
+    {
+      "name": "agent/update-secret-manager-enabled",
+      "sha": "fbfa34d7abd3db2aaee51ba436914c9471d8ffe1",
+      "protected": false,
+      "pr": 47,
+      "merged_at": "2026-08-02T12:43:26Z",
+      "merge_commit": "37b97b5fe034718af678600434ed2ec21a044cf8"
+    },
+    {
+      "name": "agent/update-supabase-account",
+      "sha": "ed7bb9827d5fefc70714f47ba18ce19b3922c747",
+      "protected": false,
+      "pr": 48,
+      "merged_at": "2026-08-02T13:00:24Z",
+      "merge_commit": "24534ebca5e6b1d107c5fa9be6ae84e555e9023d"
+    },
+    {
+      "name": "agent/update-zeirishi-dx-registry",
+      "sha": "05d4876acec68df70faaf028ab917fcfbe902c5f",
+      "protected": false,
+      "pr": 52,
+      "merged_at": "2026-08-02T14:28:57Z",
+      "merge_commit": "b504860d920f7e4b0c955b1d07aa93ee75f9e5e7"
+    },
+    {
+      "name": "claude-env-setup",
+      "sha": "ceaf566e17b811ed540f2b395582fdc4f1451179",
+      "protected": false,
+      "pr": 33,
+      "merged_at": "2026-07-20T07:50:00Z",
+      "merge_commit": "6ad1fae9fe5062af9beeaa72dfda77924a841f22"
+    },
+    {
+      "name": "codex/agent-consent-operations-20261101",
+      "sha": "331c8f23a64686f779c35304c101e1fdef609a6a",
+      "protected": false,
+      "pr": 75,
+      "merged_at": "2026-11-01T01:57:21Z",
+      "merge_commit": "ea4a0f51fe8286c1486557905f5cf0c749c96002"
+    },
+    {
+      "name": "codex/codex-turn-line-client",
+      "sha": "0394a4f1672758aa68848579ffae1b904527be36",
+      "protected": false,
+      "pr": 24,
+      "merged_at": "2026-07-18T06:13:53Z",
+      "merge_commit": "8d7850543480856774711736fa76838198498528"
+    },
+    {
+      "name": "codex/codex-turn-line-client-preflight",
+      "sha": "ce0eb5763fb36fc3e1b3e2e0e6f84fba6c80ed43",
+      "protected": false,
+      "pr": 25,
+      "merged_at": "2026-07-18T06:16:52Z",
+      "merge_commit": "3b32fe7f1dfb30602ae2c05290baccc59ec8660c"
+    },
+    {
+      "name": "codex/codex-turn-line-notification-design",
+      "sha": "3c4514e8c521db08b53e830077f215123cf29a04",
+      "protected": false,
+      "pr": 21,
+      "merged_at": "2026-07-17T08:30:16Z",
+      "merge_commit": "01da56dd060b9875705fee2155c5b2e1e3e7c1fa"
+    },
+    {
+      "name": "codex/diag5-live-ledger-20260930",
+      "sha": "7bdde6f2cea281b1924b2e36d834979399697925",
+      "protected": false,
+      "pr": 65,
+      "merged_at": "2026-09-30T13:02:46Z",
+      "merge_commit": "1a3a5faba6581b016877f515b4c401c84f371a71"
+    },
+    {
+      "name": "codex/fable-5-1-ledger-20260902",
+      "sha": "5a8b4b6257844602366679dfdbcdd2b56479dbd5",
+      "protected": false,
+      "pr": 63,
+      "merged_at": "2026-09-05T02:30:13Z",
+      "merge_commit": "83f5f1dd018a06092ea38c1ee8d645652efe1825"
+    },
+    {
+      "name": "codex/fable-audit-operator-checklist-20260910",
+      "sha": "1fd0fa1fccaa2c0079bf2ce2c2a0dfe531cd4ecb",
+      "protected": false,
+      "pr": 64,
+      "merged_at": "2026-09-10T10:56:02Z",
+      "merge_commit": "0b9b740cd6ec06b33525766b4405b321ced0d31b"
+    },
+    {
+      "name": "codex/fix-codex-turn-deploy-public-mode",
+      "sha": "2c01373e954408036d97ae2b40571d251ae4443d",
+      "protected": false,
+      "pr": 22,
+      "merged_at": "2026-07-18T00:52:42Z",
+      "merge_commit": "8f1a7c033b810adbb9eca1ed0fb2038ceb1356f6"
+    },
+    {
+      "name": "codex/fix-readonly-diagnostics-provenance-url",
+      "sha": "c506c95111d3850aadead7a56435f591ff0f52a5",
+      "protected": false,
+      "pr": 20,
+      "merged_at": "2026-07-16T15:27:59Z",
+      "merge_commit": "2a58e350197e77cfbe4e90083a0d031fd9b5b918"
+    },
+    {
+      "name": "codex/k-alert-secret-status",
+      "sha": "e4d6c45ae820b1311ccd1f87622d84a96805964d",
+      "protected": false,
+      "pr": 12,
+      "merged_at": "2026-07-11T13:03:55Z",
+      "merge_commit": "87244209d9e9ba83d01b22577601cae511fe4acc"
+    },
+    {
+      "name": "codex/k-alert-token-ready",
+      "sha": "394e448556ca22530651e6c3f22c7c343d10ace1",
+      "protected": false,
+      "pr": 13,
+      "merged_at": "2026-07-11T13:15:59Z",
+      "merge_commit": "13f9de3d2e8638b580d9a0d039c86c7155c2e017"
+    },
+    {
+      "name": "codex/kango-mamori-blog-project-registration-20260821",
+      "sha": "71bb27bb287baa4884e941c1cb5fc715cce7cb5a",
+      "protected": false,
+      "pr": 60,
+      "merged_at": "2026-08-21T10:39:10Z",
+      "merge_commit": "3eb81ddfb0970b0d36ef11a396644dec58ccc27b"
+    },
+    {
+      "name": "codex/mobile-browser-recovery-20261030",
+      "sha": "74e5d0578e00f7e91fb202eee580b4eef5ee99fd",
+      "protected": false,
+      "pr": 74,
+      "merged_at": "2026-10-30T09:24:43Z",
+      "merge_commit": "28f129d458932492b6812054c88b6e99097a1e77"
+    },
+    {
+      "name": "codex/register-demo-dev-20261112",
+      "sha": "a7c1bc79a1be7a92f69124660e0ab4632d36845a",
+      "protected": false,
+      "pr": 77,
+      "merged_at": "2026-11-12T01:04:19Z",
+      "merge_commit": "02b6777c9f13f6651a62ccabf503f60ce09b9c52"
+    },
+    {
+      "name": "codex/register-shogun-webui-20260712",
+      "sha": "a8f35a78c2d1066839d4cea9a883ccddf7f01f36",
+      "protected": false,
+      "pr": 14,
+      "merged_at": "2026-07-12T00:01:40Z",
+      "merge_commit": "4fa756b909f88b7b995c5833b0887c6805cb9181"
+    },
+    {
+      "name": "codex/register-yumekango-line-demo-20261025",
+      "sha": "d423b287426df1486fe18c7d1425a58648027488",
+      "protected": false,
+      "pr": 73,
+      "merged_at": "2026-10-25T05:24:59Z",
+      "merge_commit": "e7735e1c088e47667c0be360f45875ae0812d755"
+    },
+    {
+      "name": "codex/shogun-readonly-diagnostics-policy",
+      "sha": "d13f5cb46b448d78d6242a444a299f17a3d3af33",
+      "protected": false,
+      "pr": 19,
+      "merged_at": "2026-07-16T12:58:44Z",
+      "merge_commit": "6b6241bd1d02d9520fa264d43d5b2d8b42764e40"
+    },
+    {
+      "name": "codex/shogun-runtime-discovery",
+      "sha": "fd280d1f90db567d0069fbd7a9cb1ad7dd796b69",
+      "protected": false,
+      "pr": 15,
+      "merged_at": "2026-07-12T14:03:41Z",
+      "merge_commit": "d921fa6383739e85b548c1147e85a71fceea7898"
+    },
+    {
+      "name": "docs/development-environment-cutover",
+      "sha": "6102100a6cc2d4fd899c92fb1de04cc1b46d6352",
+      "protected": false,
+      "pr": 56,
+      "merged_at": "2026-08-11T02:19:36Z",
+      "merge_commit": "74eff4c3b1b80199b27eb96e8823e93ed27caa8a"
+    },
+    {
+      "name": "docs/finalize-shogun-deletion",
+      "sha": "7132a6e4e7d34f010b3dedef30e692bc5c93724a",
+      "protected": false,
+      "pr": 58,
+      "merged_at": "2026-08-11T03:02:50Z",
+      "merge_commit": "dd318cd4eb9137ed3a810a4f64ac127374989768"
+    },
+    {
+      "name": "docs/k-alert-reading-guide-20261012",
+      "sha": "0a4983deacdffba926a6722b11d3face473b2cb9",
+      "protected": false,
+      "pr": 68,
+      "merged_at": "2026-10-12T02:24:22Z",
+      "merge_commit": "ff9c5791af76fcf64e0cc4019af036dba793dda5"
+    },
+    {
+      "name": "docs/remove-shogun-lab",
+      "sha": "7ef75b6b3cb91b8d3b407bfe6ce15cccb28483fd",
+      "protected": false,
+      "pr": 57,
+      "merged_at": "2026-08-11T02:38:32Z",
+      "merge_commit": "7bd0d890797d869a246891651b7f28c27715e1cc"
+    },
+    {
+      "name": "fix/codex-hook-stale-notifier-replace",
+      "sha": "2c6c1a5c71836212e79654162aa5cc3dd6b413db",
+      "protected": false,
+      "pr": 27,
+      "merged_at": "2026-07-18T08:42:22Z",
+      "merge_commit": "a5ebe7b025005a7593c19c8ba8b19914c9119552"
+    },
+    {
+      "name": "fix/codex-turn-hook-timeouts",
+      "sha": "afdae6cf4021c9c09d7ac54884354556689d48d4",
+      "protected": false,
+      "pr": 26,
+      "merged_at": "2026-07-18T08:36:31Z",
+      "merge_commit": "532930495d98fea014a8140cc06189ed7a3bc9c6"
+    },
+    {
+      "name": "register/month-end-processing",
+      "sha": "dcf9bc9fbccc19096559567738628303245fc887",
+      "protected": false,
+      "pr": 76,
+      "merged_at": "2026-11-08T08:01:27Z",
+      "merge_commit": "2aafc053c6751044d63f3a2acfa0bae415c4a2cf"
+    }
+  ],
+  "retained": [
+    {
+      "name": "agent/add-frontend-design-skill",
+      "sha": "6bec8ffd68adf90ab2931792a5f7b1838c1d7d24",
+      "protected": false,
+      "reason": "referenced_by_open_pr"
+    },
+    {
+      "name": "agent/mgmt-terminal-core-project-router",
+      "sha": "f07cfef0328f4e5b2382ab202c143e1d81e698da",
+      "protected": false,
+      "reason": "referenced_by_open_pr"
+    },
+    {
+      "name": "agent/windows-utf8-guidance",
+      "sha": "9d1e6b6f8be60beac8fcc08a4a8288e5e589fc07",
+      "protected": false,
+      "reason": "referenced_by_open_pr"
+    },
+    {
+      "name": "codex/k-alert-production-cloud-run",
+      "sha": "ac85cfbc82b9812bb9eb8fd477962b388b5f9499",
+      "protected": false,
+      "reason": "no_merged_pr_at_exact_tip"
+    },
+    {
+      "name": "docs/nucbox-memory-mcp-policy",
+      "sha": "7000d12e61010de710898316744199070976b750",
+      "protected": false,
+      "reason": "no_merged_pr_at_exact_tip"
+    },
+    {
+      "name": "ops/disable-codex-line-notify-20260901",
+      "sha": "4b5085aeb3ea732447caff0a5cf18affdc5dfe01",
+      "protected": false,
+      "reason": "referenced_by_open_pr"
+    }
+  ]
+}
