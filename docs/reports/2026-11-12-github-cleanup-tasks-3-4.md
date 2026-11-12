@@ -20,10 +20,10 @@ Canonical: `workspace` / default `main`。共通起動・台帳確認: workspace
 4. 開PRのhead/baseから参照されず、mainの実行コード・設定・workflowにbranch名の参照がない。
 5. 実削除前に一覧・開PR・稼働中Actionsを再取得し、先端SHAを固定したforce-with-lease付きatomic pushで削除する。変更されたbranchは削除しない。
 
-削除結果: このcommitは保存・削除前の証拠。まだ削除成功とはしない。実行後の読戻し結果を追記する。復元が必要な場合は保存した先端SHAから同名refを再作成できる。
+削除結果: 46本を削除し、GitHub一覧で消失を確認。実行直前53本 → 実行後7本（mainを含む）。対象外branchの消失0・SHA変更0。削除見送り0。自動削除設定は不変。[実行結果](2026-11-12-merged-branch-cleanup-result.json)。削除前証拠commit: `380dc60c564c03b92aa1494b0cc3e3509a4b8f06`。保存した先端SHAから同名refを復元可能。
 
 ## 検証と範囲
 
-文書差分は固定Git commitから抽出し、secret形式を走査した。対象path・PR/head・main祖先関係・内容hash・保存後読戻しを検証する。sourceやmigrationを変更しないためアプリ/DBの重いテストと手動Actionsは不要。既存必須チェック・保護・自動削除設定・本番・権限・課金・外部データを変更しない。
+文書差分は固定Git commitから抽出し、secret形式を走査した。対象path・PR/head・main祖先関係・内容hash・保存後読戻しの全文一致を確認した。sourceやmigrationを変更しないためアプリ/DBの重いテストと手動Actionsは不要。既存必須チェック・保護・自動削除設定・本番・権限・課金・外部データを変更しない。
 
 作業環境はWindows Codex Desktop。タスク専用bare cloneを履歴の読取りだけに使用し、GitHub文書変更はconnectorで保存する。bareにはworking tree/upstream/未追跡作業なし、ローカル実装commitなし。取得元は上記CanonicalのHTTPS originで、既存cloneは使っていない。最終記録のGitHub読戻し後に専用取得物を整理する。

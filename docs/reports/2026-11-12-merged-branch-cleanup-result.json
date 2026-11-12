@@ -1,0 +1,248 @@
+{
+  "repo": "workspace",
+  "prepared_evidence_commit": "380dc60c564c03b92aa1494b0cc3e3509a4b8f06",
+  "started_at": "2026-11-12T02:01:01.132283+00:00",
+  "before_count": 53,
+  "default_before": "380dc60c564c03b92aa1494b0cc3e3509a4b8f06",
+  "deleted": [
+    {
+      "name": "agent/codex-parallel-shogun-v1",
+      "sha": "cdee53bcb390fcf81cec73553fb91aa65f9d77e1",
+      "pr": 41
+    },
+    {
+      "name": "agent/codex-shogun-breakglass-policy",
+      "sha": "24a68d43d822df7a3edeb2c090e01d3cc6c7ee3c",
+      "pr": 39
+    },
+    {
+      "name": "agent/codex-shogun-diagnostics-relaxation",
+      "sha": "5e73895495b5f23a964036fc17d4eb99b8b6de4c",
+      "pr": 37
+    },
+    {
+      "name": "agent/codex-shogun-ops-policy",
+      "sha": "d2955fc4a9fdbd4a4e708d4ae290e12661023b51",
+      "pr": 36
+    },
+    {
+      "name": "agent/codex-shogun-task-intake",
+      "sha": "2dcf42165832f967d2cf363454ce9fa0aa15e94f",
+      "pr": 32
+    },
+    {
+      "name": "agent/confirm-zeirishi-google-account",
+      "sha": "0f211f15cd29013692647c76870725b6b6daa0f9",
+      "pr": 43
+    },
+    {
+      "name": "agent/dori-supabase-account-doc",
+      "sha": "f41460d53b574afd3002e4da4dec6de99101fa96",
+      "pr": 38
+    },
+    {
+      "name": "agent/git-handoff-protocol",
+      "sha": "d3fa7683d0f4e65fcccdc0d61108134992dfe19b",
+      "pr": 40
+    },
+    {
+      "name": "agent/kakeibo-codex-fable-authority-routing",
+      "sha": "ec89b0403f64153be552a0b78712db9d633866af",
+      "pr": 59
+    },
+    {
+      "name": "agent/refresh-management-terminal-primary-docs",
+      "sha": "d298ccc747fabad11c84302865f5873c968af288",
+      "pr": 17
+    },
+    {
+      "name": "agent/register-zeirishi-freee-doc",
+      "sha": "6b628ec53af834ad45e0368e4be7da01ddd8050c",
+      "pr": 44
+    },
+    {
+      "name": "agent/register-zeirishi-freee-mcp",
+      "sha": "a2f4d96d49ec3e80cbfde9e355b6dc72b1319acb",
+      "pr": 45
+    },
+    {
+      "name": "agent/register-zeirishi-secret-doc",
+      "sha": "4ef60bc92a1092b849522b07adc03bca8d46370e",
+      "pr": 42
+    },
+    {
+      "name": "agent/update-box-receipt-source",
+      "sha": "121f2744befa5c85f1edb6815874d4a3229347ed",
+      "pr": 50
+    },
+    {
+      "name": "agent/update-moneyforward-login",
+      "sha": "1b896a7791540e29893574732406c070a1955500",
+      "pr": 51
+    },
+    {
+      "name": "agent/update-moneyforward-mcp-status",
+      "sha": "1450278813291eb448102fe3f56e51abe76dea7b",
+      "pr": 53
+    },
+    {
+      "name": "agent/update-receipt-supabase-status",
+      "sha": "56b66edbc9032e04deab9048dd9cf54ba0ee4976",
+      "pr": 49
+    },
+    {
+      "name": "agent/update-secret-manager-enabled",
+      "sha": "fbfa34d7abd3db2aaee51ba436914c9471d8ffe1",
+      "pr": 47
+    },
+    {
+      "name": "agent/update-supabase-account",
+      "sha": "ed7bb9827d5fefc70714f47ba18ce19b3922c747",
+      "pr": 48
+    },
+    {
+      "name": "agent/update-zeirishi-dx-registry",
+      "sha": "05d4876acec68df70faaf028ab917fcfbe902c5f",
+      "pr": 52
+    },
+    {
+      "name": "claude-env-setup",
+      "sha": "ceaf566e17b811ed540f2b395582fdc4f1451179",
+      "pr": 33
+    },
+    {
+      "name": "codex/agent-consent-operations-20261101",
+      "sha": "331c8f23a64686f779c35304c101e1fdef609a6a",
+      "pr": 75
+    },
+    {
+      "name": "codex/codex-turn-line-client",
+      "sha": "0394a4f1672758aa68848579ffae1b904527be36",
+      "pr": 24
+    },
+    {
+      "name": "codex/codex-turn-line-client-preflight",
+      "sha": "ce0eb5763fb36fc3e1b3e2e0e6f84fba6c80ed43",
+      "pr": 25
+    },
+    {
+      "name": "codex/codex-turn-line-notification-design",
+      "sha": "3c4514e8c521db08b53e830077f215123cf29a04",
+      "pr": 21
+    },
+    {
+      "name": "codex/diag5-live-ledger-20260930",
+      "sha": "7bdde6f2cea281b1924b2e36d834979399697925",
+      "pr": 65
+    },
+    {
+      "name": "codex/fable-5-1-ledger-20260902",
+      "sha": "5a8b4b6257844602366679dfdbcdd2b56479dbd5",
+      "pr": 63
+    },
+    {
+      "name": "codex/fable-audit-operator-checklist-20260910",
+      "sha": "1fd0fa1fccaa2c0079bf2ce2c2a0dfe531cd4ecb",
+      "pr": 64
+    },
+    {
+      "name": "codex/fix-codex-turn-deploy-public-mode",
+      "sha": "2c01373e954408036d97ae2b40571d251ae4443d",
+      "pr": 22
+    },
+    {
+      "name": "codex/fix-readonly-diagnostics-provenance-url",
+      "sha": "c506c95111d3850aadead7a56435f591ff0f52a5",
+      "pr": 20
+    },
+    {
+      "name": "codex/k-alert-secret-status",
+      "sha": "e4d6c45ae820b1311ccd1f87622d84a96805964d",
+      "pr": 12
+    },
+    {
+      "name": "codex/k-alert-token-ready",
+      "sha": "394e448556ca22530651e6c3f22c7c343d10ace1",
+      "pr": 13
+    },
+    {
+      "name": "codex/kango-mamori-blog-project-registration-20260821",
+      "sha": "71bb27bb287baa4884e941c1cb5fc715cce7cb5a",
+      "pr": 60
+    },
+    {
+      "name": "codex/mobile-browser-recovery-20261030",
+      "sha": "74e5d0578e00f7e91fb202eee580b4eef5ee99fd",
+      "pr": 74
+    },
+    {
+      "name": "codex/register-demo-dev-20261112",
+      "sha": "a7c1bc79a1be7a92f69124660e0ab4632d36845a",
+      "pr": 77
+    },
+    {
+      "name": "codex/register-shogun-webui-20260712",
+      "sha": "a8f35a78c2d1066839d4cea9a883ccddf7f01f36",
+      "pr": 14
+    },
+    {
+      "name": "codex/register-yumekango-line-demo-20261025",
+      "sha": "d423b287426df1486fe18c7d1425a58648027488",
+      "pr": 73
+    },
+    {
+      "name": "codex/shogun-readonly-diagnostics-policy",
+      "sha": "d13f5cb46b448d78d6242a444a299f17a3d3af33",
+      "pr": 19
+    },
+    {
+      "name": "codex/shogun-runtime-discovery",
+      "sha": "fd280d1f90db567d0069fbd7a9cb1ad7dd796b69",
+      "pr": 15
+    },
+    {
+      "name": "docs/development-environment-cutover",
+      "sha": "6102100a6cc2d4fd899c92fb1de04cc1b46d6352",
+      "pr": 56
+    },
+    {
+      "name": "docs/finalize-shogun-deletion",
+      "sha": "7132a6e4e7d34f010b3dedef30e692bc5c93724a",
+      "pr": 58
+    },
+    {
+      "name": "docs/k-alert-reading-guide-20261012",
+      "sha": "0a4983deacdffba926a6722b11d3face473b2cb9",
+      "pr": 68
+    },
+    {
+      "name": "docs/remove-shogun-lab",
+      "sha": "7ef75b6b3cb91b8d3b407bfe6ce15cccb28483fd",
+      "pr": 57
+    },
+    {
+      "name": "fix/codex-hook-stale-notifier-replace",
+      "sha": "2c6c1a5c71836212e79654162aa5cc3dd6b413db",
+      "pr": 27
+    },
+    {
+      "name": "fix/codex-turn-hook-timeouts",
+      "sha": "afdae6cf4021c9c09d7ac54884354556689d48d4",
+      "pr": 26
+    },
+    {
+      "name": "register/month-end-processing",
+      "sha": "dcf9bc9fbccc19096559567738628303245fc887",
+      "pr": 76
+    }
+  ],
+  "skipped": [],
+  "delete_branch_on_merge": false,
+  "after_count": 7,
+  "default_after": "380dc60c564c03b92aa1494b0cc3e3509a4b8f06",
+  "missing_unrelated": [],
+  "changed_unrelated": [],
+  "new_branches": [],
+  "completed_at": "2026-11-12T02:01:09.769454+00:00",
+  "verified": true
+}

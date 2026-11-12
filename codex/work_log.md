@@ -2,6 +2,8 @@
 
 ## 2026-11-12 — GitHub整理タスク3・4
 
+結果: マージ済み46 branchを削除・GitHub読戻し確認。対象外branchの消失・変更0、自動削除設定不変。救出文書と検証結果はmainへ保存済み。
+
 未統合PRの文書記録を固定SHA付きの履歴として救出し、マージ済みブランチの削除前証拠を保存した。対象・検証・実行後結果は [整理記録](https://github.com/sjinnouchi-ux/workspace/blob/main/docs/reports/2026-11-12-github-cleanup-tasks-3-4.md) を参照。文書救出は古いコード/設計の採用や本番再実行ではない。元PR・現行機能・権限・自動削除設定を保持し、アプリ/DB変更がないため重いテスト・手動Actionsは不要。
 
 Codex専用フォルダ内の作業記録です。ワークスペース全体に関わる内容はルートの `claude_log.md` にも記録します。
