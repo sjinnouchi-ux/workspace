@@ -1,5 +1,9 @@
 # Codexターン停止LINE通知 hook
 
+## 2026-11-13 保存状態の追補
+
+PR62の2026-09-01実施記録は、NUCBOX_K8_PLUSのowned Stop handlerを1件から0件へ除去した履歴です。[保存・採否記録](../../docs/reports/2026-11-13-workspace-entrypoint-pr-cleanup.md)を参照してください。現在のlocal hook状態は今回再検証していません。以下の導入・Remove手順は履歴と、将来の具体的な再有効化依頼時の参照です。今回の文書整理を再有効化、通知送信、server/Secret/IAM変更の承認として扱いません。
+
 Codex Desktopの主ターンが停止したとき、公式LINEへ最小限の通知を送るWindows実ユーザー向け `Stop` hookです。既存のデスクトップ通知 `notify = ["codex-computer-use.exe", "turn-ended"]` には触れず、`~/.codex/hooks.json` の `Stop` に専用handlerを1件だけ追加します。`SubagentStop` は設定しません。
 
 ## 動作とプライバシー

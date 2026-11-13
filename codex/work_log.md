@@ -701,3 +701,18 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 - 利用者の依頼に基づき、共通起動手順へ復旧順序・検証条件・再発時の扱いを追加。設定オフと即断せず、スマホからの依頼でも利用可能な通常のPC操作を先に実施する。
 - 詳細なsanitized証拠はprivate [development-environmentの記録](https://github.com/sjinnouchi-ux/development-environment/blob/main/docs/reports/2026-10-30-mobile-browser-initialization.md)。同PCのMemory MCPにもVerifiedFailurePatternとして保存する。恒久修正や全チャットの復旧とは扱わない。
 - 文書のみ。重いアプリ/DBテストは対象外。実機前後検証、追加差分の秘密情報確認、GitHub本文読戻しを使用。GitHub connectorで変更し、この文書変更用のローカルclone・commit・専用成果物は作成しない。
+
+
+## 2026-09-01 — NUCBOX_K8_PLUS Codex turn LINE notification disabled
+
+- Used Workspace `main` at `80981384252b684dc474a8e798eb4c8a9d63941a` and the canonical Windows hook installer in `Remove` mode.
+- Removed only the owned Codex turn-completion LINE `Stop` handler on `NUCBOX_K8_PLUS`; the owned handler count changed from one to zero.
+- Preserved the existing desktop turn notification, unrelated hook structures, the installed notifier and minimal diagnostic log, and the installer-created `hooks.json` backup.
+- Did not send a live LINE test and did not change the management notification subscription, server endpoint, service account, IAM, API, or production deployment.
+
+## 2026-11-13｜workspace入口・旧PR16/31/35/62の整理
+
+- GitHub main `341188f96603e1d806029d24971577580d4ffd1d` のstartup/PROJECTS/default branch/AGENTS/共通方針と各旧PR固定headを確認。README/MCP/責務文書に残る旧Shogun現役記述を現行Codex単独運用へ整合した。
+- PR16の認証境界と誤判定防止、PR35のUTF-8注意3行、PR62の9月通知hook除去履歴を採用。旧Core親router変更は採用せず、PROJECTSと保留案件を保持する。
+- 全15原版のhead/branch/path/mode/type/blobをmanifestへ固定。個人pathを含む古い全文は元Git原版への参照で保持し、script/skill/source/license4fileだけ非実行snapshotへ同blobで保存する。skill install、script実行、各PC設定同期、hook/通知、認証、runtime、配備、DB、Secret/IAM操作なし。
+- [採否・保存・検証記録](../docs/reports/2026-11-13-workspace-entrypoint-pr-cleanup.md)。文書だけのため重いテスト・手動Actions・外部監査は不要。固定commitの全文/blob読戻し後に旧4PRを終了し、結果を同reportへ追記する。local clone/worktree・未push情報は作成しない。

@@ -1,74 +1,30 @@
-# MCP / 外部ツール / MiniPC 運用ルール
+# MCP・外部ツール・hostの運用境界
 
-MCP、外部コネクタ、認証、MiniPC構築、バックアップの共通方針をここに集約する。
+[共通起動手順](codex/CODEX_DESKTOP_STARTUP.md)と[PROJECTS.md](PROJECTS.md)から対象を確定し、対象repoの現行secret管理・接続契約を確認します。
 
-秘密値そのものは書かない。キー名、手順、再設定が必要な項目だけを書く。
+## 接続を確認する境界
 
-## Common Rules
+Apps connector、ローカルCLI/同期、local/host MCP、hosted plugin MCP、browser profile、Remote/SSH接続先は別の認証・実行境界です。ある経路の失敗を別経路の未認証へ読み替えません。
 
-- Gitに入れてよいもの: ルーティング、非秘密設定、必要な環境変数名、セットアップ手順。
-- Gitに入れてはいけないもの: APIキー、OAuth token、refresh token、GitHub token、Google認証情報、パスワード。
-- APIキーは `config/settings.yaml` やMarkdownへ書かない。
-- 実値はMiniPCローカルの非コミット `.env` や安全な秘密情報管理先で扱う。
+確認するのは実際に使用するsurface、host、実行user、credential owner、対象resourceと既存権限です。正しい境界で確認できない結果はINCONCLUSIVEとして扱い、別経路の失敗だけでlogout、disconnect、credential削除、OAuth/token再発行を行いません。詳細は[接続・認証境界](codex/connection-authentication-boundaries.md)。
 
-## Codex Rules
+## 秘密情報
 
-- Codexは実装、検証、デプロイ、ローカルコマンド実行を担当する。
-- 作業結果は各プロジェクトGitの `IMPLEMENTATION_LOG.md` に追記する。
-- 設計と食い違う点は `Questions Back To Design` として返す。
+- 値、OAuth code/token、認証JSON、cookie、.env内容をチャット・Git・生ログへ出力しない。
+- Secret Manager等が正本のrepoは、その固定role/manifest、version、既存IAM、正式helperを使用する。別project/roleやローカル.envへfallbackしない。
+- 認証JSONやcookieをPC間・browser間でコピーしない。業務Googleの原則と例外は起動手順および対象repoを確認する。
+- アクセス拒否を理由に、未依頼の権限拡大・policy変更・認証の弱体化を行わない。
 
-## Claude / Shogun Rules
+## MiniPC・Remote・Memory
 
-- Claude割当エージェントは要件定義、仕様整理、設計判断、レビューを担当する。
-- 設計結果は各プロジェクトGitの `DESIGN_LOG.md`、`docs/requirements/`、`docs/specs/` に残す。
-- Codexへの実装依頼は `docs/workflow-design-implementation.md` のテンプレートに従う。
+Codex Desktopが唯一のオーケストレーターです。MiniPC、ノートPC、WSL2、Remote/SSHはhostごとに接続を確認します。Memory MCPの設定・内容、CLI認証、mapped drive、browser sessionを他PCと同一とは推測しません。
 
-## MiniPC 構築・運用
+開発環境、Windows Memory MCP、依頼された一回限りのClaude監査は[development-environment](https://github.com/sjinnouchi-ux/development-environment)を正本とします。現役の管理MiniPC巡回と議事録workerは各repoの別運用です。
 
-- 実行機: 常時起動のWindows MiniPC。
-- ノートPCはWSL2またはリモートデスクトップでMiniPCへ接続する。
-- multi-agent-shogun、Codex、Memory MCP、作業リポジトリはMiniPCに集約する。
+旧Shogun/WebUI/固定Ops/diagnostics/break-glass/parallel Shogunは退役済みです。旧clone/install/起動チェックリストを再実行しません。旧Shogunの.env/config/OAuthを一律バックアップ・新PCへコピーする手順も現行方針として扱いません。
 
-初期構築チェックリスト:
+## 保存・復旧
 
-- [ ] WSL2セットアップ
-- [ ] multi-agent-shogun clone / install / shutsujin
-- [ ] Claude / Codex CLIのOAuthログイン
-- [ ] Bypass Permissions承認
-- [ ] Memory MCP稼働確認
-- [ ] 各リポジトリのclone
-- [ ] GitHub認証設定
+必要なsource・記録は対象GitHubへ保存し、固定commitの読戻しと未push情報の不在を確認します。秘密情報の保管・復旧は対象サービスとrepoの正式な非公開経路に従います。具体的な依頼なしにバックアップ取得、資格情報再発行、復元や外部送信を行いません。
 
-## バックアップ / SPOF対策
-
-MiniPC 1台に集約するため、故障時に全停止するリスクがある。
-
-- 全リポジトリをこまめにGitHubへpushする。
-- `.env`、OAuth token、Memory MCPデータ、Shogun `config/settings.yaml` は定期バックアップ対象とする。
-- バックアップ先と頻度はMiniPC構築時に確定する。
-
-## リモートアクセスのセキュリティ
-
-- ポートを直接インターネットへ開けない。
-- 可能ならTailscaleなどのプライベート網経由で接続する。
-
-## Google Account
-
-Google系作業は原則として次のアカウントを使う。
-
-```text
-s.jinnouchi@yumekango.com
-```
-
-別アカウントが表示された場合は作業を止め、ユーザーに確認する。
-
-## Secrets
-
-以下はGitHub、Markdown、チャットに保存しない。
-
-- APIキー
-- OAuth refresh token
-- GitHub token
-- Google認証情報
-- パスワード
-- Supabase / Cloudflare / LINE / Square / ChatWork の実値token
+[承認方針](codex/AGENT_APPROVAL_POLICY.md) / [Git引継ぎ](GIT_HANDOFF_PROTOCOL.md) / [責務分担](docs/workflow-design-implementation.md)

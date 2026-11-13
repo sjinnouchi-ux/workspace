@@ -1,63 +1,39 @@
-# 設計フェーズと実装フェーズの分担
+# 設計・実装・監査の分担
 
-Shogun運用における「設計 = Claude割当エージェント」「実装 = Codex割当足軽」の分担を明文化する。
+Codex Desktopを唯一のオーケストレーターとします。旧Shogunの役職・CLI割当やconfigを現行の権限・手順として使用しません。
 
-「Shogun = 設計」ではない。Shogunはシステム名であり、実際の役割は `config/settings.yaml` のCLI割当で決まる。
+## 責務
 
-## エージェント / CLI / フェーズ
+| 担当 | 役割と境界 |
+|---|---|
+| 利用者 | 目的、採用範囲、業務判断、必要な公開・配備・権限変更の承認を判断する |
+| Codex Desktop | 要件確認、設計、実装、検証、GitHub反映、結果確認を担当する。承認済み範囲は[共通方針](../codex/AGENT_APPROVAL_POLICY.md)に従って進める |
+| Windows Memory MCP | GitHub正本確認後の補助知識。host/repo/componentを限定し、原因・修正・検証が確定した再利用可能な失敗だけを記録する |
+| WSL2 Claude CLI | 利用者が監査を求めた場合だけ固定runnerでread-only監査する。設計著者、実装者、task配送先、常設workerとして使用しない |
 
-| 役割 | 主なフェーズ | CLI割当 |
-|---|---|---|
-| 将軍 | 命令受領・委譲 | Claude |
-| 家老 | タスク分配・報告集約 | Claude |
-| 軍師 | レビュー・設計検証 | Claude |
-| 設計足軽 | 要件定義・仕様整理 | Claude |
-| 実装足軽 | 実装・検証・デプロイ | Codex |
+監査のexact commit、モデル、認証、receipt、no retry/no fallbackは[開発環境の監査契約](https://github.com/sjinnouchi-ux/development-environment/blob/main/docs/claude-audit.md)を確認します。repo固有の監査gateを守り、過去の監査を別変更の承認へ流用しません。subagentは利用者の選択・明示依頼に従います。
 
-実際の割当はShogunの `config/settings.yaml` を正とする。この表は方針の明文化である。
+## 正本と保存先
 
-## Claude / 設計側の責務
+- 全体ルーティングは[PROJECTS.md](../PROJECTS.md)、共通Codex運用は[起動手順](../codex/CODEX_DESKTOP_STARTUP.md)。
+- 詳細設計、コード、実装ログ、受入証拠は対象Canonical repo。DESIGN_LOGやIMPLEMENTATION_LOGは経緯、spec/runbookは現在有効な契約を扱う。
+- repo source、配備artifact、live観測、本人端末受入を分けて記録する。
+- taskの会話、Memory、ローカルclone、旧queue/pane/reportをGitHub正本の代わりにしない。
+- 必要な成果物と匿名化ログを保存し、固定commitから読戻した後にタスク作業場を整理する。詳細は[Git Handoff Protocol](../GIT_HANDOFF_PROTOCOL.md)。
 
-- 要件定義、仕様整理、設計判断を行う。
-- 判断を各プロジェクトの `DESIGN_LOG.md` に時系列で追記する。
-- 現在有効な仕様は `docs/requirements/` または `docs/specs/` に清書する。
-- Codexへの実装指示を明記する。
-- 実装済みかどうかを推測で書かない。
+## 作業の流れ
 
-## Codex / 実装側の責務
+1. オンライン正本と現行状態を確認し、目的、対象、変更しない境界を確定する。
+2. Codexが設計・必要差分を準備し、既承認の範囲を実装する。追加の判断が必要な場合は具体化して利用者へ提示する。
+3. [Actions方針](../codex/GITHUB_ACTIONS_POLICY.md)に従い、影響に合う検証を行う。過去成功を再利用するときは固定sourceと適用範囲を確認する。
+4. GitHubへ必要変更と作業ログを反映し、source・検証・配備・未完条件を分けて確認する。
 
-- 実装、検証、デプロイを行う。
-- 結果を各プロジェクトの `IMPLEMENTATION_LOG.md` に時系列で追記する。
-- 設計と食い違った点、実装できなかった点は `Questions Back To Design` に書き戻す。
+## 作業依頼に含める情報
 
-## ログと正本
+- Canonical repo / 対象component
+- 背景、目的、対象scope、対象外
+- 参照する固定commit・仕様・既存証拠
+- 受入条件、必要な検証、公開・配備・業務書込みの有無
+- 結果不明時の照会方法と、必要な場合の切り戻し条件
 
-- Shogunランタイムの `queue/*.yaml`、`dashboard.md`、`reports/*` は揮発的であり、恒久正本にしない。
-- `DESIGN_LOG.md` と `IMPLEMENTATION_LOG.md` は恒久正本として追記する。
-- LOGは経緯、`docs/requirements/` と `docs/specs/` は現在有効な仕様。
-- 同じ内容をLOGとspecに二重記載しない。
-
-## 仕様変更時の流れ
-
-1. Claudeが `DESIGN_LOG.md` に変更判断を追記する。
-2. Claudeが必要に応じて `docs/requirements/` または `docs/specs/` を更新する。
-3. ClaudeがCodexへの実装指示を書く。
-4. Codexが実装し、`IMPLEMENTATION_LOG.md` に記録する。
-5. 食い違いがあればCodexが設計側へ戻す。
-
-## Codexへの実装指示テンプレート
-
-```md
-### Implementation Request For Codex
-
-- Project / project ID:
-- Working Directory:
-- 背景 / 目的:
-- やること（Scope）:
-- やらないこと（Out of Scope）:
-- 想定変更ファイル / パス（Affected Files）:
-- 受け入れ条件（Acceptance Criteria）:
-- 検証方法（Verification）:
-- 切り戻し手順（Rollback）:
-- 参照（References）:
-```
+旧本文の正確な所在・blobは[整理manifest](history/workspace-pr-cleanup-2026-11-13/manifest.json)へ保存しています。旧構成へ戻すための手順ではありません。

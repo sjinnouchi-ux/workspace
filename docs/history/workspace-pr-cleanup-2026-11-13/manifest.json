@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "repository": "sjinnouchi-ux/workspace",
+  "baseline": "341188f96603e1d806029d24971577580d4ffd1d",
+  "policy": "All original PR heads and branches are retained. Every changed file is pinned by source head/path/mode/type/blob. Historical full logs/bootstrap/router snapshots are reference-only to avoid duplicating personal paths and stale instructions. Four non-active source/license files are additionally copied byte-identically; no installation or execution is performed.",
+  "original_files": [
+    {
+      "pr": 16,
+      "head": "6bec8ffd68adf90ab2931792a5f7b1838c1d7d24",
+      "branch": "agent/add-frontend-design-skill",
+      "path": "claude_log.md",
+      "mode": "100644",
+      "type": "blob",
+      "blob": "35a7e35582ccfb62420ede13b79843cf87bf480e",
+      "source_url": "https://github.com/sjinnouchi-ux/workspace/blob/6bec8ffd68adf90ab2931792a5f7b1838c1d7d24/claude_log.md",
+      "preservation": "original-head-and-branch-retained"
+    },
+    {
+      "pr": 16,
+      "head": "6bec8ffd68adf90ab2931792a5f7b1838c1d7d24",
+      "branch": "agent/add-frontend-design-skill",
+      "path": "codex/CODEX_DESKTOP_CUSTOM_INSTRUCTIONS.md",
+      "mode": "100644",
+      "type": "blob",
+      "blob": "069c5c79e02582f931900b23c5f41a4db0202ec7",
+      "source_url": "https://github.com/sjinnouchi-ux/workspace/blob/6bec8ffd68adf90ab2931792a5f7b1838c1d7d24/codex/CODEX_DESKTOP_CUSTOM_INSTRUCTIONS.md",
+      "preservation": "original-head-and-branch-retained"
+    },
+    {
+      "pr": 16,
+      "head": "6bec8ffd68adf90ab2931792a5f7b1838c1d7d24",
+      "branch": "agent/add-frontend-design-skill",
+      "path": "codex/CODEX_DESKTOP_STARTUP.md",
+      "mode": "100644",
+      "type": "blob",
+      "blob": "00784da55f7f01016a57ed7b767c48e3453d003d",
+      "source_url": "https://github.com/sjinnouchi-ux/workspace/blob/6bec8ffd68adf90ab2931792a5f7b1838c1d7d24/codex/CODEX_DESKTOP_STARTUP.md",
+      "preservation": "original-head-and-branch-retained"
+    },
+    {
+      "pr": 16,
+      "head": "6bec8ffd68adf90ab2931792a5f7b1838c1d7d24",
+      "branch": "agent/add-frontend-design-skill",
+      "path": "codex/README.md",
+      "mode": "100644",
+      "type": "blob",
+      "blob": "6d2ef4e808ef108f043734d6d92936ebfc687ac8",
+      "source_url": "https://github.com/sjinnouchi-ux/workspace/blob/6bec8ffd68adf90ab2931792a5f7b1838c1d7d24/codex/README.md",
+      "preservation": "original-head-and-branch-retained"
+    },
+    {
+      "pr": 16,
+      "head": "6bec8ffd68adf90ab2931792a5f7b1838c1d7d24",
+      "branch": "agent/add-frontend-design-skill",
+      "path": "codex/connection-authentication-boundaries.md",
+      "mode": "100644",
+      "type": "blob",
+      "blob": "5148faa1f70dc48cb67de17ee83fb4daf76bcbc4",
+      "source_url": "https://github.com/sjinnouchi-ux/workspace/blob/6bec8ffd68adf90ab2931792a5f7b1838c1d7d24/codex/connection-authentication-boundaries.md",
+      "preservation": "original-head-and-branch-retained"
+    },
+    {
+      "pr": 16,
+      "head": "6bec8ffd68adf90ab2931792a5f7b1838c1d7d24",
+      "branch": "agent/add-frontend-design-skill",
+      "path": "codex/scripts/Test-GitHubConnection.ps1",
+      "mode": "100644",
+      "type": "blob",
+      "blob": "b9902a2cdaed602933c1a9d6ce3320be83a819eb",
+      "source_url": "https://github.com/sjinnouchi-ux/workspace/blob/6bec8ffd68adf90ab2931792a5f7b1838c1d7d24/codex/scripts/Test-GitHubConnection.ps1",
+      "preservation": "original-head-and-branch-retained"
+    },
+    {
+      "pr": 16,
+      "head": "6bec8ffd68adf90ab2931792a5f7b1838c1d7d24",
+      "branch": "agent/add-frontend-design-skill",
+      "path": "codex/skills/README.md",
+      "mode": "100644",
+      "type": "blob",
+      "blob": "444d59cce3b7deaa7012baf362b74e422e9bc8e1",
+      "source_url": "https://github.com/sjinnouchi-ux/workspace/blob/6bec8ffd68adf90ab2931792a5f7b1838c1d7d24/codex/skills/README.md",
+      "preservation": "original-head-and-branch-retained"
+    },
+    {
+      "pr": 16,
+      "head": "6bec8ffd68adf90ab2931792a5f7b1838c1d7d24",
+      "branch": "agent/add-frontend-design-skill",
+      "path": "codex/skills/frontend-design/LICENSE.txt",
+      "mode": "100644",
+      "type": "blob",
+      "blob": "f433b1a53f5b830a205fd2df78e2b34974656c7b",
+      "source_url": "https://github.com/sjinnouchi-ux/workspace/blob/6bec8ffd68adf90ab2931792a5f7b1838c1d7d24/codex/skills/frontend-design/LICENSE.txt",
+      "preservation": "original-head-and-branch-retained"
+    },
+    {
+      "pr": 16,
+      "head": "6bec8ffd68adf90ab2931792a5f7b1838c1d7d24",
+      "branch": "agent/add-frontend-design-skill",
+      "path": "codex/skills/frontend-design/SKILL.md",
+      "mode": "100644",
+      "type": "blob",
+      "blob": "decdff43d05908b4c1fc2cfd2d80fc5743440934",
+      "source_url": "https://github.com/sjinnouchi-ux/workspace/blob/6bec8ffd68adf90ab2931792a5f7b1838c1d7d24/codex/skills/frontend-design/SKILL.md",
+      "preservation": "original-head-and-branch-retained"
+    },
+    {
+      "pr": 16,
+      "head": "6bec8ffd68adf90ab2931792a5f7b1838c1d7d24",
+      "branch": "agent/add-frontend-design-skill",
+      "path": "codex/skills/frontend-design/SOURCE.md",
+      "mode": "100644",
+      "type": "blob",
+      "blob": "e159e6649eec81f3afedf242c7614ed5c9b45e39",
+      "source_url": "https://github.com/sjinnouchi-ux/workspace/blob/6bec8ffd68adf90ab2931792a5f7b1838c1d7d24/codex/skills/frontend-design/SOURCE.md",
+      "preservation": "original-head-and-branch-retained"
+    },
+    {
+      "pr": 16,
+      "head": "6bec8ffd68adf90ab2931792a5f7b1838c1d7d24",
+      "branch": "agent/add-frontend-design-skill",
+      "path": "codex/work_log.md",
+      "mode": "100644",
+      "type": "blob",
+      "blob": "3181b38c3b263e4ce3783ad760c9570674a754fc",
+      "source_url": "https://github.com/sjinnouchi-ux/workspace/blob/6bec8ffd68adf90ab2931792a5f7b1838c1d7d24/codex/work_log.md",
+      "preservation": "original-head-and-branch-retained"
+    },
+    {
+      "pr": 31,
+      "head": "f07cfef0328f4e5b2382ab202c143e1d81e698da",
+      "branch": "agent/mgmt-terminal-core-project-router",
+      "path": "PROJECTS.md",
+      "mode": "100644",
+      "type": "blob",
+      "blob": "f386b25a93dd9cb30e2bfa5d6fb9c9b601f6710b",
+      "source_url": "https://github.com/sjinnouchi-ux/workspace/blob/f07cfef0328f4e5b2382ab202c143e1d81e698da/PROJECTS.md",
+      "preservation": "original-head-and-branch-retained"
+    },
+    {
+      "pr": 35,
+      "head": "9d1e6b6f8be60beac8fcc08a4a8288e5e589fc07",
+      "branch": "agent/windows-utf8-guidance",
+      "path": "codex/CODEX_DESKTOP_STARTUP.md",
+      "mode": "100644",
+      "type": "blob",
+      "blob": "d0cc60a5672058458dd9e1533e9d8247b91c85a9",
+      "source_url": "https://github.com/sjinnouchi-ux/workspace/blob/9d1e6b6f8be60beac8fcc08a4a8288e5e589fc07/codex/CODEX_DESKTOP_STARTUP.md",
+      "preservation": "original-head-and-branch-retained"
+    },
+    {
+      "pr": 35,
+      "head": "9d1e6b6f8be60beac8fcc08a4a8288e5e589fc07",
+      "branch": "agent/windows-utf8-guidance",
+      "path": "codex/work_log.md",
+      "mode": "100644",
+      "type": "blob",
+      "blob": "330dc1230d9ab5816043db8e6b2558725f9cf798",
+      "source_url": "https://github.com/sjinnouchi-ux/workspace/blob/9d1e6b6f8be60beac8fcc08a4a8288e5e589fc07/codex/work_log.md",
+      "preservation": "original-head-and-branch-retained"
+    },
+    {
+      "pr": 62,
+      "head": "4b5085aeb3ea732447caff0a5cf18affdc5dfe01",
+      "branch": "ops/disable-codex-line-notify-20260901",
+      "path": "codex/work_log.md",
+      "mode": "100644",
+      "type": "blob",
+      "blob": "9b7a5571ccd3e61bfb03b369ad37d159cf0af6b9",
+      "source_url": "https://github.com/sjinnouchi-ux/workspace/blob/4b5085aeb3ea732447caff0a5cf18affdc5dfe01/codex/work_log.md",
+      "preservation": "original-head-and-branch-retained"
+    }
+  ],
+  "original_entrypoints": [
+    {
+      "path": "README.md",
+      "head": "341188f96603e1d806029d24971577580d4ffd1d",
+      "mode": "100644",
+      "type": "blob",
+      "blob": "e818215c958113a3b980bbe410f06e61f66772b7"
+    },
+    {
+      "path": "MCP.md",
+      "head": "341188f96603e1d806029d24971577580d4ffd1d",
+      "mode": "100644",
+      "type": "blob",
+      "blob": "bef0e042df9f71faaea87d0a1a8aa42fcd519707"
+    },
+    {
+      "path": "docs/workflow-design-implementation.md",
+      "head": "341188f96603e1d806029d24971577580d4ffd1d",
+      "mode": "100644",
+      "type": "blob",
+      "blob": "ad33f84969eb602ac063c3b30f424d72e279ef1e"
+    }
+  ],
+  "additional_snapshots": [
+    {
+      "path": "docs/history/workspace-pr-cleanup-2026-11-13/pr-16/codex/scripts/Test-GitHubConnection.ps1.txt",
+      "blob": "b9902a2cdaed602933c1a9d6ce3320be83a819eb",
+      "mode": "100644",
+      "type": "blob",
+      "source_pr": 16,
+      "source_path": "codex/scripts/Test-GitHubConnection.ps1"
+    },
+    {
+      "path": "docs/history/workspace-pr-cleanup-2026-11-13/pr-16/codex/skills/frontend-design/SKILL.md.txt",
+      "blob": "decdff43d05908b4c1fc2cfd2d80fc5743440934",
+      "mode": "100644",
+      "type": "blob",
+      "source_pr": 16,
+      "source_path": "codex/skills/frontend-design/SKILL.md"
+    },
+    {
+      "path": "docs/history/workspace-pr-cleanup-2026-11-13/pr-16/codex/skills/frontend-design/SOURCE.md",
+      "blob": "e159e6649eec81f3afedf242c7614ed5c9b45e39",
+      "mode": "100644",
+      "type": "blob",
+      "source_pr": 16,
+      "source_path": "codex/skills/frontend-design/SOURCE.md"
+    },
+    {
+      "path": "docs/history/workspace-pr-cleanup-2026-11-13/pr-16/codex/skills/frontend-design/LICENSE.txt",
+      "blob": "f433b1a53f5b830a205fd2df78e2b34974656c7b",
+      "mode": "100644",
+      "type": "blob",
+      "source_pr": 16,
+      "source_path": "codex/skills/frontend-design/LICENSE.txt"
+    }
+  ]
+}

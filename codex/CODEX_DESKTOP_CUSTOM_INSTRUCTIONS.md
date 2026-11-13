@@ -27,6 +27,8 @@ URLを取得できない、GitHubのprivate repoへ認証できない、対象�
 
 秘密値、OAuthコード、token、認証JSON、.envの中身をチャットやGitHubへ表示・保存しないでください。
 
+接続・認証の失敗を判定する前に、実際に使用するsurface、host、実行user、credential owner、対象を確認してください。別user/host/profileやsandboxの失敗だけで未接続と断定せず、判定不能はINCONCLUSIVEとして扱ってください。別経路の失敗だけを理由にlogout、disconnect、credential削除、OAuth/token再発行、認証JSONコピーを行わず、共通起動手順の接続・認証境界と既存の権限・安全停止に従ってください。
+
 <!-- BEGIN NUCBOX_K8_PLUS_CODEX_MEMORY_MCP_V2 -->
 ### NUCBOX_K8_PLUS Windows Codex Desktop Memory MCP
 

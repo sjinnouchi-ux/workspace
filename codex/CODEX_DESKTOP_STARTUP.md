@@ -54,6 +54,13 @@ URL取得、GitHub認証、対象プロジェクト特定のいずれかに失�
 
 検証済み手順と限界: [development-environmentの復旧記録](https://github.com/sjinnouchi-ux/development-environment/blob/main/docs/reports/2026-10-30-mobile-browser-initialization.md)。関連する外部報告: [openai/codex #57721](https://github.com/openai/codex/issues/57721)（利用者による再現報告であり、修正版の提供を保証するものではない）。
 
+## Connection And Authentication Boundaries
+
+- Apps connector、local CLI/sync、local/host MCP、hosted plugin MCP、browser/profile、Remote/SSHを別の認証・実行境界として確認する。
+- sandbox user、別host/profile、tool未露出、network制約で判定できない結果はINCONCLUSIVEとし、credential消失や未接続へ置き換えない。
+- 別経路の失敗だけでlogout、disconnect、credential削除、OAuth/token再発行、認証JSONコピーを行わない。既存権限と使用toolの安全停止を維持する。
+- 詳細は[接続・認証境界](connection-authentication-boundaries.md)。旧PR16の確認scriptを必須化せず、必要な確認は現在使用する正式経路で行う。
+
 ## Local Work Policy
 
 - ローカルは作業場であり正本ではない。
@@ -68,6 +75,9 @@ URL取得、GitHub認証、対象プロジェクト特定のいずれかに失�
 - Codex Desktopのローカル作業はWindows + PowerShellを前提とする。
 - 検索は `rg` / `rg --files` を優先する。
 - 日本語Markdown、CSV、textは `Get-Content -Encoding UTF8` で読む。
+- 文字化けした表示を根拠に編集せず、`Get-Content -Raw -Encoding UTF8` で正常表示を確認してから編集する。
+- Windows PowerShell 5.1では、BOMなしUTF-8が必要なMarkdown、YAML、JSON、TOMLを `Set-Content`、`Out-File -Encoding utf8`、`>` で新規保存・全置換しない。`apply_patch` またはBOMなしUTF-8を明示できる方法を使い、既存の文字コードを保つ。
+- 日本語を含む編集後はUTF-8指定で再読し、`git diff` で文字化けがないことを確認する。
 - destructiveなfilesystem/Git操作は、対象と救出完了を確認してから実行する。
 
 ## Cleanup Gate
