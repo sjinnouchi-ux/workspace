@@ -716,3 +716,7 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 - PR16の認証境界と誤判定防止、PR35のUTF-8注意3行、PR62の9月通知hook除去履歴を採用。旧Core親router変更は採用せず、PROJECTSと保留案件を保持する。
 - 全15原版のhead/branch/path/mode/type/blobをmanifestへ固定。個人pathを含む古い全文は元Git原版への参照で保持し、script/skill/source/license4fileだけ非実行snapshotへ同blobで保存する。skill install、script実行、各PC設定同期、hook/通知、認証、runtime、配備、DB、Secret/IAM操作なし。
 - [採否・保存・検証記録](../docs/reports/2026-11-13-workspace-entrypoint-pr-cleanup.md)。文書だけのため重いテスト・手動Actions・外部監査は不要。固定commitの全文/blob読戻し後に旧4PRを終了し、結果を同reportへ追記する。local clone/worktree・未push情報は作成しない。
+
+### 2026-11-13 終了確認
+
+保存commit `ad8a7ea15981139230b849911497c5e0ea27b0a7` から12本文一致・4snapshot同blob・対象外65blob不変を確認後、旧PR16/31/35/62をclosed/unmergedへ変更し独立読戻し。元head/branch/title/本文/draftを保持し、元4branchの存在も確認した。workspace open PR0件。設定・通知・runtime・本番操作なし、local作業場・未push情報なし。詳細は[終了記録](../docs/reports/2026-11-13-workspace-entrypoint-pr-cleanup.md)。

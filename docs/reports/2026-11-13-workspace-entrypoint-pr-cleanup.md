@@ -41,3 +41,12 @@ README、MCP、責務文書は旧Shogunを現役の基盤・設計担当とし�
 公開前に相対リンク53件、追加差分の秘密値/個人path・UTF-8/文字化け/行末空白、原版15fileのfile-list/tree一致を確認し、問題なし。元4branchの存在とhead一致も照合した。4snapshotのblob一致と対象外blob保持は保存後の読戻しでも確認する。親SHA固定・expected-SHA非forceでmainへ保存し、固定commitから全文を読戻した後に旧4PRを未merge closeする。元title/本文/head/draft/branch保持とclosed状態を独立readbackし、結果を本書へ追記する。GitHub connectorで保存し、local clone・未commit・未push成果物を作らない。
 
 本作業では新しい製品不具合の原因修正・検証はないためMemoryへVerifiedFailurePatternを追加しない。他taskへ進まない。
+
+## 保存・終了結果
+
+- 保存commit：`ad8a7ea15981139230b849911497c5e0ea27b0a7`。12文書全文のGitHub固定commit読戻し一致、追加snapshot4件の元blob/mode一致、変更対象外65blob不変、PROJECTS/AGENTS/claude_log不変を確認した。
+- 2026-11-13 23:53 JSTにPR16/31/35/62をclosed / unmergedへ変更し、その後の独立GETで4/4を確認。元title/本文/head SHA/head branch/draftは不変。元4branchも同headで存在する。
+- workspaceのopen PR一覧は0件を確認。他repoのPR448/449や保留項目には操作していない。
+- PR16/31を元提案の全採用として扱わず、上表の採用・非採用・履歴を維持する。PR35の3注意行は採用済み、PR62の現local状態は未再検証。
+- GitHub上の文書更新と旧PRの状態変更のみ。新しいPRコメント・他者への連絡、実行コード、skill install、各PC設定、通知hook、認証、runtime、配備、DB、Secret/IAM、手動Actions、外部監査の操作はなし。
+- local clone/worktree・未commit・未push・local専用成果物は作成しておらず、ローカル整理対象なし。終了結果は本書とwork_logに追記する。
