@@ -1,5 +1,13 @@
 # Codex 作業ログ
 
+## 2026-11-14 — ローカルSNS日次DB集計の立ち上げ前調査
+
+- 利用者の指示で、新規プロジェクトを作る前にChatGPT Workへ実現可能性・構成案を依頼し、初回回答とアカウント種別反映後の更新を回収した。Fable 5.2のread-only監査を準備する。
+- 利用者確認: Instagramはプロ、TikTokは企業用ではないがインサイト閲覧可能。両方認証マークなし。過去分不要で開始日から日次DB記録。旧dori-mangaは復元しない。
+- [調査案](../docs/proposals/2026-11-14-local-sns-metrics-feasibility.md)と[公式出典・境界](../docs/reports/2026-11-14-local-sns-metrics-sources.md)を共通の調査記録として保存。新repo/台帳登録・実装・SNS認可・実データ取得・定期ジョブは実施していない。
+- Canonical area: workspace共通運用。base `00c978297e1e34ae90f7325acd277702d48c39e8`、default main、task branch `research/sns-local-feasibility-20261114`、全branch refspec、初期ahead/behind 0/0、Windows-native Git、originはcredential-freeのGitHub workspace URLを確認した。
+- 文書のみのためアプリ/DBの重いテストは不要。UTF-8、差分、必要ファイル・参照・秘密情報、GitHub境界の固定commit/PRを確認する。実アカウント取得を未検証として維持する。
+
 ## 2026-11-12 — GitHub整理タスク3・4
 
 結果: マージ済み46 branchを削除・GitHub読戻し確認。対象外branchの消失・変更0、自動削除設定不変。救出文書と検証結果はmainへ保存済み。
