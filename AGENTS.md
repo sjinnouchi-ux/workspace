@@ -17,3 +17,11 @@
 - 予算・課金上限は、利用者の明示指示なしに変更しない。
 
 作業開始時に[共通方針](https://github.com/sjinnouchi-ux/workspace/blob/main/codex/GITHUB_ACTIONS_POLICY.md)も読む。必須チェック・既存の承認ルールは維持する。検証済み結果を再利用する場合は対象commit・検証範囲・結果を確認し、今回の変更に適用できることを示す。
+
+## Memory MCP の活用
+
+GitHubの共通起動手順と台帳でCanonical Entryを確定し、対象repoの既定ブランチ・AGENTS.md・Primary Docsを確認する。その後、このWindows端末に設定された `development_memory` をCanonical repo名とcomponent名で検索する。関連する既知の失敗は、症状・原因・修正・証拠を読み、今回の環境にも当てはまる場合に活用する。GitHubと食い違う場合はGitHubを優先し、MCPが使えない場合や該当0件の場合もGitHub正本で作業を続ける。
+
+原因が確定し、修正後の検証に通った再利用可能な失敗だけを `VerifiedFailurePattern` として記録する。端末、repoまたは共通領域、component、匿名化した症状、原因、修正、証拠（commit・PR・テスト結果など）、検証日を残す。同じパターンには既存項目へ検証結果を追記する。秘密値・認証情報・個人情報・生ログ・会話全文は保存しない。
+
+[端末別のMemory MCP運用手順](https://github.com/sjinnouchi-ux/development-environment/blob/main/docs/memory-mcp.md)
