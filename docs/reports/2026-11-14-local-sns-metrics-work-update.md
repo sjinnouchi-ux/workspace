@@ -20,7 +20,7 @@
 | **TikTok：アカウント／投稿リーチ** | **Display APIでは取得不可。現在の個人アカウントで使える、承認済みの無人取得経路は未確認** |
 | **TikTok：保存相当数（Favorites）** | **Display APIでは取得不可。現在の個人アカウントでの完全自動取得は確認できない** |
 
-Instagramの条件・指標：[Meta Insights](https://developers.facebook.com/documentation/instagram-platform/insights)、[Account Insights](https://developers.facebook.com/documentation/instagram-platform/api-reference/instagram-user/insights)、[Media Insights](https://developers.facebook.com/documentation/instagram-platform/reference/instagram-media/insights)。  
+Instagramの条件・指標：[Meta Insights](https://developers.facebook.com/documentation/instagram-platform/insights)、[Account Insights](https://developers.facebook.com/documentation/instagram-platform/api-reference/instagram-user/insights)、[Media Insights](https://developers.facebook.com/documentation/instagram-platform/reference/instagram-media/insights)。
 TikTokのフィールド：[User Info](https://developers.tiktok.com/docs/en/tiktok-api-v2-get-user-info)、[Video Object](https://developers.tiktok.com/docs/en/tiktok-api-v2-video-object)。
 
 **TikTok個人アカウントを維持する場合は、次のように分けます。**
@@ -64,5 +64,3 @@ TikTokのフィールド：[User Info](https://developers.tiktok.com/docs/en/tik
 **更新結論：InstagramはAPI中心、TikTokは現在使えているインサイトの公式出力を確認するところから始める併用案が妥当です。** 出力できれば取り込み・DB集計は自動化できますが、手動ダウンロードが残れば半自動です。**TikTokの保存相当数・リーチを毎日完全自動取得できることは、まだ確認できていません。**
 
 開始日の値を初期スナップショットとして保存し、以後の累計値と差分を分けます。未取得は0にせず、累計差分は日次活動の真値として扱いません。実装・認証・プロジェクト作成は行っていません。
-
-
