@@ -5,6 +5,8 @@
 | 公式出典 | 確認した仕様と限界 |
 |---|---|
 | [Instagram Insights guide](https://developers.facebook.com/documentation/instagram-platform/insights) | プロアカウントが対象。Instagram Login経路は `instagram_business_basic` と `instagram_business_manage_insights`。自ら所有/管理しApp Dashboardに追加したアカウントにはStandard Accessの経路が示される。他者のアカウント向けはAdvanced Access。認証バッジが必要という条件はこの資料にない。実際のアプリ/アカウントの適合性は未確認。 |
+| [IGUser](https://developers.facebook.com/docs/graph-api/reference/shadow-ig-user) | Codexが監査指摘後に直接本文確認。followers_countは現在のフォロワー総数のfieldとして掲載される。自ら採用するログイン経路・権限での実取得は未検証。Insightsのfollower_countと混同しない。 |
+| [Instagram Account Insights](https://developers.facebook.com/documentation/instagram-platform/api-reference/instagram-user/insights) | Codexが監査指摘後に直接本文確認。reachはday、total_value/time_seriesに対応し広告を含む推定到達人数。反映が最大48時間遅れる場合がある。アカウント期間値であり投稿累計リーチの差分とは別。採用API版・元期間・範囲を実装時に固定する。 |
 | [Instagram Media Insights](https://developers.facebook.com/documentation/instagram-platform/reference/instagram-media/insights) | Feed/Reelsの `reach`、`likes`、`saved`、`views` が掲載される。投稿種別で対応指標が違う。responseのperiod説明ではlifetime固定であり、汎用parameter一覧にdayがあるだけでは投稿別日次履歴取得の根拠にしない。広告/Facebook込みのtotal系列を通常系列と混ぜない。 |
 | [Instagram Media reference](https://developers.facebook.com/docs/instagram-platform/reference/instagram-media/v21.0/) | 投稿日時timestampがある。閲覧時の本文は現行v27.0を表示した。プロアカウント所有メディアが対象。saved_count等のobject fieldはFacebook Login限定等の条件があり、Insightsのsavedと経路を混同しない。実装時は採用API版を固定する。 |
 | [TikTok Get User Info](https://developers.tiktok.com/docs/en/tiktok-api-v2-get-user-info) | follower_countはuser.info.stats。認証マークのis_verifiedは別フィールド。認証マークなしという情報だけでAPI取得可否は決まらない。 |
@@ -15,6 +17,7 @@
 | [TikTok Accounts API overview](https://business-api.tiktok.com/portal/docs/accounts-api-overview/v1.3) / [Accounts API案内](https://business-api.tiktok.com/gateway/docs/index?doc_id=1737565048641538&language=ENGLISH) | 公式の検索表示本文で、Personal/Business Account活動のプログラム管理、ブランド/creator所有アカウントの分析という用途と、2026-03-20以降の対象新規申請・scope追加に専用Access Application Formが必要であることを確認。General Personal AccountはBusiness Suiteへの入口を持たず、Advanced AccessはTikTok for Business等との連携による追加段階と説明される。プロフィールの認証マークとは別。この利用者が承認されるか、必要な保存/リーチ指標が得られるかは未確認。 |
 | [TikTok Web Business Suite](https://ads.tiktok.com/resources/help/article/navigate-web-business-suite?lang=en) | 管理画面の分析機能がある。対象アカウントでCSVが出るか、投稿別保存/リーチが含まれるか、日付が何を意味するかは実ファイルで未確認。 |
 | [Microsoft TaskSettings](https://learn.microsoft.com/en-us/windows/win32/taskschd/tasksettings) | StartWhenAvailableとWakeToRunの設定がある。遅延起動は当時の累計値を復元しない。PC固有の復帰/電源/ネットワーク条件は実測対象。 |
+| [SQLite UNIQUE constraints](https://www.sqlite.org/lang_createtable.html#unique_constraints) | Codexが監査指摘後に公式本文を確認。NULL同士はUNIQUE上区別される。CSVのファイル識別とrunをまたぐ取込み判定、期間NULL系列の重複条件を実装時に定める。実DB/スキーマは今回作成していない。 |
 
 ## Codexによる暫定結論
 

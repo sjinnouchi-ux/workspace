@@ -7,6 +7,8 @@
 - [調査案](../docs/proposals/2026-11-14-local-sns-metrics-feasibility.md)と[公式出典・境界](../docs/reports/2026-11-14-local-sns-metrics-sources.md)を共通の調査記録として保存。新repo/台帳登録・実装・SNS認可・実データ取得・定期ジョブは実施していない。
 - Canonical area: workspace共通運用。base `00c978297e1e34ae90f7325acd277702d48c39e8`、default main、task branch `research/sns-local-feasibility-20261114`、全branch refspec、初期ahead/behind 0/0、Windows-native Git、originはcredential-freeのGitHub workspace URLを確認した。
 - 文書のみのためアプリ/DBの重いテストは不要。UTF-8、差分、必要ファイル・参照・秘密情報、GitHub境界の固定commit/PRを確認する。実アカウント取得を未検証として維持する。
+- Workの全追加前提反映回答を回収後、[draft PR80](https://github.com/sjinnouchi-ux/workspace/pull/80)のhead `6439a9d3a9b51e8278273565d45f1317b1cc3ee5` を固定し、利用者指定Fable 5.2でread-only監査を一回実施。直前の認証preflight成功、receipt completed/exit0/本文あり。再試行・fallbackなし。監査所有processとsubject prefix残留はともに0。診断tailは保存しない。
+- Critical/Importantなし、Minor 3点。Codexは出典2点の直接照合、CSV再取込みとNULL系列のキー補足、Accounts APIの確認水準限定を採用した。詳細は[監査と対応記録](../docs/reports/2026-11-14-local-sns-metrics-fable-audit.md)。補足後の再監査は実施せず、文書差分・参照検査で確認する。PRのみでmain未統合、新規プロジェクト・実装・SNS取得は未実施。
 
 ## 2026-11-12 — GitHub整理タスク3・4
 

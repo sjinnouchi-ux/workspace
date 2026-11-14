@@ -1,6 +1,6 @@
 # ローカルSNS日次集計の立ち上げ前調査
 
-状態: 調査中。新規プロジェクト作成・実装は未承認、未実施。
+状態: Work調査とFable 5.2監査完了。軽微な指摘3点をCodexが補足。新規プロジェクト作成・実装は未承認、未実施。
 
 ## 利用者が指定した前提
 
@@ -28,7 +28,7 @@
 | B | API取得＋公式管理画面CSVの取込み → SQLite | APIにない項目を、CSVの実列・対象期間を確認して補完できる候補。CSVダウンロードが手動なら完全自動とは呼ばない。 |
 | C | 管理画面の通常操作を自動化 → SQLite | UI変更、ログイン/MFA、画面ロック、規約、数値の丸めへの依存が大きい。非公開API・認証回避を使わず、実現性は別途確認する。 |
 
-最小候補はB。Instagramは公式Insightsを優先し、TikTokは現在閲覧できるインサイトの公式出力から始める候補とする。出力可否・列・観測時刻が未確認なので、この段階では毎日の収集成功や全指標取得を保証しない。手動ダウンロードが必要ならDB取込みのみ自動であり、SNS取得は半自動と明記する。Accounts APIはPersonal Accountも公式説明の対象だが、専用の申請・審査・権限が必要であり、当人の利用適格性と指標は未確認。企業用への変更を当然の前提にしない。すべての希望指標の自動化が必要なら、開始前の可否判定条件に含める。
+最小候補はB。Instagramは公式Insightsを優先し、TikTokは現在閲覧できるインサイトの公式出力から始める候補とする。出力可否・列・観測時刻が未確認なので、この段階では毎日の収集成功や全指標取得を保証しない。手動ダウンロードが必要ならDB取込みのみ自動であり、SNS取得は半自動と明記する。Accounts APIはPersonal Accountも公式説明の対象だが、専用の申請・審査・権限が必要とされる（この点は公式の検索表示本文による確認。直接本文の精読と当人の適格性・対応指標は未確認）。企業用への変更を当然の前提にしない。すべての希望指標の自動化が必要なら、開始前の可否判定条件に含める。
 
 Instagramの最小対象はFeed/Reels。Storiesは取得できる期間が短いため、希望がある場合に収集頻度を別途検討する。再生/表示、投稿単位/アカウント単位、広告込みの有無も明示する。
 
@@ -50,7 +50,7 @@ WindowsのDB保存と日次実行は通常の構成で実現可能。Instagram�
 - `posts`: platform、account_id、post_id、published_at_utc、投稿形式、削除/非公開等の取得状態。
 - `collection_runs`: run_id、scheduled_for_utc、started_at_utc、finished_at_utc、結果、失敗分類。生の認証レスポンスは保存しない。
 - `metric_observations`: run_id、platform、account_id、post_id（アカウント指標はnull）、metric_name、value（未取得はnull）、status、observed_at_utc、provider_period_start/end、provider_timezone、source、API_version、metric_definition_version。投稿指標とアカウント指標のキーを分ける。
-- 累計/期間値、Instagramのみ/広告込み/Facebook込み、推定値等の意味が異なるものは別系列とする。同一runの同一対象・同一定義・同一期間を一意にし、再実行で重複させない。欠測・未対応・権限不足・取得失敗を0と区別する。
+- 累計/期間値、Instagramのみ/広告込み/Facebook込み、推定値等の意味が異なるものは別系列とする。同一runの同一対象・同一定義・同一期間を一意にする。CSV再取込みはrun_idをまたいでファイル識別（ハッシュ等）と取込対象を照合し、同じファイルを二重計上しない。期間がNULLの累計系列も重複判定できるキー/条件を実装時に定める。SQLiteのUNIQUEはNULL同士を区別するため、NULLを含む複合キーだけで重複防止できると推定しない。欠測・未対応・権限不足・取得失敗を0と区別する。
 - JSTは利用者表示/スケジュールの日付。取得時刻はUTC。providerの集計期間は保持し、日付ラベルだけをJSTに変えてJST集計と誤表示しない。
 - Windows Task Schedulerから日次実行し、遅延実行・二重起動防止を検討する。スリープ復帰は端末の対応状況を実測し、電源OFF中の実行を保証しない。常時記録が必須ならPCの稼働条件を利用者が判断する。
 - 資格情報はWindows Credential Manager/DPAPI等を候補として、将来の実装repo規則に従って決める。APIごとに有効期限・refresh条件を確認し、失効時は取得失敗を明示する。SNSのパスワードをDBへ保存しない。
@@ -69,5 +69,5 @@ WindowsのDB保存と日次実行は通常の構成で実現可能。Instagram�
 
 - 公式資料の確認結果は[出典と確認境界](../reports/2026-11-14-local-sns-metrics-sources.md)を参照。
 - Workの[初回回答](../reports/2026-11-14-local-sns-metrics-work-initial.md)と[追加前提を反映した更新結論](../reports/2026-11-14-local-sns-metrics-work-update.md)を回収済み。Instagramプロ・TikTok非企業用でインサイト閲覧可能・両方認証マークなし・過去分不要という全追加前提を反映したWork最終更新も同文書へ保存した。
-- Fable 5.2監査は未実施。Work回答・最新前提をGitHub上の監査対象commitへ固定してから実施する。
+- [Fable 5.2監査](../reports/2026-11-14-local-sns-metrics-fable-audit.md)はcommit `6439a9d3a9b51e8278273565d45f1317b1cc3ee5`で一回実施し、正常完了。Critical/Importantなし、Minor 3点。出典追加、CSV再取込み/NULLキー、Accounts API確認水準の限定をCodexが補足した。補足後の再監査は実施しない。
 - 新規プロジェクトを作らず、共通workspaceに立ち上げ前の調査記録だけを保存する。台帳・稼働システム・認証設定は変更しない。
