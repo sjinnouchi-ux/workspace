@@ -52,3 +52,9 @@ GitHub connectorで必要文書を直接保存し、local clone/scratch/未commi
 ## 残範囲
 
 [家計簿Issue #3](https://github.com/sjinnouchi-ux/kakeibo-liff/issues/3)のStage B全体はopen継続。旧LIFF廃止、token/rollback版撤去、保持Secret binding2件の処理、Stage B全体の安定稼働評価・実登録等の受入・設計完了記録は今回の完了へ含めない。他タスクへ進まず、今回の結果を利用者へ報告する。
+
+## 保存後の確認結果
+
+workspace main固定commit `2b0840283914bc49005215bfb9595eeecaeb3273` から、文書4件の全文一致、差分が当該4件のみ、保存対象5件すべてのblob一致を確認した。PROJECTSは関連2セルだけの変更で、行数・列数と現行Alias/Status/Canonical Entry/Primary Docsは不変。新しい相対リンク4件の参照先も確認した。
+
+家計簿Issue #3のPROJECTS更新・Legacy/Frozen記録の2項目を完了へ更新し、open状態と他のチェックを保持した。local clone/scratch/未commit/未push成果物は作成していない。本番・旧LIFF・token・rollback版へ変更操作は行わず、今回の文書整理を完了として報告する。
