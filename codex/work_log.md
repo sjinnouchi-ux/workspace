@@ -1,5 +1,9 @@
 # Codex 作業ログ
 
+## 2026-11-15 — 共通workspaceの旧7ブランチの保持確認
+
+[固定tip・保存先・採否・検証](../docs/reports/2026-11-15-foundation-branch-preservation-check.md)。Kアラート保留とSNS案破棄を維持し、残る5本の差分19 branch/pathを照合。既存15原版の固定参照と4snapshotが一致し、Memory旧案は後継PR56/現行V2への置換を確認した。旧branch/headが原版の保存先である点を明記し、7本すべて保持。mainの文書2件だけで、PR/Issue・branch削除/merge・コード・本番/DB/token/rollback・端末/通知/Memory設定を変更しない。GitHub全文読戻しと対象外blob/元tipの保持を検証し、アプリ全体試験・手動Actionsは文書のみのため省略する。ローカル作業場なし。以下の旧ログは当時の履歴として保持する。
+
 ## 2026-11-12 — GitHub整理タスク3・4
 
 結果: マージ済み46 branchを削除・GitHub読戻し確認。対象外branchの消失・変更0、自動削除設定不変。救出文書と検証結果はmainへ保存済み。
