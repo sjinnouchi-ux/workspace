@@ -2,7 +2,25 @@
 
 状態: Work調査とFable 5.2監査完了。軽微な指摘3点をCodexが補足。その後、利用者指定でTikTokの実画面と公式CSVを追加確認した。新規プロジェクト作成・実装は未承認、未実施。
 
-## 利用者が指定した前提
+## 現在の対象と推奨経路（2026-11-14追記）
+
+利用者はTikTokの数字のDB格納を不要と指定した。以後のDB集計対象はInstagramのみ。TikTokの記録は調査履歴として保持し、DB設計・自動取得の対象に含めない。既存DBや収集ジョブはそもそも作成しておらず、削除・停止操作はない。
+
+Instagramは対象プロアカウントを正規に認可する公式APIを第一候補にする。Media InsightsにFeed/Reelsのviews、saved、reach、likesがある。投稿形式・広告込みの範囲・API版を固定し、初期値から日次スナップショットを保存する案。認証マークの有無とAPIの認可は別であり、今回のアカウントでのAPI取得はまだ検証していない。
+
+| 別PC/別アカウントの意味 | 再生数 | 保存数 | 現在の判断 |
+|---|---|---|---|
+| Windows/Google等が別アカウントのPCから、対象Instagramの正規API認可を使う | 対応メディアでAPI取得候補 | savedをAPI取得候補 | PCの違いより、対象Instagramへの認可が重要。ブラウザのInstagramログインを毎日常駐させる構成は必須ではない。資格情報は正規の保存方法で対象PCに準備し、セッション/cookieのコピーで共有しない。 |
+| 管理権限のない一般の別Instagramアカウントで公開投稿を見る | 画面に公開表示される範囲なら読取り候補。今回HTMLでは未検証。 | 公開HTMLから取得できる前提にしない | 保存ボタンや自分の保存状態は、投稿が保存された総数ではない。公開再生数と所有者向けInsightsの定義を混ぜない。 |
+| 対象本人または正式な管理権限でブラウザのInsightsを開く | 表示されれば画面読取り候補 | 表示されれば画面読取り候補 | このアカウントのPC版Insights/HTML読取りは未検証。画面読取りとAPI利用可否は別。HTMLに常に必要値が含まれることや安定した無人取得を保証しない。 |
+
+公式根拠: [Insights guide](https://developers.facebook.com/documentation/instagram-platform/insights)、[Media Insights](https://developers.facebook.com/documentation/instagram-platform/reference/instagram-media/insights)、[Media reference](https://developers.facebook.com/documentation/instagram-platform/reference/instagram-media)、[Instagram Login](https://developers.facebook.com/documentation/instagram-platform/instagram-api-with-instagram-login)。確認日2026-11-14。
+
+Media referenceのsaved_countは所有者または承認済みcollaborator向け・Facebook Login限定で、Business Discovery等には提供されない。これはInsightsのsavedとは経路を区別する。Business Discoveryの公開view_countは広告等を含み得るため、自分のInsights viewsと同一系列にしない。これらのAPI仕様を根拠に、管理権限のない閲覧者向けHTMLから保存総数を集める案は採用しない。
+
+次の最小調査は、Instagramプロの正規管理者・アプリ設定・必要権限・対象Feed/Reelsでの公式API適合性の確認。現時点ではAPI作成/認可、権限付与、PC設定、HTML収集プログラム、DBは実装しない。新規プロジェクトの立ち上げは引き続き行わない。
+
+## 初期調査で利用者が指定した前提（現在は上記のInstagramのみへ縮小）
 
 - 自身が運用するInstagramとTikTokを対象に、Windows PCで日次集計しDBへ保存する環境を検討する。
 - 両SNSとも認証マークなし。利用者確認: Instagramはプロアカウント、TikTokは企業用ではない。Instagramのクリエイター/ビジネスの内訳は未確認。開発者アプリの審査、API権限、企業確認は別条件であり、認証マークの有無から推定しない。
@@ -20,7 +38,7 @@
 
 開始日の観測前の差分は計算しない。電源OFFなどで欠測した日の累計値を後日値で埋めない。欠測をまたぐ差分は観測間隔分として表示し、1日分に均等配分しない。公式の期間別集計が別途取得できる場合のみ、対象期間を維持して別系列に保存する。
 
-## 構成候補（Work初回回答と公式資料をCodexが照合）
+## 初期の構成比較（TikTok除外前の履歴）
 
 | 案 | 構成 | 評価 |
 |---|---|---|
@@ -44,7 +62,7 @@ Instagramの最小対象はFeed/Reels。Storiesは取得できる期間が短い
 | 投稿別再生/いいね | Media Insightsのviews/likesが候補。投稿形式と定義を固定。 | Content.csvにTotal views/Total likesを出力確認。サンプル15投稿であり、全投稿網羅・日次無人取得は未実証。 |
 | 投稿別リーチ/保存相当 | Media Insightsのreach/savedが候補。 | 投稿詳細の総視聴者数/ブックマーク数は画面表示あり。確認した公式CSVに該当列なし、専用出力口は未確認。Accounts APIは利用適格性・指標の確認が残る。 |
 
-WindowsのDB保存と日次実行は通常の構成で実現可能。Instagramの日次API取得は条件付きで有力。TikTokの保存相当数・リーチを含む全希望指標の無人取得は未実証であり、これを必須とする場合は立ち上げ判断を保留する。
+WindowsのDB保存と日次実行は通常の構成で実現可能。Instagramの日次API取得は条件付きで有力。初期調査ではTikTokの保存相当数・リーチを含む無人取得が未実証だったが、現在はTikTokのDB格納を対象から外したため、その不足をInstagramの検討条件には含めない。
 
 ## DBとローカル実行の候補
 

@@ -1,5 +1,11 @@
 # Codex 作業ログ
 
+## 2026-11-14 — TikTokをDB対象外、Instagram APIとHTMLの比較
+
+- 利用者がTikTokの数字格納を不要と指定。現在のDB対象をInstagramのみに縮小し、過去のTikTok調査は履歴として保持した。DB/ジョブは未作成で、削除・停止操作なし。
+- Meta公式のInsights/Media Insights/Media reference/Instagram Loginを再確認。対象プロの正規API認可でviews/saved/reach等を取得する案を第一候補とした。別PCのWindows/GoogleアカウントとInstagramの認可を区別し、一般閲覧者の別Instagramアカウントから公開HTMLで保存総数を取得できるとは扱わない。
+- 実Instagramログイン、API認可/呼出し、権限設定、HTML収集、DB、プロジェクト作成は未実施。[現在の範囲と経路比較](../docs/proposals/2026-11-14-local-sns-metrics-feasibility.md)へ追記した。文書のみのため重いテストやFable再監査は行わず、UTF-8・リンク・差分・GitHub同期を確認する。既知の作業場削除拒否を迂回しない。
+
 ## 2026-11-14 — TikTok現在アカウントの公式CSV確認
 
 - 利用者の追加指示でアプリ内ブラウザへTikTokログイン画面を開き、本人のログイン後に対象プロフィールとStudioを確認。概要・コンテンツ・視聴者の正規CSVサンプルを出力し、ZIP内部の実列を確認した。
