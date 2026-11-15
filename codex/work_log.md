@@ -1,5 +1,13 @@
 # Codex 作業ログ
 
+## 2026-11-15 — 事業管理リポジトリの削除完了
+
+利用者の本体/履歴/Issue #1〜#3を含む最終削除承認とGitHub本人確認後、正規所有者画面の削除成功表示を確認した。認証済みAPIで対象404、他のprivate正本2repoは200、所有repo一覧からの消失を照合。削除処理の再実行なし。Notionは未インストールを再確認し、Notion内のページ/DB/アカウントと他repo/本番/DB/認証/Secret/配備は対象外のまま保持。
+
+PROJECTSの当該Active行を凍結・参照欄のDeletedへ移し、Canonicalを[中央の削除記録](https://github.com/sjinnouchi-ux/development-environment/blob/main/docs/reports/2026-11-15-business-management-retirement.md)へ切り替えた。Issue3件は業務実施成功ではなく廃止による残件除外として扱う。下の準備・確定待ちは各時点の履歴であり、再削除/再認証/Notion再導入の指示ではない。元Task11 62ID/完了12/継続20、E10の受入範囲判断待ちと全他保留を維持する。
+
+GitHub connectorで文書だけを更新し、全文・対象外blob・main反映を確認する。コード/DB変更ではないため重い試験・手動Actions・外部監査は不要。local clone/未commit/未push・ローカル専用必要成果物なし。
+
 ## 2026-11-15 — Notionプラグイン削除・事業管理repo削除の準備
 
 利用者が事業管理の廃止とNotionプラグイン削除を明示。正式なプラグイン削除成功と独立検索installed=falseを確認し、MCP入口へ不採用方針を反映した。Notion内のページ/DBは保持。[削除前記録](https://github.com/sjinnouchi-ux/development-environment/blob/9e4fd93946c167294e6b638500b82cc50a2451d0/docs/reports/2026-11-15-business-management-retirement.md)。GitHub事業管理repoは所有者・main・3Issue・PR0・Actions run0を確認し、削除ダイアログを準備。ブラウザーの不可逆削除の確定時確認待ちで、repo削除・PROJECTSのDeleted変更はまだ実施していない。関連repo/本番/DB/認証/Secret/IAM/Task/配備・E10の受入範囲と全他保留を保持。ローカルclone/未commit/未push成果物なし。文書のみなので重い試験・手動Actions・外部監査は不要。

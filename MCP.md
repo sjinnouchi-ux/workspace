@@ -2,7 +2,7 @@
 
 ## Notion管理の不採用（2026-11-15）
 
-利用者の明示指示でNotionプラグインを削除し、未インストールを確認しました。Notion管理への移行・接続復旧を今後の残タスクとして再開せず、再導入は新しい利用者指示がある場合に限ります。Notion内のページ/DB/アカウントは削除していません。他PC・別製品のローカルMCP設定も変更済みとは推測しません。[作業記録](https://github.com/sjinnouchi-ux/development-environment/blob/9e4fd93946c167294e6b638500b82cc50a2451d0/docs/reports/2026-11-15-business-management-retirement.md)。
+利用者の明示指示でNotionプラグインを削除し、未インストールを確認しました。Notion管理への移行・接続復旧を今後の残タスクとして再開せず、再導入は新しい利用者指示がある場合に限ります。Notion内のページ/DB/アカウントは削除していません。他PC・別製品のローカルMCP設定も変更済みとは推測しません。[作業記録](https://github.com/sjinnouchi-ux/development-environment/blob/main/docs/reports/2026-11-15-business-management-retirement.md)。
 
 [共通起動手順](codex/CODEX_DESKTOP_STARTUP.md)と[PROJECTS.md](PROJECTS.md)から対象を確定し、対象repoの現行secret管理・接続契約を確認します。
 
