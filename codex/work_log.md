@@ -1,5 +1,9 @@
 # Codex 作業ログ
 
+## 2026-11-15 — Notionプラグイン削除・事業管理repo削除の準備
+
+利用者が事業管理の廃止とNotionプラグイン削除を明示。正式なプラグイン削除成功と独立検索installed=falseを確認し、MCP入口へ不採用方針を反映した。Notion内のページ/DBは保持。[削除前記録](https://github.com/sjinnouchi-ux/development-environment/blob/9e4fd93946c167294e6b638500b82cc50a2451d0/docs/reports/2026-11-15-business-management-retirement.md)。GitHub事業管理repoは所有者・main・3Issue・PR0・Actions run0を確認し、削除ダイアログを準備。ブラウザーの不可逆削除の確定時確認待ちで、repo削除・PROJECTSのDeleted変更はまだ実施していない。関連repo/本番/DB/認証/Secret/IAM/Task/配備・E10の受入範囲と全他保留を保持。ローカルclone/未commit/未push成果物なし。文書のみなので重い試験・手動Actions・外部監査は不要。
+
 ## 2026-11-15 — Windowsのタスク専用clone整理
 
 両PCで検証済みの事前確認・ごみ箱移動・復元記録の読戻しを[共通起動手順](CODEX_DESKTOP_STARTUP.md#cleanup-gate)に追記した。
