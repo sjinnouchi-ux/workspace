@@ -766,3 +766,7 @@ Shogun関連はユーザー指定により別デスクトップで扱うため�
 ### 2026-11-13 終了確認
 
 保存commit `ad8a7ea15981139230b849911497c5e0ea27b0a7` から12本文一致・4snapshot同blob・対象外65blob不変を確認後、旧PR16/31/35/62をclosed/unmergedへ変更し独立読戻し。元head/branch/title/本文/draftを保持し、元4branchの存在も確認した。workspace open PR0件。設定・通知・runtime・本番操作なし、local作業場・未push情報なし。詳細は[終了記録](../docs/reports/2026-11-13-workspace-entrypoint-pr-cleanup.md)。
+
+## 2026-11-17 Yumekango Drive 整理
+
+マイドライブに `AIエージェント` と `手動管理` を設置し、対象案件・単発タスクの格納先を作成。業務用の既存フォルダはIDを保って再配置し、移動後に親を照合。Claudeレポートの新しい受信箱と状態別フォルダを設置し、共通起動手順・案件台帳・Claude起動手順・受け渡し手順を更新。外部所有の共有資料は既存権限を維持する。文書のみの変更で手動CI起動は不要。

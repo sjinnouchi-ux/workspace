@@ -132,27 +132,13 @@ https://github.com/sjinnouchi-ux/mgmt-terminal/blob/main/docs/reports/2026-07-11
 
 ## Deliverable Storage
 
-ユーザーがGit管理外の成果物保存を求めた場合は、次のGoogle Drive同期先を使います。
+Yumekango のマイドライブでは、Codex・Claudeの案件成果物を `AIエージェント/<PROJECTS.md の Project 名>/` に保存する。継続案件に属さない単発の制作物は `AIエージェント/単発タスク/` に保存する。人が個人で管理する資料の置き場は同階層の `手動管理/`。業務アプリがID指定する既存フォルダ、原本の共有範囲、他組織の専用アカウントは案件の運用に従う。
 
-| Type | Windows path |
-|---|---|
-| Base | `G:\マイドライブ\Codex保存` |
-| Images | `G:\マイドライブ\Codex保存\画像` |
-| Documents | `G:\マイドライブ\Codex保存\資料` |
-| General outputs | `G:\マイドライブ\Codex保存\出力` |
-| Temporary review | `G:\マイドライブ\Codex保存\一時確認` |
-
-Folder URL:
-
-```text
-https://drive.google.com/drive/folders/1yrWHPFuE7yHZGhs_MLeVZPiifpfsDVQX
-```
-
-対象PCに同期先が存在しない場合は別のローカル場所を推測せず、未保存として報告します。保存後はファイルパスとGoogle DriveフォルダURLを報告します。
+Drive接続の業務アカウント、保存先の親と名前を照合し、保存後にファイルのID・親・リンクを読み戻す。同期ドライブ文字はPCごとに確認する。既存の共有資料は元の所有者・共有範囲を維持して参照する。Gitのコード・作業ログは各Canonical repoで管理する。
 
 ## Claude Report Intake
 
-Claude Desktopの作業レポートは `G:\マイドライブ\Claude保存\レポート\受信箱` に集まる。
+Claude Desktopの作業レポートは `マイドライブ/AIエージェント/開発環境/レポート/受信箱` に集まる。
 
 - 受信箱の確認・統合は、ユーザーの明示指示または明示的なintakeタスクとしてのみ行う。通常タスクの開始時に自動確認しない。
 - ローカル `G:` が見えない場合はGoogle Drive connector経由で確認し、単独の `Test-Path` 失敗を理由にintake以外の通常作業を停止しない。

@@ -59,6 +59,10 @@ https://raw.githubusercontent.com/sjinnouchi-ux/workspace/main/codex/CODEX_DESKT
 | 旧家計簿Worker/GAS | `https://github.com/sjinnouchi-ux/workspace/tree/main/yumekango-worker` | **Legacy/Frozen（2026-11-14）**。[凍結範囲・保持方針](yumekango-worker/README.md)を先に読む。旧実装の保存参照専用で、新規開発・通常配備には使わない。現行正本は `sjinnouchi-ux/kakeibo-liff`。独立プロジェクトとして分離しない。 |
 | 開発環境・Claude監査・Memory MCP | `https://github.com/sjinnouchi-ux/development-environment` | Codex Desktop運用、WindowsローカルMemory MCP、WSL2 Claude read-only監査の正本 |
 
+## Yumekango の Drive フォルダ
+
+[共通保存ルール](codex/CODEX_DESKTOP_STARTUP.md#deliverable-storage)に従い、Yumekangoで扱う現役案件は `マイドライブ/AIエージェント/` の下で表の Project 名を使う。デモ開発は既存の同名フォルダを使用する。専用アカウントを使う案件はその保管先を優先する。単発成果物は `単発タスク` に格納する。
+
 ## 記入ルール
 
 - `Canonical Entry` は別PCから到達できる完全なGitHub URLを書く。

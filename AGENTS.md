@@ -27,3 +27,7 @@ GitHubの共通起動手順と台帳でCanonical Entryを確定し、対象repo�
 原因が確定し、修正後の検証に通った再利用可能な失敗だけを `VerifiedFailurePattern` として記録する。端末、repoまたは共通領域、component、匿名化した症状、原因、修正、証拠（commit・PR・テスト結果など）、検証日を残す。同じパターンには既存項目へ検証結果を追記する。秘密値・認証情報・個人情報・生ログ・会話全文は保存しない。
 
 [端末別のMemory MCP運用手順](https://github.com/sjinnouchi-ux/development-environment/blob/main/docs/memory-mcp.md)
+
+## Yumekango の Drive
+
+成果物は[共通保存ルール](codex/CODEX_DESKTOP_STARTUP.md#deliverable-storage)に従い、案件名または `単発タスク` の下へ格納する。Claudeの作業レポートには[専用の受信箱](claude/REPORT_INTAKE.md)を使う。

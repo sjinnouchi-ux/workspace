@@ -98,3 +98,7 @@ push できない状態で終了せざるを得ない場合は、未保存の対
 - 実行面（クラウドセッション / Shogun配下CLI）、GitHub URL、branch、commit、PR、変更ファイルを可能な範囲で含める。
 - GitHub反映前、PRのみ、`main` 反映済みを区別する。deployment/live反映はClaude Codeの担当外であり、必要ならCodexへの依頼事項として明記する。
 - 未完了または未同期の項目は、対象と理由を明示する。
+
+## Yumekango の Drive 保存先
+
+案件の制作物は `マイドライブ/AIエージェント/<PROJECTS.md の Project 名>/`、単発の制作物は `AIエージェント/単発タスク/` に保存する。`手動管理/` は本人用。議事録等の固定ID・別アカウントの指定を守り、Claude DesktopからCodexに渡す作業レポートは[レポート受け渡し](REPORT_INTAKE.md)に従う。
