@@ -23,7 +23,7 @@ https://raw.githubusercontent.com/sjinnouchi-ux/workspace/main/PROJECTS.md
 
 URLを取得できない、GitHubのprivate repoへ認証できない、対象プロジェクトを特定できない場合は、同名ローカルフォルダを推測で使わず、作業を停止して不足事項を報告してください。
 
-実装はタスク専用のローカルclone/worktreeで行って構いません。完了時は必要な変更と作業ログをGitHubへ反映し、未コミット、未push、ローカル専用情報がないことを確認してからローカル作業場を整理してください。
+作業場の準備から終了報告まで、上記の共通起動手順の「Local Work Policy」と「Cleanup Gate」に従ってください。成果物と作業ログの保存を確認し、そのタスクで作った一時作業場の整理結果を終了報告に1行で記してください。
 
 秘密値、OAuthコード、token、認証JSON、.envの中身をチャットやGitHubへ表示・保存しないでください。
 

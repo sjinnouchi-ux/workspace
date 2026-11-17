@@ -2,6 +2,8 @@
 
 既存のプロジェクト文書と作業範囲を確認してから変更する。
 
+Codexの一時作業場の準備・整理・終了報告は、全プロジェクト共通の[起動手順](codex/CODEX_DESKTOP_STARTUP.md#local-work-policy)と[終了手順](codex/CODEX_DESKTOP_STARTUP.md#cleanup-gate)に従う。
+
 ## 承認と本人操作
 
 [承認・本人操作・継続方針](codex/AGENT_APPROVAL_POLICY.md)に従う。具体的に承認済みの作業はCodexが検証・報告まで進め、repo独自の記述だけを理由に本人PC操作や重複承認を要求しない。必要な追加承認は可能ならチャットで受ける。上位のツール規則による必須確認・本人操作、認証・権限・秘密保護・重複防止・読戻しは維持する。
