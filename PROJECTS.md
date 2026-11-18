@@ -14,6 +14,7 @@ https://raw.githubusercontent.com/sjinnouchi-ux/workspace/main/codex/CODEX_DESKT
 
 | Project | Alias | Status | 設計 | 実装 | Canonical Entry | Primary Docs | Notes |
 |---|---|---|---|---|---|---|---|
+| シズク案件 | シズク案件 |  |  |  | `https://github.com/sjinnouchi-ux/shizuku-projects` |  |  |
 | AI経営実装度診断WEBアプリ | 経営者AI診断, 経営者AI診断アプリ, AI経営診断, ai-keiei-shindan | Deleted | 2026-10-18 | なし | `docs/reports/2026-10-18-ai-diagnosis-retirement.md` | 利用者依頼でアプリ17ファイル、専用GAS・Sheet・Google資料を削除。公開ページ/APIとも404確認済み。再公開・同名ローカル資産からの復元を行わない。 |
 | 単発タスク | 単発タスク, 単発案件, one-off-tasks | Active | Codex Desktop | Codex Desktop | `https://github.com/sjinnouchi-ux/one-off-tasks` | `AGENTS.md`; `README.md` | 継続案件に属さない依頼や横断調査の記録を保管する非公開repo。 |
 | 月末処理 | 月末処理, 月末締め作業, 交通費集計, month-end-processing | Active / Setup | Codex Desktop | Codex Desktop | `https://github.com/sjinnouchi-ux/month-end-processing` | `README.md`; `AGENTS.md`; `docs/transport-expenses.md`; `docs/HANDOFF.md`; `IMPLEMENTATION_LOG.md` | private repo。最初の業務項目は交通費集計。 |
